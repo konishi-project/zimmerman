@@ -102,3 +102,6 @@ ENV/
 
 # SQLite databases
 *.db
+
+# Uploaded files
+/pictures/*

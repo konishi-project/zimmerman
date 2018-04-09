@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<center>
+<h1>Konishi Login Example</h1><br>
+IP Address:<input type="text" id="address" value="127.0.0.1:80"><br><br><br>
+    <form action="" method="post" id="form" onsubmit="set_action()">
+      Username/Email: <input type="text" name="login"><br><br>
+      Password: <input type="password" name="password"><br><br>
+	  <input type="submit" value="Login">
+    </form>
+</center>	
+<script>
+function set_action(){
+var address = document.getElementById('address')
+document.getElementById('form').action = 'http://'+address.value+'/register';
+}
+</script>	
+</html>

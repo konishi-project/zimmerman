@@ -1,2 +1,3 @@
 flask
-peewee
+a hunter api key
+that's it
