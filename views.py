@@ -118,17 +118,17 @@ def upload_image():
 def getmypics():
     if not valid_session(): #Checks if the session is valid
         return flask.make_response('<h1>401 Unauthorized</h1><br>You are not logged in',401)
-    pics = get_all_pictures(valid_session()['user'])
-    pic_list = {
+    pics = get_all_pictures(valid_session()['user']) #Gets all the pics of the user as objects
+    pic_list = { #Dictionary that will be jsonified and returned
         'status':'success',
         'uid':valid_session()['user'].id,
         'pictures':[]
     }
     for pic in pics:
-        pic.path = flask.url_for('uploaded_file',filename=pic.id+pic.ext)
-        pic = pic.pack_dict()
-        pic.pop('uid',None)
-        pic_list['pictures'].append(pic)
+        pic.path = flask.url_for('uploaded_file',filename=pic.id+pic.ext) #Gets the absolue path of the picture
+        pic = pic.pack_dict() #Packs the object into a dict
+        pic.pop('uid',None) #Removes the uid from each individul entry since thats included once at the top
+        pic_list['pictures'].append(pic) #Appens it to the main reply
     return flask.make_response(flask.jsonify(pic_list),200)
 
 
@@ -137,10 +137,10 @@ def change_pfp():
     if not valid_session(): #Checks if the session is valid
         return flask.make_response('<h1>401 Unauthorized</h1><br>You are not logged in',401)
     img_id = request.args['img_id']
-    user = valid_session()['user']
-    img = get_picture(img_id)
-    if img.uid == user.id:
-        user.profile_pic = img.id
+    user = valid_session()['user'] #Gets the user
+    img = get_picture(img_id) #Gets the picture
+    if img.uid == user.id: #Chceks if the picture the user wants to make his pfp was really uploaded by him
+        user.profile_pic = img.id #Sets the pfp_id in the object to that of the requested picture and updates the object
         if user.update():
             resp = flask.make_response(flask.jsonify({'status':'success','user_id':user.id,'picture_id':img.id}),200)
         else:
