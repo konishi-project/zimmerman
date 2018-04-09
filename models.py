@@ -1,5 +1,6 @@
 import json
 import konishi_utils
+from app import conn,db
 
 class Post():
     id = ""
@@ -68,7 +69,7 @@ class Post():
 	    db.execute("DELETE FROM posts WHERE id=?",(self.id,))
 	    conn.commit()
 
-    def pack_json(self):
+    def pack_dict(self):
 	    post = {
 	    "author_id": self.author_id,
 	    "post_id" : self.id,
@@ -77,7 +78,7 @@ class Post():
 	    "image" : self.image,
 	    "thread": self.thread
 	    }
-	    return json.dumps(post)
+	    return post
 
 
 class User():
@@ -91,14 +92,11 @@ class User():
     zucc = 0
 
     def update(self):
-	    db.execute("UPDATE users SET username=?,fullname=?,password=?,admin=?,zucc=? WHERE id=?",(self.username,self.fullname,self.password,self.admin,self.zucc,self.id,))
-	    conn.commit()
+	    if db.execute("UPDATE users SET username=?,fullname=?,password=?,admin=?,zucc=?,profile_pic=? WHERE id=?",(self.username,self.fullname,self.password,self.admin,self.zucc,self.profile_pic,self.id,)):
+                conn.commit()
+                return 1
 
-    def make_post(text,file,post_id=0,thread=0):
-	    if file != '':
-	        image = blockchan.encode_image(file)
-	    else:
-	        image = 0
+    def make_post(text,image=0,post_id=0,thread=0):
 	    timestamp = get_time()
 	    author_id = user_id
 	    if post_id == 0:
@@ -111,6 +109,19 @@ class User():
 	    post.image = image
 	    post.thread = thread
 	    return post
+
+    def pack_dict(self):
+        user = {
+            'id':self.id,
+            'username':self.username,
+            'fullname':self.fullname,
+            'profile_pic':self.profile_pic,
+            'password':self.password,
+            'reg_time':self.reg_datetime,
+            'admin':self.admin,
+            'zucc':self.zucc
+        }
+        return user
 
     def ban(self,user):
 	    if self.admin>=2:
@@ -127,3 +138,21 @@ class User():
     def lock_post(self,post):
 	    if self.admin>=1:
 		    get_post(post).locked = 1
+
+
+class Picture():
+    id = ""
+    uid = ""
+    path = ""
+    og_name = ""
+    nsfw = 0
+
+    def pack_dict(self):
+        pic = {
+            'id':self.id,
+            'uid':self.uid,
+            'path':self.path,
+            'og_name':self.og_name,
+            'nsfw':self.nsfw
+        }
+        return pic

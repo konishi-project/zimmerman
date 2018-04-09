@@ -4,14 +4,15 @@
   "hash_length": "32",
   "max_session_time":"18600",
   "hunter_key":"HUNTER_API_KEY",
-  "max_size": "5",
+  "max_size": "20",
   "file_exts": [
     "png",
     "gif",
     "jpg"
   ],
+  "file_location":"C:\\Users\\marios\\Documents\\GitHub\\zimmerman\\pictures",
   "json_mimetype": "application/json",
-  "secret_key": "flask_session_secret",
-  "session_name": "session_cookie_name",
-  "Most of these are from blockchan and will need to be removed since they're useless here":""
+  "secret_key": "SECRET_KEY",
+  "session_name": "konishi_session",
+  "Some of these are from blockchan and will need to be removed since they're useless here":""
 }

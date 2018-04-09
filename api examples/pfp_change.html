@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<center>
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DOESN'T WORK - WIP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+<h1>Konishi Profile Pic Change Example</h1><br>
+IP Address: <input type="text" id="address" value="127.0.0.1:80"><br><br><br>
+    <form action="" method="post" enctype="multipart/form-data" id="form" onsubmit="set_action()">
+      Image: <input type="file" name="image"><br><br>
+      <input type="radio" name="nsfw" value="0"> SFW<br><br>
+	  <input type="radio" name="nsfw" value="1"> NSFW<br><br>
+	  <input type="submit" value="Upload">
+    </form>
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!DOESN'T WORK - WIP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+</center>
+<script>
+function set_action(){
+var address = document.getElementById('address')
+document.getElementById('form').action = 'http://'+address.value+'/register';
+}
+</script>
+</html>

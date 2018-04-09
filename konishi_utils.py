@@ -3,7 +3,8 @@ import hashlib
 import base64
 import models
 import json
-from app import db,conn,hunter,session_expire
+from inspect import isclass
+from app import *
 hash_length = 32
 
 #Self explanatory
@@ -33,25 +34,29 @@ def valid_session():
         id = session['konishi_session']
     else:
         return 0
-    db.execute("SELECT time,invalid FROM sessions WHERE sid=?",(id,))
+    db.execute("SELECT time,invalid,uid FROM sessions WHERE sid=?",(id,))
     result = db.fetchone()
     if result and get_time() - int(result[0]) < session_expire and not result[1]:
-        return 1
-    else:
-        return 0
+        return {'user':get_user(result[2]),'time_remaining':get_time()-int(result[0])}
+
+#Checks if a file is allowed. I pulled this from the flask documentation
+def allowed_file(filename):
+    if '.' in filename and filename.rsplit('.', 1)[1].lower() in exts:
+        return filename.rsplit('.', 1)[1].lower()
 
 #Gets a user object by ID from the database
 def get_user(id):
-    db.execute("SELECT id,username,fullname,password,reg_datetime,zucc,admin FROM users WHERE id=?",(id,))
+    db.execute("SELECT id,username,fullname,password,reg_date,zucc,admin,profile_pic FROM users WHERE id=?",(id,))
     res = db.fetchone()
     user = models.User()
     user.id = res[0]
     user.username = res[1]
     user.fullname = res[2]
     user.password = res[3]
-    user.reg_datetime = res[4]
+    user.reg_time = res[4]
     user.zucc = res[5]
     user.admin = res[6]
+    user.profile_pic = res[7]
     return user
 
 #Gets a post object by ID from the database
@@ -67,6 +72,20 @@ def get_post(id):
     post.image = res[5]
     return post
 
+#Gets a picture by ID from the database
+def get_picture(id):
+    db.execute("SELECT id,path,uid,time,og_name,nsfw FROM pictures WHERE id=?",(id,))
+    res = db.fetchone()
+    pic = models.Picture()
+    pic.id = res[0]
+    pic.path = res[1]
+    pic.uid = res[2]
+    pic.time = res[3]
+    pic.og_name = res[4]
+    pic.nsfw = int(res[5])
+    pic.ext = os.path.splitext(res[4])[1]
+    return pic
+
 #Checks if a post exists
 def post_exists(id):
     db.execute("SELECT id FROM posts WHERE id=?",(id,))
@@ -74,3 +93,24 @@ def post_exists(id):
         return 1
     else:
          return 0
+
+#Gets all pictures of the provided user
+def get_all_pictures(user):
+    if not isclass(user):
+        uid = user.id
+    else:
+        uid = user
+    db.execute("SELECT id,path,time,og_name,nsfw FROM pictures WHERE uid=?",(uid,))
+    result = db.fetchall()
+    pictures = []
+    for res in result:
+        pic = models.Picture()
+        pic.id = res[0]
+        pic.uid = uid
+        pic.path = res[1]
+        pic.time = res[2]
+        pic.og_name = res[3]
+        pic.nsfw = int(res[4])
+        pic.ext = os.path.splitext(res[3])[1]
+        pictures.append(pic)
+    return pictures
