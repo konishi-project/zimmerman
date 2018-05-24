@@ -8,9 +8,7 @@ SECRET_KEY = 'SomeSecretKeyThisIsJustAnExample'
 """
 DATABASE_URL is meant for PostgreSQL, When adding the Postgres Addon
 it will have a DATABASE_URL, this is to connect it.
-"""
 
-""" 
 SQLAlchemy URI format is 'postgresql://username:password@localhost:5432/mydatabase'
 What you see here is an example of my Postgres and Sample Password with postgres as username.
 """
