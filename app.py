@@ -1,12 +1,17 @@
+from flask import Flask, url_for, request, redirect, flash, session, abort
+from flask_sqlalchemy import SQLAlchemy
 import os
-from flask import Flask
-from peewee import SqliteDatabase
 
-
-
+# Init Flask App
 app = Flask(__name__)
 
-DATABASE = 'zimmerman.db'
-app.config.from_object(__name__)
+# Configurations
+app.config.from_pyfile('config.py')
+# Database
+db = SQLAlchemy(app)
 
-db = SqliteDatabase(app.config['DATABASE'])
+# Import Everything from 'views.py'
+from views import *
+
+if __name__ == '__main__':
+    app.run()

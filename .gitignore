@@ -102,3 +102,8 @@ ENV/
 
 # SQLite databases
 *.db
+
+# Ignore Virtualenv
+konishienv
+# Ignore VSCode
+.vscode
