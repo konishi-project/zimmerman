@@ -9,7 +9,10 @@ import os
 
 admin = Admin(app, name='Admin Area', template_mode='bootstrap3', index_view=MainAdminIndexView())
 
-# This is to create tables and models in the database.
+""" 
+This is to create tables and models in the database.
+This should be commented out when the database models are created.
+"""
 @app.before_first_request
 def before_first_request():
     db.create_all
