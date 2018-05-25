@@ -26,7 +26,7 @@ class Role(db.Model, RoleMixin):
     
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True)
+    email = db.Column(db.String(255), unique=True)
     username = db.Column(db.String(50), unique=True)
     bio = db.Column(db.Text)
     password = db.Column(db.String(255))
@@ -52,14 +52,13 @@ class User(BaseModel):
     Relationship is not implemented yet as seen below.
  """
 class Note(db.Model):
-    __tablename__ = 'Note'
     id = db.Column(db.Integer, primary_key=True)
     creator = db.Column(db.Integer, db.ForeignKey('user.id')) 
     content = db.Column(db.String(10000))
     created = db.Column(db.DateTime,default=datetime.now)
     modified = db.Column(db.DateTime, default=datetime.now)
     likes = db.Column(db.Integer, default=0)
-    # image = db.Column(**args)
+    #image = db.Column(**args)
 
 # Post is not complete.
 # These models below may not be fully complete, feel free to improve or add.
