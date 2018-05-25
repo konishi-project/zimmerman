@@ -1,0 +1,18 @@
+{% extends 'admin/master.html' %}
+{% block head_css %}
+{{super()}}
+{% endblock head_css%}
+
+{% block body %}
+<div class="container text-center">
+    <h1> Welcome to the Admin Dashboard </h1>
+        <p class="alert alert-danger lead">Being careful is advised!</p>
+    <hr/>
+    <br>
+    <div class="jumbotron">
+        <a href="{{url_for('home')}}">Click here</a> to return to homepage.
+        <br>
+        This page must only be used to modify important things and must only be used for 
+    </div>
+</div>
+{% endblock body %}
