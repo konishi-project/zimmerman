@@ -1,4 +1,3 @@
-from flask import render_template, flash, url_for, request, redirect
 from flask_security.utils import encrypt_password
 from flask_security import roles_accepted, roles_required
 from flask_admin import Admin, AdminIndexView
@@ -7,9 +6,9 @@ from app import app
 from models import *
 import os
 
-"""
-    This is to create tables and models in the database.
-"""
+admin = Admin(app, name='Admin Area', template_mode='bootstrap3', index_view=MainAdminIndexView())
+
+# This is to create tables and models in the database.
 @app.before_first_request
 def before_first_request():
     db.create_all
@@ -17,4 +16,11 @@ def before_first_request():
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return """
+    <h1> Hello Konishi and >p! </h1>
+    """
+
+
+""" Add Admin Views """
+admin.add_view(ProtectedModelView(Role, db.session))
+admin.add_view(ProtectedModelView(User, db.session))
