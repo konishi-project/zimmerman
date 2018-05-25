@@ -2,7 +2,8 @@ from flask_security.utils import encrypt_password
 from flask_security import roles_accepted, roles_required
 from flask_admin import Admin, AdminIndexView
 from flask_login import login_required
-from app import app
+from app import app, api
+from flask_restplus import Resource
 from models import *
 import os
 
@@ -19,6 +20,11 @@ def home():
     return """
     <h1> Hello Konishi and >p! </h1>
     """
+
+@api.route('/hello')
+class HelloKonishi(Resource):
+    def get(self):
+        return {'hello': 'konishi'}
 
 
 """ Add Admin Views """
