@@ -11,7 +11,8 @@ Zimmerman is written in Python 3.6 to install Python 3.6 simply use:
 
 | OS/Distro |  Command  |
 |-----------|:-----------------:|
-| Ubuntu and Derivative | ```sudo apt install python3``` |
+| Ubuntu 16.04 and Older | ```You will need to install using the PPA or a 3rd party Python distribution (i.e. Anaconda)``` |
+| Ubuntu 16.10+ | ```sudo apt install python3.6``` |
 | Arch Linux | ```sudo pacman -Syy python3``` |
 | Gentoo | ``` sudo emerge -av dev-lang/python ``` |
 
@@ -22,4 +23,4 @@ To install the requirements from 'requirements.txt' in a virtualenv run the foll
 4. ``` pip install -r requirements.txt ```
 
 ## Running the Application
-``` $ python app.py ```
+``` $ python3.6 app.py ```
