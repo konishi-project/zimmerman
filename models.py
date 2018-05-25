@@ -54,7 +54,7 @@ class User(BaseModel):
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     creator = db.Column(db.Integer, db.ForeignKey('user.id')) 
-    content = db.Column(db.String(10000))
+    content = db.Column(db.Text)
     created = db.Column(db.DateTime,default=datetime.now)
     modified = db.Column(db.DateTime, default=datetime.now)
     likes = db.Column(db.Integer, default=0)
