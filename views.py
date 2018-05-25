@@ -15,12 +15,6 @@ def before_first_request():
     db.create_all
     db.session.commit
 
-@app.route('/')
-def home():
-    return """
-    <h1> Hello Konishi and >p! </h1>
-    """
-
 @api.route('/hello')
 class HelloKonishi(Resource):
     def get(self):
