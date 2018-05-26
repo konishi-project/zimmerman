@@ -43,9 +43,9 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return '{}'.format(self.username)
 
-""" 
-Using One to Many Relationship for Notes, One owner but many different types of Notes.
-Relationship is not implemented yet as seen below.
+"""
+Used One to Many relationship for Posts.
+Posts to Comments, Comments to Replies.
 """
 class Posts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
