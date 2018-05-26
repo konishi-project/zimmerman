@@ -48,7 +48,12 @@ class HelloKonishi(Resource):
     def get(self):
         return {'hello': 'konishi'}
 
+class HelloUser(Resource):
+    def get(self, name):
+        return {'hello': name}
+
 api.add_resource(HelloKonishi, '/hello')
+api.add_resource(HelloUser, '/user/<string:name>')
 
 """ 
 Add Admin Views,
