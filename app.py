@@ -1,3 +1,10 @@
+"""
+Import Flask and SQLAlchemy to instantiate the app
+aswell as the Database.
+---
+Import the RESTPlus API and instantiate it from the app.
+Documentation for RESTPlus - https://flask-restplus.readthedocs.io/en/stable/
+"""
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_restplus import Api
@@ -7,11 +14,16 @@ import os
 app = Flask(__name__)
 # Init RESTPlus
 api = Api(app)
-# Configurations
+# Get configurations
 app.config.from_pyfile('config.py')
-# Database
+# Init the Database
 db = SQLAlchemy(app)
-# Import Everything from 'views.py'
+"""
+Import everything from 'views.py'.
+---
+This is positioned after instantiating the App, Api, etc.
+If it was imported above then it will cause errors.
+"""
 from views import *
 
 if __name__ == '__main__':
