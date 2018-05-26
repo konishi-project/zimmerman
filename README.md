@@ -26,7 +26,13 @@ To install the requirements from 'requirements.txt' in a virtualenv run the foll
 ### PostgreSQL Installation
 This can vary for many different distributions/operating systems.
 You can find many guides for that.
-Ubuntu - https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04
+
+Ubuntu - 
+``` https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04 ```
+
+Gentoo - ```https://wiki.gentoo.org/wiki/PostgreSQL/QuickStart```
+
+Arch Linux - ```https://wiki.archlinux.org/index.php/PostgreSQL```
 
 *PostgreSQL Website*
 https://www.postgresql.org/
