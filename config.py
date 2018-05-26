@@ -16,7 +16,7 @@ it will have a DATABASE_URL, this is to connect it.
 SQLAlchemy URI format is 'postgresql://username:password@localhost:5432/mydatabase'
 What you see here is an example of my Postgres and Sample Password with postgres as username.
 """
-SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgres://postgres:ZethMagno2001@localhost:5432/konishidb')
+SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgres://username:password@localhost:5432/konishidb')
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 # Flask-Security Configuration
