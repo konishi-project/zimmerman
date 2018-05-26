@@ -34,8 +34,7 @@ Gentoo - ```https://wiki.gentoo.org/wiki/PostgreSQL/QuickStart```
 
 Arch Linux - ```https://wiki.archlinux.org/index.php/PostgreSQL```
 
-*PostgreSQL Website*
-https://www.postgresql.org/
+**PostgreSQL Website** - ```https://www.postgresql.org/```
 
 ## Running the Application
 ``` $ python3.6 app.py ```
