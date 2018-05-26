@@ -68,7 +68,7 @@ class Comments(db.Model):
     likes = db.Column(db.Integer, default=0)
     replies = db.relationship('Reply', backref='comments')
     def __repr__(self):
-        return 'Commenter - {}'.format(self.commenter)
+        return 'Comment ID - {}'.format(self.id)
 
 class Reply(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -79,6 +79,8 @@ class Reply(db.Model):
     created = db.Column(db.DateTime,default=datetime.now)
     modified = db.Column(db.DateTime, default=datetime.now)
     likes = db.Column(db.Integer, default=0)
+    def __repr__(self):
+        return 'Reply ID - {}'.format(self.id)
 
 # Admin Index View is the Main Index, not the ModelView
 class MainAdminIndexView(AdminIndexView):

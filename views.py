@@ -44,11 +44,11 @@ def before_first_request():
     db.create_all
     db.session.commit
 
-@api.route('/hello')
 class HelloKonishi(Resource):
     def get(self):
         return {'hello': 'konishi'}
 
+api.add_resource(HelloKonishi, '/hello')
 
 """ 
 Add Admin Views,
