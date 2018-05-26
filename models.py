@@ -30,6 +30,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(50), unique=True)
     bio = db.Column(db.Text)
     password = db.Column(db.String(255))
+    posts = db.relationship('Note', backref='user')
     active = db.Column(db.Boolean())
     confirmed_at = db.Column(db.DateTime())
     roles = db.relationship('Role', secondary=roles_users,
@@ -52,11 +53,30 @@ class User(BaseModel):
  """
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    creator = db.Column('Creator', db.String(50)) 
+    creator = db.Column(db.Integer, db.ForeignKey('user.id')) 
+    content = db.Column(db.Text)
     created = db.Column(db.DateTime,default=datetime.now)
     modified = db.Column(db.DateTime, default=datetime.now)
     likes = db.Column(db.Integer, default=0)
-    # image = db.Column(**args)
+    #image = db.Column(**args)
+
+# Post is not complete.
+# These models below may not be fully complete, feel free to improve or add.
+class Post(Note):
+    __tablename__ = 'Post'
+    id = db.Column(db.Integer, primary_key=True)
+    comments = db.relationship('Comment', backref='post')
+
+class Comment(Note):
+    __tablename__ = 'Comment'
+    id = db.Column(db.Integer, primary_key=True)
+    comment_on_post = db.Column(db.Integer, db.ForeignKey('post.id'))
+    replies = db.relationship('Reply', backref='comment')
+
+class Reply(Note):
+    __tablename__ = 'Replies'
+    id = db.Column(db.Integer, primary_key=True)
+    replies_on_comment = db.Column(db.Integer, db.ForeignKey('comment.id'))
 
 # Admin Index View is the Main Index, not the ModelView
 class MainAdminIndexView(AdminIndexView):
@@ -75,6 +95,7 @@ class MainAdminIndexView(AdminIndexView):
         else:
             abort(403)
 
+# This is exactly similar to above Model but for ModelViews not Admin Index View.
 class ProtectedModelView(ModelView):
     def is_accessible(self):
         return current_user.has_role('admin')
@@ -84,25 +105,6 @@ class ProtectedModelView(ModelView):
         else:
             abort(403)
 	
-""" Commented out for now 
-class Note(BaseModel):
-	creator = ForeignKeyField(User, backref='notes')
-	content = TextField()
-	created = DateTimeField(default=datetime.datetime.now)
-	modified = DateTimeField(default=datetime.datetime.now)
-	likes = IntegerField(default=0)
-	image = CharField(default='')
-
-class Post(Note):
-	pass
-
-class Comment(Note):
-	parent = ForeignKeyField(Post, backref='comments')
-
-class Reply(Note):
-	parent = ForeignKeyField(Comment, backref='replies')
-"""
-
 # Setup Flask-Security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
