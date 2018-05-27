@@ -8,12 +8,15 @@ Documentation for RESTPlus - https://flask-restplus.readthedocs.io/en/stable/
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_restplus import Api
+from flask_marshmallow import Marshmallow
 import os
 
 # Init Flask App
 app = Flask(__name__)
 # Init RESTPlus
 api = Api(app)
+# Init Marshmallow
+ma = Marshmallow(app)
 # Get configurations
 app.config.from_pyfile('config.py')
 # Init the Database

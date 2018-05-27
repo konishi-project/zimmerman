@@ -16,12 +16,13 @@ with the API and Routes.
 Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
-from app import app, api
+from app import app, api, ma
+from flask import jsonify
 from flask_security.utils import encrypt_password
 from flask_security import roles_accepted, roles_required
 from flask_admin import Admin, AdminIndexView
 from flask_login import login_required
-from flask_restplus import Resource
+from flask_restplus import Resource, SchemaModel
 from models import *
 import os
 
@@ -44,15 +45,18 @@ def before_first_request():
     db.create_all
     db.session.commit
 
-class HelloKonishi(Resource):
+@api.route('/posts')
+class NewsFeed(Resource):
     def get(self):
-        return {'hello': 'konishi'}
+        posts = Posts.query.all()
+        post_schema = PostSchema(many=True)
+        output = post_schema.dump(posts).data
+        return jsonify({'posts': output})
 
 class HelloUser(Resource):
     def get(self, name):
         return {'hello': name}
 
-api.add_resource(HelloKonishi, '/hello')
 api.add_resource(HelloUser, '/user/<string:name>')
 
 """ 
