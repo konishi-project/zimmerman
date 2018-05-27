@@ -1,6 +1,7 @@
 from app import app
 from app import db
 from flask import redirect, url_for, abort
+from sqlalchemy.ext.declarative import declared_attr
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
@@ -9,9 +10,12 @@ from flask_security import Security, SQLAlchemyUserDatastore, \
     UserMixin, RoleMixin, login_required
 from datetime import datetime
 
-# Define models
-""" This is from Flask-Security which can be found here
-    https://pythonhosted.org/Flask-Security/ """
+""" 
+Defining the Models
+---
+Some of the items is directly from Flask-Security but modified to fit our needs.
+Documentation - https://pythonhosted.org/Flask-Security/ 
+"""
 
 roles_users = db.Table('roles_users',
         db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
@@ -27,10 +31,11 @@ class Role(db.Model, RoleMixin):
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True)
-    username = db.Column(db.String(50), unique=True)
-    bio = db.Column(db.Text)
+    username = db.Column(db.String(20), unique=True)
+    full_name = db.Column(db.String(50))
+    bio = db.Column(db.Text, nullable=True)
     password = db.Column(db.String(255))
-    posts = db.relationship('Note', backref='user')
+    posts = db.relationship('Posts', backref='user')
     active = db.Column(db.Boolean())
     confirmed_at = db.Column(db.DateTime())
     roles = db.relationship('Role', secondary=roles_users,
@@ -39,44 +44,43 @@ class User(db.Model, UserMixin):
         return '{}'.format(self.username)
 
 """
-class BaseModel(Model):
-	class Meta:
-		database = db
-
-class User(BaseModel):
-    username = CharField(unique=True)
-    name = CharField()
-    bio = TextField(null=True)
+Used One to Many relationship for Posts.
+Posts to Comments, Comments to Replies.
 """
-""" Using One to Many Relationship for Notes, One owner but many different types of Notes.
-    Relationship is not implemented yet as seen below.
- """
-class Note(db.Model):
+class Posts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    creator = db.Column(db.Integer, db.ForeignKey('user.id')) 
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator_name = db.Column(db.String(50))
+    content = db.Column(db.Text)
+    status = db.Column(db.String(10))
+    created = db.Column(db.DateTime,default=datetime.now)
+    modified = db.Column(db.DateTime, default=datetime.now)
+    likes = db.Column(db.Integer, default=0)
+    comments = db.relationship('Comments', backref='posts')
+
+class Comments(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    on_post = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    commenter = db.Column(db.String(50))
     content = db.Column(db.Text)
     created = db.Column(db.DateTime,default=datetime.now)
     modified = db.Column(db.DateTime, default=datetime.now)
     likes = db.Column(db.Integer, default=0)
-    #image = db.Column(**args)
+    replies = db.relationship('Reply', backref='comments')
+    def __repr__(self):
+        return 'Comment ID - {}'.format(self.id)
 
-# Post is not complete.
-# These models below may not be fully complete, feel free to improve or add.
-class Post(Note):
-    __tablename__ = 'Post'
+class Reply(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    comments = db.relationship('Comment', backref='post')
-
-class Comment(Note):
-    __tablename__ = 'Comment'
-    id = db.Column(db.Integer, primary_key=True)
-    comment_on_post = db.Column(db.Integer, db.ForeignKey('post.id'))
-    replies = db.relationship('Reply', backref='comment')
-
-class Reply(Note):
-    __tablename__ = 'Replies'
-    id = db.Column(db.Integer, primary_key=True)
-    replies_on_comment = db.Column(db.Integer, db.ForeignKey('comment.id'))
+    # Where this Reply belongs to which comment.
+    on_comment = db.Column(db.Integer, db.ForeignKey('comments.id'))
+    replier = db.Column(db.String(50))
+    content = db.Column(db.Text)
+    created = db.Column(db.DateTime,default=datetime.now)
+    modified = db.Column(db.DateTime, default=datetime.now)
+    likes = db.Column(db.Integer, default=0)
+    def __repr__(self):
+        return 'Reply ID - {}'.format(self.id)
 
 # Admin Index View is the Main Index, not the ModelView
 class MainAdminIndexView(AdminIndexView):

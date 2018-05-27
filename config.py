@@ -2,7 +2,11 @@ from app import app
 import os
 
 DEBUG = True
-""" Secret Key to Encrypt Sessions, Change this in Production """
+""" 
+Secret Key to Encrypt Sessions, Change this in Production.
+The one provided now is just an example to make some 
+things work for testing, also needed in production.
+"""
 SECRET_KEY = 'SomeSecretKeyThisIsJustAnExample'
 
 """
@@ -21,4 +25,4 @@ SECURITY_PASSWORD_HASH = 'pbkdf2_sha512'
 # User Can Register, Set to [ON] at the moment.
 SECURITY_REGISTERABLE = True
 # User Account Needs to be confirmed to Login.
-SECURITY_CONFIRMABLE = True
+SECURITY_CONFIRMABLE = False
