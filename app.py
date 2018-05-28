@@ -16,14 +16,14 @@ import os
 
 # Init Flask App
 app = Flask(__name__)
-# Init RESTPlus
-api = Api(app)
-# Init Marshmallow
-ma = Marshmallow(app)
 # Get configurations
 app.config.from_pyfile('config.py')
 # Init the Database
 db = SQLAlchemy(app)
+# Init RESTPlus
+api = Api(app)
+# Init Marshmallow
+ma = Marshmallow(app)
 """
 Import everything from 'views.py'.
 ---
