@@ -60,7 +60,7 @@ class NewsFeed(Resource):
         output = post_schema.dump(posts).data
         return jsonify({'posts': output})
 
-    @api.response(201, 'Post has been successfully created')
+    @api.response(201, 'Post has successfully been created')
     @api.expect(user_post)
     def post(self):
         """
@@ -86,7 +86,7 @@ class NewsFeed(Resource):
         new_post = Posts(owner_id=owner_id, creator_name=creator_name, content=content, status=status, modified=modified, likes=likes)
         db.session.add(new_post)
         db.session.commit()
-        return 201
+        return {'result': 'Post has successfully been created'}, 201
 
 @api.route('/post/<int:post_id>')
 class ReadPost(Resource):
@@ -104,6 +104,14 @@ class ReadPost(Resource):
         post_schema = PostSchema()
         output = post_schema.dump(post).data
         return jsonify({'post': output})
+
+    @api.expect(user_post)
+    def put(self, post_id):
+        # Query the Post
+        post = Posts.query.filter_by(id=post_id)
+        post.update(api.payload)
+        db.session.commit()
+        return {'result': 'Post has been updated'}
 
     @api.response(200, 'Post has successfully been deleted')
     def delete(self, post_id):
