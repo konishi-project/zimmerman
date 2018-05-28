@@ -45,6 +45,14 @@ execute whatever is in it, "before_first_request()" is also needed.
 @api.route('/posts')
 class NewsFeed(Resource):
     def get(self):
+        """
+        1. Flask-SQLAlchemy queries all the posts in the Database and orders
+        them by their descending dates (Newest to Oldest).
+        2. Then the Model Schema for Post is requested so that we can turn
+        it into a JSON formatted object.
+        3. Then the object's data is dumped from the object and uses the schema
+        to understand the model and make it into JSON 
+        """
         posts = Posts.query.order_by(Posts.created.desc())
         post_schema = PostSchema(many=True)
         output = post_schema.dump(posts).data
@@ -53,31 +61,53 @@ class NewsFeed(Resource):
     @api.response(201, 'Post has been successfully created')
     @api.expect(user_post)
     def post(self):
+        """
+        The 'data' variable requests for the incoming JSON and then
+        we pass those data to the new variables that will be used later
+        on as another argument and commit it to the database.
+        """
         data = request.get_json()
-        # Get Information from the data
+        # Pass the information to the variables
         owner_id = data['owner_id']
         creator_name = data['creator_name']
         content = data['content']
         status = data['status']
         modified = data['modified']
         likes = data['likes']
-        # Add to the Database
+        """
+        Create a new variable called 'new_post' and pass the collected data
+        from the requested JSON, then 'new_post' is added to the current DB
+        session and the changes are commited.
+        """
         new_post = Posts(owner_id=owner_id, creator_name=creator_name, content=content, status=status, modified=modified, likes=likes)
-        # Add to DB Session
         db.session.add(new_post)
-        # Commit to Database
         db.session.commit()
         return 201
 
 @api.route('/post/<int:post_id>')
 class ReadPost(Resource):
     def get(self, post_id):
+        """
+        1. Flask-SQLAlchemy looks for the Post with the corresponding ID provided by the client side.
+        2. It gets the first Post it finds with that ID.
+        3. Then it gets the Model Schema from 'models.py' so that it can be turned into JSON format.
+        4. The Post Schema is then used to dump the data about the Post into JSON and then returns
+        a JSON formatted output for Flask-RESTPlus 
+        """
         post = Posts.query.filter_by(id=post_id).first()
         post_schema = PostSchema()
         output = post_schema.dump(post).data
         return jsonify({'post': output})
+
     @api.response(200, 'Post has successfully been deleted')
     def delete(self, post_id):
+        """
+        1. Flask-SQLAlchemy queries the Database and filters the result with the ID provided by the
+        client side application.
+        2. Once SQLAlchemy finds that specific post, it is then deleted during the session, then
+        commits the changes to the Database.
+        3. Then Flask-RESTPlus returns the result
+        """
         # Delete the post from the ID
         post = Posts.query.filter_by(id=post_id).delete()
         # Commit those changes
