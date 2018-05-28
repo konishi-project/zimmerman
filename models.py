@@ -56,12 +56,7 @@ class Posts(db.Model):
     created = db.Column(db.DateTime,default=datetime.now)
     modified = db.Column(db.DateTime, default=datetime.now)
     likes = db.Column(db.Integer, default=0)
-    #comments = db.relationship('Comments', backref='posts')
-
-class PostSchema(ma.ModelSchema):
-    class Meta:
-        model = Posts
-
+    comments = db.relationship('Comments', backref='posts')
 
 class Comments(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -71,13 +66,9 @@ class Comments(db.Model):
     created = db.Column(db.DateTime,default=datetime.now)
     modified = db.Column(db.DateTime, default=datetime.now)
     likes = db.Column(db.Integer, default=0)
-    #replies = db.relationship('Reply', backref='comments')
+    replies = db.relationship('Reply', backref='comments')
     def __repr__(self):
         return 'Comment ID - {}'.format(self.id)
-
-class CommentSchema(ma.ModelSchema):
-    class Meta:
-        model = Comments
 
 class Reply(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -90,6 +81,23 @@ class Reply(db.Model):
     likes = db.Column(db.Integer, default=0)
     def __repr__(self):
         return 'Reply ID - {}'.format(self.id)
+
+## Model Schemas
+class RoleSchema(ma.ModelSchema):
+    class Meta:
+        model = Role
+
+class UserSchema(ma.ModelSchema):
+    class Meta:
+        model = User
+
+class PostSchema(ma.ModelSchema):
+    class Meta:
+        model = Posts
+
+class CommentSchema(ma.ModelSchema):
+    class Meta:
+        model = Comments
 
 class ReplySchema(ma.ModelSchema):
     class Meta:

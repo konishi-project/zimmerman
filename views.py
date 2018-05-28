@@ -17,13 +17,14 @@ Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
 from app import app, api, ma
-from flask import jsonify
+from flask import jsonify, request, json
 from flask_security.utils import encrypt_password
 from flask_security import roles_accepted, roles_required
 from flask_admin import Admin, AdminIndexView
 from flask_login import login_required
 from flask_restplus import Resource, SchemaModel
 from models import *
+from serializers import *
 import os
 
 """
@@ -40,24 +41,48 @@ This should be commented out when the database models are created.
 @app.before_first_request will be ran first before any request and
 execute whatever is in it, "before_first_request()" is also needed.
 """
-@app.before_first_request
-def before_first_request():
-    db.create_all
-    db.session.commit
 
 @api.route('/posts')
 class NewsFeed(Resource):
     def get(self):
-        posts = Posts.query.all()
+        posts = Posts.query.order_by(Posts.created.desc())
         post_schema = PostSchema(many=True)
         output = post_schema.dump(posts).data
         return jsonify({'posts': output})
 
-class HelloUser(Resource):
-    def get(self, name):
-        return {'hello': name}
+    @api.response(201, 'Post has been successfully created')
+    @api.expect(user_post)
+    def post(self):
+        data = request.get_json()
+        # Get Information from the data
+        owner_id = data['owner_id']
+        creator_name = data['creator_name']
+        content = data['content']
+        status = data['status']
+        modified = data['modified']
+        likes = data['likes']
+        # Add to the Database
+        new_post = Posts(owner_id=owner_id, creator_name=creator_name, content=content, status=status, modified=modified, likes=likes)
+        # Add to DB Session
+        db.session.add(new_post)
+        # Commit to Database
+        db.session.commit()
+        return 201
 
-api.add_resource(HelloUser, '/user/<string:name>')
+@api.route('/post/<int:post_id>')
+class ReadPost(Resource):
+    def get(self, post_id):
+        post = Posts.query.filter_by(id=post_id).first()
+        post_schema = PostSchema()
+        output = post_schema.dump(post).data
+        return jsonify({'post': output})
+    @api.response(200, 'Post has successfully been deleted')
+    def delete(self, post_id):
+        # Delete the post from the ID
+        post = Posts.query.filter_by(id=post_id).delete()
+        # Commit those changes
+        db.session.commit()
+        return {'result': 'Post has successfully been deleted'}
 
 """ 
 Add Admin Views,
