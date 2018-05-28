@@ -46,6 +46,8 @@ execute whatever is in it, "before_first_request()" is also needed.
 class NewsFeed(Resource):
     def get(self):
         """
+        Read all the posts
+        ---
         1. Flask-SQLAlchemy queries all the posts in the Database and orders
         them by their descending dates (Newest to Oldest).
         2. Then the Model Schema for Post is requested so that we can turn
@@ -62,6 +64,8 @@ class NewsFeed(Resource):
     @api.expect(user_post)
     def post(self):
         """
+        Create a new Post
+        ---
         The 'data' variable requests for the incoming JSON and then
         we pass those data to the new variables that will be used later
         on as another argument and commit it to the database.
@@ -88,6 +92,8 @@ class NewsFeed(Resource):
 class ReadPost(Resource):
     def get(self, post_id):
         """
+        Interact with a specific post
+        ---
         1. Flask-SQLAlchemy looks for the Post with the corresponding ID provided by the client side.
         2. It gets the first Post it finds with that ID.
         3. Then it gets the Model Schema from 'models.py' so that it can be turned into JSON format.
@@ -102,6 +108,8 @@ class ReadPost(Resource):
     @api.response(200, 'Post has successfully been deleted')
     def delete(self, post_id):
         """
+        Delete a specific post by id
+        ---
         1. Flask-SQLAlchemy queries the Database and filters the result with the ID provided by the
         client side application.
         2. Once SQLAlchemy finds that specific post, it is then deleted during the session, then

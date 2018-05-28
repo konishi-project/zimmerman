@@ -57,6 +57,8 @@ class Posts(db.Model):
     modified = db.Column(db.DateTime, default=datetime.now)
     likes = db.Column(db.Integer, default=0)
     comments = db.relationship('Comments', backref='posts')
+    def __repr__(self):
+        return 'Post ID - {}'.format(self.id)
 
 class Comments(db.Model):
     id = db.Column(db.Integer, primary_key=True)

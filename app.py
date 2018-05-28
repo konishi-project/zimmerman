@@ -4,6 +4,9 @@ aswell as the Database.
 ---
 Import the RESTPlus API and instantiate it from the app.
 Documentation for RESTPlus - https://flask-restplus.readthedocs.io/en/stable/
+--- 
+Resources:
+Flask-Marshmallow - http://flask-marshmallow.readthedocs.io/en/latest/
 """
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
