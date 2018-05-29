@@ -132,12 +132,12 @@ class ReadPost(Resource):
             if not post:
                 return {'message': 'Post not found!'}, 404
             # Similar to the get method for specific post but updates instead.
-            # Check if the Post belongs to the current user of is the user is an Admin.
+            # Check if the Post belongs to the current user or the current user is an admin.
             elif post.id == current_user.id or current_user.has_role('admin'):
                 Posts.query.filter_by(id=post_id).update(api.payload)
                 db.session.commit()
                 return {'result': 'Post has been updated'}, 200
-            # If the Post does not
+            # If the Post does not belong to the User, return 403.
             elif post.id != current_user.id:
                 return {'message': 'The post does not belong to the current user'}, 403
             else:
