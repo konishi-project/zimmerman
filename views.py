@@ -65,30 +65,31 @@ class NewsFeed(Resource):
     @api.response(201, 'Post has successfully been created')
     @api.expect(user_post)
     def post(self):
-        """
-        Create a new Post
-        ---
-        The 'data' variable requests for the incoming JSON and then
-        we pass those data to the new variables that will be used later
-        on as another argument and commit it to the database.
-        """
-        data = request.get_json()
-        # Pass the information to the variables
-        owner_id = data['owner_id']
-        creator_name = data['creator_name']
-        content = data['content']
-        status = data['status']
-        modified = data['modified']
-        likes = data['likes']
-        """
-        Create a new variable called 'new_post' and pass the collected data
-        from the requested JSON, then 'new_post' is added to the current DB
-        session and the changes are commited.
-        """
-        new_post = Posts(owner_id=owner_id, creator_name=creator_name, content=content, status=status, modified=modified, likes=likes)
-        db.session.add(new_post)
-        db.session.commit()
-        return {'result': 'Post has successfully been created'}, 201
+        if current_user.is_authenticated:
+            """
+            Create a new Post
+            ---
+            The 'data' variable requests for the incoming JSON and then
+            we pass those data to the new variables that will be used later
+            on as another argument and commit it to the database.
+            """
+            data = request.get_json()
+            # Pass the information to the variables
+            content = data['content']
+            status = data['status']
+            modified = data['modified']
+            likes = data['likes']
+            """
+            Create a new variable called 'new_post' and pass the collected data
+            from the requested JSON, then 'new_post' is added to the current DB
+            session and the changes are commited.
+            """
+            new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, content=content, status=status, modified=modified, likes=likes)
+            db.session.add(new_post)
+            db.session.commit()
+            return {'message': 'Post has successfully been created'}, 201
+        else:
+            return {'message': '403 Forbidden'}, 403
 
 @api.route('/post/<int:post_id>')
 class ReadPost(Resource):
@@ -114,6 +115,7 @@ class ReadPost(Resource):
 
     @api.response(200, 'Post successfully been updated.')
     @api.response(404, 'Post not found!')
+    @api.response(403, 'Forbidden')
     @api.expect(user_post)
     def put(self, post_id):
         """
@@ -124,16 +126,27 @@ class ReadPost(Resource):
         2. If it the post is not found it will raise a 404 error, else it will
         update the post with the user provided API Payload, then it commits to the Database.
         """
-        # Similar to the get method for specific post but updates instead.
-        post = Posts.query.filter_by(id=post_id).first()
-        if not post:
-            return {'message': 'Post not found!'}, 404
+        # Check if the post being updated matches the owner
+        if current_user.is_authenticated:
+            post = Posts.query.filter_by(id=post_id).first()
+            if not post:
+                return {'message': 'Post not found!'}, 404
+            # Similar to the get method for specific post but updates instead.
+            # Check if the Post belongs to the current user of is the user is an Admin.
+            elif post.id == current_user.id or current_user.has_role('admin'):
+                Posts.query.filter_by(id=post_id).update(api.payload)
+                db.session.commit()
+                return {'result': 'Post has been updated'}, 200
+            # If the Post does not
+            elif post.id != current_user.id:
+                return {'message': 'The post does not belong to the current user'}, 403
+            else:
+                return {'message': 'Uh oh! Something went wrong.'}
         else:
-            post.update(api.payload)
-            db.session.commit()
-            return {'result': 'Post has been updated'}, 200
+            return {'message': '403 Forbidden'}, 403
 
     @api.response(200, 'Post has successfully been deleted')
+    @api.response(403, 'Forbidden')
     @api.response(404, 'Post not found!')
     def delete(self, post_id):
         """
@@ -145,14 +158,23 @@ class ReadPost(Resource):
         commits the changes to the Database.
         3. Then Flask-RESTPlus returns the result
         """
-        post = Posts.query.filter_by(id=post_id).first()
-        if not post:
-            return {'message', 'Post not found'}, 404
+        if current_user.is_authenticated:
+            post = Posts.query.filter_by(id=post_id).first()
+            if not post:
+                return {'message', 'Post not found'}, 404
+            # Check if the Post belongs to the User or the user is an Admin
+            elif post.id == current_user.id or current_user.has_role('admin'):
+                delete_post = Posts.query.filter_by(id=post_id).delete()
+                # Commit those changes
+                db.session.commit()
+                return {'result': 'Post has successfully been deleted'}, 200
+            # If the Post does not belong to the User, return 403.
+            elif post.id != current_user.id:
+                return {'message': 'The post does not belong to the current user'}, 403
+            else:
+                return {'message': 'Uh oh! something went wrong'}
         else:
-            post = Posts.query.filter_by(id=post_id).delete()
-            # Commit those changes
-            db.session.commit()
-            return {'result': 'Post has successfully been deleted'}, 200
+            return {'message': '403 Forbidden'}, 403
 
 """ 
 Add Admin Views,

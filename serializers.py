@@ -6,14 +6,13 @@ API Models
 from flask_restplus import fields
 from flask_security import current_user
 from models import *
+from datetime import datetime
 from app import api
 
 user_post = api.model('Post', {
-    'owner_id': fields.Integer,
-    'creator_name': fields.String(required=True, description='Name of the User who created this.'),
     'content': fields.String(required=True, description='Post content'),
-    'status': fields.String(required=True, enum=['LOCKED', 'NORMAL']),
-    'modified': fields.DateTime,
-    'created': fields.DateTime,
+    'status': fields.String(required=True, enum=['LOCKED', 'NORMAL'], default='NORMAL'),
+    'modified': fields.DateTime(default=datetime.now),
+    'created': fields.DateTime(default=datetime.now),
     'likes': fields.Integer(default=0),
 })
