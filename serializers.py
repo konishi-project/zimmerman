@@ -13,6 +13,5 @@ user_post = api.model('Post', {
     'content': fields.String(required=True, description='Post content'),
     'status': fields.String(required=True, enum=['NORMAL', 'LOCKED']),
     'modified': fields.DateTime(default=datetime.now),
-    'created': fields.DateTime(default=datetime.now),
     'likes': fields.Integer(default=0),
 })
