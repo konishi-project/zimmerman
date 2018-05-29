@@ -1,4 +1,4 @@
-from app import app
+from app import app, ma
 from app import db
 from flask import redirect, url_for, abort
 from sqlalchemy.ext.declarative import declared_attr
@@ -8,6 +8,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_login import current_user
 from flask_security import Security, SQLAlchemyUserDatastore, \
     UserMixin, RoleMixin, login_required
+from flask_restplus import SchemaModel
 from datetime import datetime
 
 """ 
@@ -42,7 +43,6 @@ class User(db.Model, UserMixin):
                             backref=db.backref('users', lazy='dynamic'))
     def __repr__(self):
         return '{}'.format(self.username)
-
 """
 Used One to Many relationship for Posts.
 Posts to Comments, Comments to Replies.
@@ -57,6 +57,8 @@ class Posts(db.Model):
     modified = db.Column(db.DateTime, default=datetime.now)
     likes = db.Column(db.Integer, default=0)
     comments = db.relationship('Comments', backref='posts')
+    def __repr__(self):
+        return 'Post ID - {}'.format(self.id)
 
 class Comments(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -81,6 +83,27 @@ class Reply(db.Model):
     likes = db.Column(db.Integer, default=0)
     def __repr__(self):
         return 'Reply ID - {}'.format(self.id)
+
+## Model Schemas
+class RoleSchema(ma.ModelSchema):
+    class Meta:
+        model = Role
+
+class UserSchema(ma.ModelSchema):
+    class Meta:
+        model = User
+
+class PostSchema(ma.ModelSchema):
+    class Meta:
+        model = Posts
+
+class CommentSchema(ma.ModelSchema):
+    class Meta:
+        model = Comments
+
+class ReplySchema(ma.ModelSchema):
+    class Meta:
+        model = Reply
 
 # Admin Index View is the Main Index, not the ModelView
 class MainAdminIndexView(AdminIndexView):

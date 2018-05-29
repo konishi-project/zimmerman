@@ -16,13 +16,15 @@ with the API and Routes.
 Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
-from app import app, api
+from app import app, api, ma
+from flask import jsonify, request, json
 from flask_security.utils import encrypt_password
 from flask_security import roles_accepted, roles_required
 from flask_admin import Admin, AdminIndexView
 from flask_login import login_required
-from flask_restplus import Resource
+from flask_restplus import Resource, SchemaModel
 from models import *
+from serializers import *
 import os
 
 """
@@ -39,21 +41,116 @@ This should be commented out when the database models are created.
 @app.before_first_request will be ran first before any request and
 execute whatever is in it, "before_first_request()" is also needed.
 """
-@app.before_first_request
-def before_first_request():
-    db.create_all
-    db.session.commit
 
-class HelloKonishi(Resource):
+@api.route('/posts')
+class NewsFeed(Resource):
     def get(self):
-        return {'hello': 'konishi'}
+        """
+        Read all the posts
+        ---
+        1. Flask-SQLAlchemy queries all the posts in the Database and orders
+        them by their descending dates (Newest to Oldest).
+        2. Then the Model Schema for Post is requested so that we can turn
+        it into a JSON formatted object.
+        3. Then the object's data is dumped from the object and uses the schema
+        to understand the model and make it into JSON 
+        """
+        posts = Posts.query.order_by(Posts.created.desc())
+        post_schema = PostSchema(many=True)
+        output = post_schema.dump(posts).data
+        return jsonify({'posts': output})
 
-class HelloUser(Resource):
-    def get(self, name):
-        return {'hello': name}
+    @api.response(201, 'Post has successfully been created')
+    @api.expect(user_post)
+    def post(self):
+        """
+        Create a new Post
+        ---
+        The 'data' variable requests for the incoming JSON and then
+        we pass those data to the new variables that will be used later
+        on as another argument and commit it to the database.
+        """
+        data = request.get_json()
+        # Pass the information to the variables
+        owner_id = data['owner_id']
+        creator_name = data['creator_name']
+        content = data['content']
+        status = data['status']
+        modified = data['modified']
+        likes = data['likes']
+        """
+        Create a new variable called 'new_post' and pass the collected data
+        from the requested JSON, then 'new_post' is added to the current DB
+        session and the changes are commited.
+        """
+        new_post = Posts(owner_id=owner_id, creator_name=creator_name, content=content, status=status, modified=modified, likes=likes)
+        db.session.add(new_post)
+        db.session.commit()
+        return {'result': 'Post has successfully been created'}, 201
 
-api.add_resource(HelloKonishi, '/hello')
-api.add_resource(HelloUser, '/user/<string:name>')
+@api.route('/post/<int:post_id>')
+class ReadPost(Resource):
+    @api.response(404, 'Post not found!')
+    def get(self, post_id):
+        """
+        Interact with a specific post
+        ---
+        1. Flask-SQLAlchemy looks for the Post with the corresponding ID provided by the client side,
+        and it checks if it exists, if it doesn't then it will raise a 404 error.
+        2. It gets the first Post it finds with that ID.
+        3. Then it gets the Model Schema from 'models.py' so that it can be turned into JSON format.
+        4. The Post Schema is then used to dump the data about the Post into JSON and then returns
+        a JSON formatted output for Flask-RESTPlus 
+        """
+        post = Posts.query.filter_by(id=post_id).first()
+        if not post:
+            return {'message': 'Post not found!'}, 404
+        else:
+            post_schema = PostSchema()
+            output = post_schema.dump(post).data
+            return jsonify({'post': output})
+
+    @api.response(200, 'Post successfully been updated.')
+    @api.response(404, 'Post not found!')
+    @api.expect(user_post)
+    def put(self, post_id):
+        """
+        Update or Edit a specific post
+        ---
+        1. Flask-SQLAlchemy will query for the post and filters it by provided id, and tries
+        to get the first result of the matched unique id.
+        2. If it the post is not found it will raise a 404 error, else it will
+        update the post with the user provided API Payload, then it commits to the Database.
+        """
+        # Similar to the get method for specific post but updates instead.
+        post = Posts.query.filter_by(id=post_id).first()
+        if not post:
+            return {'message': 'Post not found!'}, 404
+        else:
+            post.update(api.payload)
+            db.session.commit()
+            return {'result': 'Post has been updated'}, 200
+
+    @api.response(200, 'Post has successfully been deleted')
+    @api.response(404, 'Post not found!')
+    def delete(self, post_id):
+        """
+        Delete a specific post by id
+        ---
+        1. Flask-SQLAlchemy queries the Database and filters the result with the ID provided by the
+        client side application. It first checks if the post exist and raises 404 if not.
+        2. Once SQLAlchemy finds that specific post, it is then deleted during the session, then
+        commits the changes to the Database.
+        3. Then Flask-RESTPlus returns the result
+        """
+        post = Posts.query.filter_by(id=post_id).first()
+        if not post:
+            return {'message', 'Post not found'}, 404
+        else:
+            post = Posts.query.filter_by(id=post_id).delete()
+            # Commit those changes
+            db.session.commit()
+            return {'result': 'Post has successfully been deleted'}, 200
 
 """ 
 Add Admin Views,
