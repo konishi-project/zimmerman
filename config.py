@@ -1,3 +1,8 @@
+"""
+config.py
+---
+Configuration for the Flask Application
+"""
 from app import app
 import os
 
