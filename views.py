@@ -1,4 +1,6 @@
 """
+views.py
+---
 Import the Flask app and the api from 'app.py'.
 Encrypt Password will be used to add users without registering them with
 a default password that can be changed later on, but is encrypted.

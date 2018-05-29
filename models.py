@@ -1,3 +1,8 @@
+"""
+models.py
+---
+Database models, Security models, and Model Schemas.
+"""
 from app import app, ma
 from app import db
 from flask import redirect, url_for, abort
