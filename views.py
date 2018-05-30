@@ -44,6 +44,17 @@ This should be commented out when the database models are created.
 execute whatever is in it, "before_first_request()" is also needed.
 """
 
+@api.route('/feed')
+class PostsFeed(Resource):
+    def get(self):
+        limit = request.args.get('limit', default=1000)
+        # Query Posts
+        posts_ids = Posts.query.order_by(Posts.created.desc()).limit(limit).with_entities(Posts.id)
+        post_schema = PostSchema(many=True)
+        output = post_schema.dump(posts_ids).data
+        return jsonify({'posts_ids': output})
+    
+
 @api.route('/posts')
 class NewsFeed(Resource):
     def get(self):
@@ -66,8 +77,7 @@ class NewsFeed(Resource):
     @api.expect(user_post)
     def post(self):
         if current_user.is_authenticated:
-            """
-            Create a new Post
+            """ Create a new post.
             ---
             The 'data' variable requests for the incoming JSON and then
             we pass those data to the new variables that will be used later
@@ -89,9 +99,12 @@ class NewsFeed(Resource):
             db.session.commit()
             return {'message': 'Post has successfully been created'}, 201
         else:
-            return {'message': '403 Forbidden'}, 403
+            # Raise 403 if the current user is not authenticated
+            return api.abort(403)
 
+@api.route('/post', defaults={'post_id': 2})
 @api.route('/post/<int:post_id>')
+@api.doc(params={'post_id': 'The unique identifier for the post'})
 class ReadPost(Resource):
     @api.response(404, 'Post not found!')
     def get(self, post_id):
@@ -107,7 +120,7 @@ class ReadPost(Resource):
         """
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
-            return {'message': 'Post not found!'}, 404
+            return api.abort(404)
         else:
             post_schema = PostSchema()
             output = post_schema.dump(post).data
@@ -130,7 +143,7 @@ class ReadPost(Resource):
         if current_user.is_authenticated:
             post = Posts.query.filter_by(id=post_id).first()
             if not post:
-                return {'message': 'Post not found!'}, 404
+                return api.abort(404)
             # Similar to the get method for specific post but updates instead.
             # Check if the Post belongs to the current user or the current user is an admin.
             elif post.id == current_user.id or current_user.has_role('admin'):
@@ -139,18 +152,19 @@ class ReadPost(Resource):
                 return {'result': 'Post has been updated'}, 200
             # If the Post does not belong to the User, return 403.
             elif post.id != current_user.id:
-                return {'message': 'The post does not belong to the current user'}, 403
+                # Raise 403 error if the current user doesn't match the Post owner id
+                return api.abort(403)
             else:
                 return {'message': 'Uh oh! Something went wrong.'}
         else:
-            return {'message': '403 Forbidden'}, 403
+            # Raise 403 if the current user is not authenticated
+            return api.abort(403)
 
     @api.response(200, 'Post has successfully been deleted')
     @api.response(403, 'Forbidden')
     @api.response(404, 'Post not found!')
     def delete(self, post_id):
-        """
-        Delete a specific post by id
+        """ Delete a specific post by id
         ---
         1. Flask-SQLAlchemy queries the Database and filters the result with the ID provided by the
         client side application. It first checks if the post exist and raises 404 if not.
@@ -161,7 +175,7 @@ class ReadPost(Resource):
         if current_user.is_authenticated:
             post = Posts.query.filter_by(id=post_id).first()
             if not post:
-                return {'message', 'Post not found'}, 404
+                return api.abort(404)
             # Check if the Post belongs to the User or the user is an Admin
             elif post.id == current_user.id or current_user.has_role('admin'):
                 delete_post = Posts.query.filter_by(id=post_id).delete()
@@ -170,11 +184,13 @@ class ReadPost(Resource):
                 return {'result': 'Post has successfully been deleted'}, 200
             # If the Post does not belong to the User, return 403.
             elif post.id != current_user.id:
-                return {'message': 'The post does not belong to the current user'}, 403
+                # Raise 403 error if the current user doesn't match the Post owner id
+                return api.abort(403)
             else:
                 return {'message': 'Uh oh! something went wrong'}
         else:
-            return {'message': '403 Forbidden'}, 403
+            # Raise 403 if the current user is not authenticated
+            return api.abort(403)
 
 """ 
 Add Admin Views,
