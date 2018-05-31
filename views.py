@@ -57,7 +57,7 @@ class IdFeed(Resource):
         # Query Posts
         posts_ids = Posts.query.order_by(Posts.created.desc()).limit(limit).with_entities(Posts.id)
         post_schema = PostSchema(many=True)
-        output = post_schema.dump(posts_ids).data
+        output = [i["id"] for i in post_schema.dump(posts_ids).data]
         return jsonify({'posts_ids': output})
 
 @api.route('/posts')
@@ -110,7 +110,7 @@ class NewsFeed(Resource):
 @api.route('/post', defaults={'post_id': 2})
 @api.route('/post/<int:post_id>')
 @api.doc(params={'post_id': 'The unique identifier for the post'})
-class ReadPost(Resource):
+class InteractPost(Resource):
     @api.response(404, 'Post not found!')
     def get(self, post_id):
         """
@@ -146,7 +146,6 @@ class ReadPost(Resource):
         2. If it the post is not found it will raise a 404 error, else it will
         update the post with the user provided API Payload, then it commits to the Database.
         """
-        # Check if the post being updated matches the owner
         if current_user.is_authenticated:
             post = Posts.query.filter_by(id=post_id).first()
             if not post:
@@ -186,13 +185,13 @@ class ReadPost(Resource):
             if not post:
                 return api.abort(404)
             # Check if the Post belongs to the User or the user is an Admin
-            elif post.id == current_user.id or current_user.has_role('admin'):
+            elif post.owner_id == current_user.id or current_user.has_role('admin'):
                 delete_post = Posts.query.filter_by(id=post_id).delete()
                 # Commit those changes
                 db.session.commit()
                 return {'result': 'Post has successfully been deleted'}, 200
             # If the Post does not belong to the User, return 403.
-            elif post.id != current_user.id:
+            elif post.owner_id != current_user.id:
                 # Raise 403 error if the current user doesn't match the Post owner id
                 return api.abort(403)
             else:
