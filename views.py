@@ -38,26 +38,19 @@ matter. MainAdminIndexView is already protected as seen in the models.
 """
 admin = Admin(app, name='Admin Area', template_mode='bootstrap3', index_view=MainAdminIndexView())
 
-""" 
-This is to create tables and models in the database.
-This should be commented out when the database models are created.
-@app.before_first_request will be ran first before any request and
-execute whatever is in it, "before_first_request()" is also needed.
-"""
-
 @api.route('/feed')
 class IdFeed(Resource):
     def get(self):
-        """ Get IDs from Database
-        ---
-        This queries the database and grabs the latest IDs,
-        the 'limit' query string limits how many IDs are quried
-        from the database.
+        """ 
+        Get IDs from Database
         """
+        # Limit how many posts are being queried
         limit = request.args.get('limit', default=1000)
-        # Query Posts
+        # Query posts, order by newest to oldest then limit the results, and get the IDs only
         posts_ids = Posts.query.order_by(Posts.created.desc()).limit(limit).with_entities(Posts.id)
+        # Grab the post schema
         post_schema = PostSchema(many=True)
+        # Get the value of "id" in each list and turn it into an array
         output = [i["id"] for i in post_schema.dump(posts_ids).data]
         return jsonify({'posts_ids': output})
 
@@ -66,16 +59,12 @@ class NewsFeed(Resource):
     def get(self):
         """
         Read all the posts
-        ---
-        1. Flask-SQLAlchemy queries all the posts in the Database and orders
-        them by their descending dates (Newest to Oldest).
-        2. Then the Model Schema for Post is requested so that we can turn
-        it into a JSON formatted object.
-        3. Then the object's data is dumped from the object and uses the schema
-        to understand the model and make it into JSON 
         """
+        # Query all the posts and order them by newest to oldest
         posts = Posts.query.order_by(Posts.created.desc())
+        # Grab the post schema
         post_schema = PostSchema(many=True)
+        # Dump the information of the posts
         output = post_schema.dump(posts).data
         return jsonify({'posts': output})
 
@@ -95,11 +84,7 @@ class NewsFeed(Resource):
             status = data['status']
             modified = data['modified']
             likes = data['likes']
-            """
-            Create a new variable called 'new_post' and pass the collected data
-            from the requested JSON, then 'new_post' is added to the current DB
-            session and the changes are commited.
-            """
+            # Create a new post and commit to database.
             new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, content=content, status=status, modified=modified, likes=likes)
             db.session.add(new_post)
             db.session.commit()
@@ -112,19 +97,16 @@ class InteractPost(Resource):
     def get(self, post_id):
         """
         Interact with a specific post
-        ---
-        1. Flask-SQLAlchemy looks for the Post with the corresponding ID provided by the client side,
-        and it checks if it exists, if it doesn't then it will raise a 404 error.
-        2. It gets the first Post it finds with that ID.
-        3. Then it gets the Model Schema from 'models.py' so that it can be turned into JSON format.
-        4. The Post Schema is then used to dump the data about the Post into JSON and then returns
-        a JSON formatted output for Flask-RESTPlus 
         """
+        # Query for specific post from the passed 'post_id'
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
+            # If does not exist, raise 404
             return api.abort(404)
         else:
+            # Grab the post schema
             post_schema = PostSchema()
+            # Dump the information of that post
             output = post_schema.dump(post).data
             return jsonify({'post': output})
 
@@ -137,11 +119,6 @@ class InteractPost(Resource):
     def put(self, post_id):
         """
         Update or Edit a specific post
-        ---
-        1. Flask-SQLAlchemy will query for the post and filters it by provided id, and tries
-        to get the first result of the matched unique id.
-        2. If it the post is not found it will raise a 404 error, else it will
-        update the post with the user provided API Payload, then it commits to the Database.
         """
         if authenticated():
             post = Posts.query.filter_by(id=post_id).first()
@@ -150,6 +127,7 @@ class InteractPost(Resource):
             # Similar to the get method for specific post but updates instead.
             # Check if the Post belongs to the current user or the current user is an admin.
             elif post.id == current_user.id or is_admin():
+                # Query and update the post using the payload
                 Posts.query.filter_by(id=post_id).update(api.payload)
                 db.session.commit()
                 return {'result': 'Post has been updated'}, 200
@@ -166,20 +144,17 @@ class InteractPost(Resource):
         404: 'Post not found!'
     })
     def delete(self, post_id):
-        """ Delete a specific post by id
-        ---
-        1. Flask-SQLAlchemy queries the Database and filters the result with the ID provided by the
-        client side application. It first checks if the post exist and raises 404 if not.
-        2. Once SQLAlchemy finds that specific post, it is then deleted during the session, then
-        commits the changes to the Database.
-        3. Then Flask-RESTPlus returns the result
+        """ 
+        Delete a specific post by id
         """
         if authenticated():
+            # Check if there's a post that exists with that id
             post = Posts.query.filter_by(id=post_id).first()
             if not post:
                 return api.abort(404)
             # Check if the Post belongs to the User or the user is an Admin
             elif post.owner_id == current_user.id or is_admin():
+                # Delete the post if it exists using the given 'post_id'
                 delete_post = Posts.query.filter_by(id=post_id).delete()
                 # Commit those changes
                 db.session.commit()
