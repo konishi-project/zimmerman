@@ -27,6 +27,7 @@ from flask_login import login_required
 from flask_restplus import Resource, SchemaModel
 from models import *
 from serializers import *
+from decorators import *
 import os
 
 """
@@ -87,7 +88,7 @@ class NewsFeed(Resource):
         we pass those data to the new variables that will be used later
         on as another argument and commit it to the database.
         """
-        if current_user.is_authenticated:
+        if authenticated():
             data = request.get_json()
             # Pass the information to the variables
             content = data['content']
@@ -103,9 +104,6 @@ class NewsFeed(Resource):
             db.session.add(new_post)
             db.session.commit()
             return {'message': 'Post has successfully been created'}, 201
-        else:
-            # Raise 403 if the current user is not authenticated
-            return api.abort(403)
 
 @api.route('/post', defaults={'post_id': 2})
 @api.route('/post/<int:post_id>')
@@ -146,7 +144,7 @@ class InteractPost(Resource):
         2. If it the post is not found it will raise a 404 error, else it will
         update the post with the user provided API Payload, then it commits to the Database.
         """
-        if current_user.is_authenticated:
+        if authenticated():
             post = Posts.query.filter_by(id=post_id).first()
             if not post:
                 return api.abort(404)
@@ -162,9 +160,6 @@ class InteractPost(Resource):
                 return api.abort(403)
             else:
                 return {'message': 'Uh oh! Something went wrong.'}
-        else:
-            # Raise 403 if the current user is not authenticated
-            return api.abort(403)
 
     @api.doc(responses={
         200: 'Post has successfully been deleted',
@@ -180,7 +175,7 @@ class InteractPost(Resource):
         commits the changes to the Database.
         3. Then Flask-RESTPlus returns the result
         """
-        if current_user.is_authenticated:
+        if authenticated():
             post = Posts.query.filter_by(id=post_id).first()
             if not post:
                 return api.abort(404)
@@ -196,9 +191,6 @@ class InteractPost(Resource):
                 return api.abort(403)
             else:
                 return {'message': 'Uh oh! something went wrong'}
-        else:
-            # Raise 403 if the current user is not authenticated
-            return api.abort(403)
 
 """ 
 Add Admin Views,
