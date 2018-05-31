@@ -105,7 +105,6 @@ class NewsFeed(Resource):
             db.session.commit()
             return {'message': 'Post has successfully been created'}, 201
 
-@api.route('/post', defaults={'post_id': 2})
 @api.route('/post/<int:post_id>')
 @api.doc(params={'post_id': 'The unique identifier for the post'})
 class InteractPost(Resource):
@@ -150,7 +149,7 @@ class InteractPost(Resource):
                 return api.abort(404)
             # Similar to the get method for specific post but updates instead.
             # Check if the Post belongs to the current user or the current user is an admin.
-            elif post.id == current_user.id or current_user.has_role('admin'):
+            elif post.id == current_user.id or is_admin():
                 Posts.query.filter_by(id=post_id).update(api.payload)
                 db.session.commit()
                 return {'result': 'Post has been updated'}, 200
@@ -180,7 +179,7 @@ class InteractPost(Resource):
             if not post:
                 return api.abort(404)
             # Check if the Post belongs to the User or the user is an Admin
-            elif post.owner_id == current_user.id or current_user.has_role('admin'):
+            elif post.owner_id == current_user.id or is_admin():
                 delete_post = Posts.query.filter_by(id=post_id).delete()
                 # Commit those changes
                 db.session.commit()
