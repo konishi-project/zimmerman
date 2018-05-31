@@ -1,7 +1,7 @@
 """
 views.py
 ---
-Import the Flask app and the api from 'app.py'.
+Import the Flask app, ma, and the api from 'app.py'.
 Encrypt Password will be used to add users without registering them with
 a default password that can be changed later on, but is encrypted.
 More information related to Flask-Security found here:
@@ -19,7 +19,7 @@ Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
 from app import app, api, ma
-from flask import jsonify, request, json
+from flask import jsonify, request
 from flask_security.utils import encrypt_password
 from flask_security import roles_accepted, roles_required
 from flask_admin import Admin, AdminIndexView
@@ -45,15 +45,20 @@ execute whatever is in it, "before_first_request()" is also needed.
 """
 
 @api.route('/feed')
-class PostsFeed(Resource):
+class IdFeed(Resource):
     def get(self):
+        """ Get IDs from Database
+        ---
+        This queries the database and grabs the latest IDs,
+        the 'limit' query string limits how many IDs are quried
+        from the database.
+        """
         limit = request.args.get('limit', default=1000)
         # Query Posts
         posts_ids = Posts.query.order_by(Posts.created.desc()).limit(limit).with_entities(Posts.id)
         post_schema = PostSchema(many=True)
         output = post_schema.dump(posts_ids).data
         return jsonify({'posts_ids': output})
-    
 
 @api.route('/posts')
 class NewsFeed(Resource):
@@ -76,13 +81,13 @@ class NewsFeed(Resource):
     @api.response(201, 'Post has successfully been created')
     @api.expect(user_post)
     def post(self):
+        """ Create a new post.
+        ---
+        The 'data' variable requests for the incoming JSON and then
+        we pass those data to the new variables that will be used later
+        on as another argument and commit it to the database.
+        """
         if current_user.is_authenticated:
-            """ Create a new post.
-            ---
-            The 'data' variable requests for the incoming JSON and then
-            we pass those data to the new variables that will be used later
-            on as another argument and commit it to the database.
-            """
             data = request.get_json()
             # Pass the information to the variables
             content = data['content']
@@ -126,10 +131,12 @@ class ReadPost(Resource):
             output = post_schema.dump(post).data
             return jsonify({'post': output})
 
-    @api.response(200, 'Post successfully been updated.')
-    @api.response(404, 'Post not found!')
-    @api.response(403, 'Forbidden')
     @api.expect(user_post)
+    @api.doc(responses={
+        404: 'Post not found!',
+        403: 'Forbidden',
+        200: 'Post successfully been updated'
+    })
     def put(self, post_id):
         """
         Update or Edit a specific post
@@ -160,9 +167,11 @@ class ReadPost(Resource):
             # Raise 403 if the current user is not authenticated
             return api.abort(403)
 
-    @api.response(200, 'Post has successfully been deleted')
-    @api.response(403, 'Forbidden')
-    @api.response(404, 'Post not found!')
+    @api.doc(responses={
+        200: 'Post has successfully been deleted',
+        403: 'Forbidden',
+        404: 'Post not found!'
+    })
     def delete(self, post_id):
         """ Delete a specific post by id
         ---

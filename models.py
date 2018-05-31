@@ -3,10 +3,9 @@ models.py
 ---
 Database models, Security models, and Model Schemas.
 """
-from app import app, ma
+from app import app, ma, api
 from app import db
 from flask import redirect, url_for, abort
-from sqlalchemy.ext.declarative import declared_attr
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
@@ -95,10 +94,12 @@ class RoleSchema(ma.ModelSchema):
         model = Role
 
 class UserSchema(ma.ModelSchema):
+    posts = ma.Nested('PostSchema', many=True)
     class Meta:
         model = User
 
 class PostSchema(ma.ModelSchema):
+    posts = ma.Nested('self', many=True)
     class Meta:
         model = Posts
 
@@ -125,7 +126,7 @@ class MainAdminIndexView(AdminIndexView):
         if not current_user.is_authenticated:
             return redirect(url_for('security.login'))
         else:
-            abort(403)
+            api.abort(403)
 
 # This is exactly similar to above Model but for ModelViews not Admin Index View.
 class ProtectedModelView(ModelView):
@@ -135,7 +136,7 @@ class ProtectedModelView(ModelView):
         if not current_user.is_authenticated:
             return redirect(url_for('security.login'))
         else:
-            abort(403)
+            api.abort(403)
 	
 # Setup Flask-Security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
