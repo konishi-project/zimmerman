@@ -12,4 +12,4 @@ def authenticated():
     if current_user.is_authenticated:
         return True
     else:
-        api.abort(403)
+        api.abort(401)
