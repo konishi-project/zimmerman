@@ -24,7 +24,7 @@ What you see here is an example of my Postgres and Sample Password with postgres
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgres://postgres:password@localhost:5432/konishidb')
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
-# Flask-Security Configuration
+# Flask-Security Configuration, Change in production (MUST BE VERY SECReT)
 SECURITY_PASSWORD_SALT = 'SomeRandomTextToEncryptPassword'
 SECURITY_PASSWORD_HASH = 'pbkdf2_sha512'
 # User Can Register, Set to [ON] at the moment.
