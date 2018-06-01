@@ -38,6 +38,10 @@ matter. MainAdminIndexView is already protected as seen in the models.
 """
 admin = Admin(app, name='Admin Area', template_mode='bootstrap3', index_view=MainAdminIndexView())
 
+@app.route('/e')
+def secretE():
+    return redirect('https://e-e.herokuapp.com/')
+
 @api.route('/feed')
 class IdFeed(Resource):
     def get(self):
@@ -113,6 +117,7 @@ class InteractPost(Resource):
     @api.expect(user_post)
     @api.doc(responses={
         404: 'Post not found!',
+        401: 'Unauthorized',
         403: 'Forbidden',
         200: 'Post successfully been updated'
     })
@@ -140,6 +145,7 @@ class InteractPost(Resource):
 
     @api.doc(responses={
         200: 'Post has successfully been deleted',
+        401: 'Unauthorized',
         403: 'Forbidden',
         404: 'Post not found!'
     })
