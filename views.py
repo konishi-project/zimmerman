@@ -134,9 +134,12 @@ class ReadPost(Resource):
         if not post:
             return {'message': 'Post not found!'}, 404
         else:
-            post.update(api.payload)
+            # Get the new data
+            data = request.get_json()
+            post.content = data['content']
+            post.status = data['status']
             db.session.commit()
-            return {'result': 'Post has been updated'}, 200
+            return {'message': 'Post has successfully been updated.'}, 200
 
     @api.response(200, 'Post has successfully been deleted')
     @api.response(404, 'Post not found!')
@@ -164,6 +167,9 @@ class ReadPost(Resource):
 @api.route('/post/<int:post_id>/like')
 class LikePost(Resource):
     def post(self, post_id):
+        """
+        Like a post.
+        """
         if authenticated():
             # Query for that post
             post = Posts.query.filter_by(id=post_id).first()
@@ -183,6 +189,9 @@ class LikePost(Resource):
                 return {'message': 'User has liked the post'}, 200
 
     def delete(self, post_id):
+        """
+        Unlike a post.
+        """
         if authenticated():
             # Query the post and find the like
             user_like = PostLike.query.filter_by(owner_id=current_user.id).delete()
@@ -192,6 +201,9 @@ class LikePost(Resource):
 # Comment liking
 @api.route('/comment/<int:comment_id>/like')
 class LikeComment(Resource):
+    """
+    Like a comment.
+    """
     def post(self, comment_id):
         if authenticated():
             # Query for that comment
@@ -220,7 +232,10 @@ class LikeComment(Resource):
 
 # Reply liking
 @api.route('/reply/<int:reply_id>/like')
-class LikeComment(Resource):
+class LikeReply(Resource):
+    """
+    Like a reply.
+    """
     def post(self, reply_id):
         if authenticated():
             # Query for that reply
@@ -241,6 +256,9 @@ class LikeComment(Resource):
                 return {'message': 'User has liked the reply'}, 200
 
     def delete(self, comment_id):
+        """
+        Unlike a reply.
+        """
         if authenticated():
             # Query the comment and find the like
             user_like = CommentLike.query.filter_by(owner_id=current_user.id).delete()
@@ -251,6 +269,9 @@ class LikeComment(Resource):
 # Commenting System
 @api.route('/post/<int:post_id>/comments')
 class PostComments(Resource):
+    """
+    Comment on a post.
+    """
     def get(self, post_id):
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
@@ -280,6 +301,9 @@ class PostComments(Resource):
 # Interact with specific comments, comment API routes.
 @api.route('/post/comment/<int:comment_id>')
 class InteractComment(Resource):
+    """
+    Interact with specific comments.
+    """
     def get(self, comment_id):
         # Query for the comment
         comment = Comments.query.filter_by(id=comment_id).first()
@@ -303,16 +327,17 @@ class InteractComment(Resource):
         Update or Edit a specific comment
         """
         if authenticated():
-            comment = Comments.query.filter_by(id=post_id).first()
+            comment = Comments.query.filter_by(id=comment_id).first()
             if not comment:
                 return api.abort(404)
             # Similar to the get method for specific post but updates instead.
             # Check if the Post belongs to the current user or the current user is an admin.
             elif comment.id == current_user.id or is_admin():
-                # Query and update the post using the payload
-                Comments.query.filter_by(id=post_id).update(api.payload)
+                # Get the new data
+                data = request.get_json()
+                comment.content = data['content']
                 db.session.commit()
-                return {'result': 'Post has been updated'}, 200
+                return {'message': 'Comment has successfully been updated.'}, 200
             # If the Post does not belong to the User, return 403.
             elif comment.commenter != current_user.username:
                 # Raise 403 error if the current user doesn't match the Post owner id
@@ -346,6 +371,9 @@ class InteractComment(Resource):
 # Reply System
 @api.route('/comment/<int:comment_id>/replies')
 class PostComments(Resource):
+    """
+    Reply to a comment.
+    """
     def get(self, comment_id):
         comment = Comments.query.filter_by(id=comment_id).first()
         if not post:
@@ -375,6 +403,9 @@ class PostComments(Resource):
 # Interact with specific replies, reply API routes.
 @api.route('/comment/reply/<int:reply_id>')
 class InteractComment(Resource):
+    """
+    Interact with specific replies
+    """
     def get(self, reply_id):
         # Query for the Reply
         reply = Reply.query.filter_by(id=reply_id).first()
@@ -393,7 +424,7 @@ class InteractComment(Resource):
         403: 'Forbidden',
         200: 'Reply successfully been updated'
     })
-    def put(self, comment_id):
+    def put(self, reply_id):
         """
         Update or Edit a specific Reply
         """
@@ -403,10 +434,11 @@ class InteractComment(Resource):
                 return api.abort(404)
             # Check if the Reply belongs to the current user or the current user is an admin.
             elif reply.replier == current_user.username or is_admin():
-                # Query and update the Reply using the payload
-                Reply.query.filter_by(id=reply_id).update(api.payload)
+                # Get the new data
+                data = request.get_json()
+                reply.content = data['content']
                 db.session.commit()
-                return {'result': 'Post has been updated'}, 200
+                return {'message': 'Comment has successfully been updated.'}, 200
             # If the Reply does not belong to the User, return 403.
             elif reply.replier != current_user.username:
                 # Raise 403 error if the current user doesn't match the Post owner id
