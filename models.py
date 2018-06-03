@@ -7,6 +7,7 @@ from app import app, ma, api
 from app import db
 from flask import redirect, url_for, abort
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.declarative import declarative_base
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_login import current_user
@@ -21,6 +22,8 @@ Defining the Models
 Some of the items is directly from Flask-Security but modified to fit our needs.
 Documentation - https://pythonhosted.org/Flask-Security/ 
 """
+
+Base = declarative_base()
 
 roles_users = db.Table('roles_users',
         db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
@@ -41,6 +44,9 @@ class User(db.Model, UserMixin):
     bio = db.Column(db.Text, nullable=True)
     password = db.Column(db.String(255))
     posts = db.relationship('Posts', backref='user')
+    post_likes = db.relationship('PostLike', backref='user')
+    comment_likes = db.relationship('CommentLike', backref='user')
+    reply_like = db.relationship('ReplyLike', backref='user')
     active = db.Column(db.Boolean())
     confirmed_at = db.Column(db.DateTime())
     roles = db.relationship('Role', secondary=roles_users,
@@ -54,12 +60,12 @@ Posts to Comments, Comments to Replies.
 class Posts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    creator_name = db.Column(db.String(50))
+    creator_name = db.Column(db.String(20))
     content = db.Column(db.Text)
     status = db.Column(db.String(10))
     created = db.Column(db.DateTime,default=datetime.now)
     modified = db.Column(db.DateTime, default=datetime.now)
-    likes = db.Column(db.Integer, default=0)
+    likes = db.relationship('PostLike', backref='posts')
     comments = db.relationship('Comments', backref='posts')
     def __repr__(self):
         return 'Post ID - {}'.format(self.id)
@@ -67,11 +73,11 @@ class Posts(db.Model):
 class Comments(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     on_post = db.Column(db.Integer, db.ForeignKey('posts.id'))
-    commenter = db.Column(db.String(50))
+    commenter = db.Column(db.String(20))
     content = db.Column(db.Text)
-    created = db.Column(db.DateTime,default=datetime.now)
+    created = db.Column(db.DateTime, default=datetime.now)
     modified = db.Column(db.DateTime, default=datetime.now)
-    likes = db.Column(db.Integer, default=0)
+    likes = db.relationship('CommentLike', backref='comments')
     replies = db.relationship('Reply', backref='comments')
     def __repr__(self):
         return 'Comment ID - {}'.format(self.id)
@@ -80,13 +86,31 @@ class Reply(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # Where this Reply belongs to which comment.
     on_comment = db.Column(db.Integer, db.ForeignKey('comments.id'))
-    replier = db.Column(db.String(50))
+    replier = db.Column(db.String(20))
     content = db.Column(db.Text)
     created = db.Column(db.DateTime,default=datetime.now)
     modified = db.Column(db.DateTime, default=datetime.now)
-    likes = db.Column(db.Integer, default=0)
+    likes = db.relationship('ReplyLike', backref='reply')
     def __repr__(self):
         return 'Reply ID - {}'.format(self.id)
+
+class PostLike(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    on_post = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    liked_on = db.Column(db.DateTime, default=datetime.now)
+
+class CommentLike(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    on_comment = db.Column(db.Integer, db.ForeignKey('comments.id'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    liked_on = db.Column(db.DateTime, default=datetime.now)
+
+class ReplyLike(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    on_reply = db.Column(db.Integer, db.ForeignKey('reply.id'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    liked_on = db.Column(db.DateTime, default=datetime.now)
 
 ## Model Schemas
 class RoleSchema(ma.ModelSchema):
@@ -94,12 +118,10 @@ class RoleSchema(ma.ModelSchema):
         model = Role
 
 class UserSchema(ma.ModelSchema):
-    posts = ma.Nested('PostSchema', many=True)
     class Meta:
         model = User
 
 class PostSchema(ma.ModelSchema):
-    posts = ma.Nested('self', many=True)
     class Meta:
         model = Posts
 
