@@ -217,7 +217,7 @@ class LikeComment(Resource):
                     pass
             else:
                 # Create a like and add it
-                like_comment = CommentLike(on_post=post.id, owner_id=current_user.id)
+                like_comment = CommentLike(on_comment=comment.id, owner_id=current_user.id)
                 # Add to session
                 db.session.add(like_comment)
                 db.session.commit()
@@ -249,22 +249,21 @@ class LikeReply(Resource):
                     pass
             else:
                 # Create a like and add it
-                like_reply = ReplyLike(on_post=post.id, owner_id=current_user.id)
+                like_reply = ReplyLike(on_reply=reply.id, owner_id=current_user.id)
                 # Add to session
                 db.session.add(like_reply)
                 db.session.commit()
                 return {'message': 'User has liked the reply'}, 200
 
-    def delete(self, comment_id):
+    def delete(self, reply_id):
         """
         Unlike a reply.
         """
         if authenticated():
-            # Query the comment and find the like
-            user_like = CommentLike.query.filter_by(owner_id=current_user.id).delete()
+            # Query the reply and find the like
+            user_like = ReplyLike.query.filter_by(id=reply_id).delete()
             db.session.commit()
-            return {'message': 'User has unliked the comment'}, 200
-
+            return {'message': 'User has unliked the reply'}, 200
 
 # Commenting System
 @api.route('/post/<int:post_id>/comments')
@@ -376,14 +375,14 @@ class PostComments(Resource):
     """
     def get(self, comment_id):
         comment = Comments.query.filter_by(id=comment_id).first()
-        if not post:
-            return api.abort(404)
+        if not comment:
+            return {'message': 'Comment not found.'}, 404
         else:
             comments = Comments.query.filter_by(id=comment_id).first()
             replies = comments.replies
             reply_schema = ReplySchema(many=True)
             output = reply_schema.dump(replies).data
-            return jsonify({'comments': output})
+            return jsonify({'replies': output})
 
     @api.expect(user_reply)
     @api.doc(responses={
@@ -438,7 +437,7 @@ class InteractComment(Resource):
                 data = request.get_json()
                 reply.content = data['content']
                 db.session.commit()
-                return {'message': 'Comment has successfully been updated.'}, 200
+                return {'message': 'Reply has successfully been updated.'}, 200
             # If the Reply does not belong to the User, return 403.
             elif reply.replier != current_user.username:
                 # Raise 403 error if the current user doesn't match the Post owner id
@@ -461,7 +460,7 @@ class InteractComment(Resource):
                 delete_comment = Comments.query.filter_by(id=comment_id).delete()
                 # Commit those changes
                 db.session.commit()
-                return {'result': 'Post has successfully been deleted'}, 200
+                return {'result': 'Reply has successfully been deleted'}, 200
             # If the Post does not belong to the User, return 403.
             elif reply.replier != current_user.username:
                 # Raise 403 error if the current user doesn't match the Post owner id
