@@ -6,10 +6,10 @@ def is_admin():
     if current_user.has_role('admin'):
         return True
     else:
-        api.abort(403)
+        return {'message': 'Forbidden'}
 
 def authenticated():
     if current_user.is_authenticated:
         return True
     else:
-        api.abort(401)
+        return {'message': 'User is not authenticated'}
