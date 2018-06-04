@@ -190,7 +190,6 @@ class LikePost(Resource):
         """
         if authenticated():
             # Query the post and find the like
-            user_like = PostLike.query.filter_by(owner_id=current_user.id).with_entities(PostLike.on_post)
             post = Posts.query.filter_by(id=post_id).first()
             for like in post.likes:
                 if like.owner_id == current_user.id:
@@ -226,8 +225,11 @@ class LikeComment(Resource):
     def delete(self, comment_id):
         if authenticated():
             # Query the comment and find the like
-            user_like = CommentLike.query.filter_by(owner_id=current_user.id).delete()
-            db.session.commit()
+            comment = Comments.query.filter_by(id=comment_id).first()
+            for like in comment.likes:
+                if like.owner_id == current_user.id:
+                    db.session.delete(like)
+                    db.session.commit()
             return {'message': 'User has unliked the comment'}, 200
 
 # Reply liking
@@ -259,11 +261,13 @@ class LikeReply(Resource):
         """
         Unlike a reply.
         """
-        if authenticated():
-            # Query the reply and find the like
-            user_like = ReplyLike.query.filter_by(id=reply_id).delete()
-            db.session.commit()
-            return {'message': 'User has unliked the reply'}, 200
+        # Query the comment and find the like
+        reply = Reply.query.filter_by(id=reply_id).first()
+        for like in reply.likes:
+            if like.owner_id == current_user.id:
+                db.session.delete(like)
+                db.session.commit()
+        return {'message': 'User has unliked the reply'}, 200
 
 # Commenting System
 @api.route('/post/<int:post_id>/comments')
