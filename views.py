@@ -146,21 +146,17 @@ class ReadPost(Resource):
     def delete(self, post_id):
         """
         Delete a specific post by id
-        ---
-        1. Flask-SQLAlchemy queries the Database and filters the result with the ID provided by the
-        client side application. It first checks if the post exist and raises 404 if not.
-        2. Once SQLAlchemy finds that specific post, it is then deleted during the session, then
-        commits the changes to the Database.
-        3. Then Flask-RESTPlus returns the result
         """
-        post = Posts.query.filter_by(id=post_id).first()
-        if not post:
-            return {'message', 'Post not found'}, 404
-        else:
-            post = Posts.query.filter_by(id=post_id).delete()
-            # Commit those changes
-            db.session.commit()
-            return {'result': 'Post has successfully been deleted'}, 200
+        if authenticated():
+            # Query for that post
+            post = Posts.query.filter_by(id=post_id).first()
+            if not post:
+                return {'message', 'Post not found'}, 404
+            else:
+                post = Posts.query.filter_by(id=post_id).delete()
+                # Commit those changes
+                db.session.commit()
+                return {'result': 'Post has successfully been deleted'}, 200
 
 # Liking/Unliking System (Post, Comments, Replies)
 # Post liking
@@ -182,9 +178,9 @@ class LikePost(Resource):
                     pass
             else:
                 # Create a like and add it
-                like_post = PostLike(on_post=post.id, owner_id=current_user.id)
+                likepost = PostLike(on_post=post.id, owner_id=current_user.id)
                 # Add to session
-                db.session.add(like_post)
+                db.session.add(likepost)
                 db.session.commit()
                 return {'message': 'User has liked the post'}, 200
 
@@ -194,8 +190,12 @@ class LikePost(Resource):
         """
         if authenticated():
             # Query the post and find the like
-            user_like = PostLike.query.filter_by(owner_id=current_user.id).delete()
-            db.session.commit()
+            user_like = PostLike.query.filter_by(owner_id=current_user.id).with_entities(PostLike.on_post)
+            post = Posts.query.filter_by(id=post_id).first()
+            for like in post.likes:
+                if like.owner_id == current_user.id:
+                    db.session.delete(like)
+                    db.session.commit()
             return {'message': 'User has unliked the post'}, 200
 
 # Comment liking
@@ -361,9 +361,9 @@ class InteractComment(Resource):
                 db.session.commit()
                 return {'result': 'Post has successfully been deleted'}, 200
             # If the Post does not belong to the User, return 403.
-            elif comment.owner_id != current_user.id:
+            elif comment.commenter != current_user.username:
                 # Raise 403 error if the current user doesn't match the Post owner id
-                return api.abort(403)
+                return {'message': 'This comment does not belong to you'}
             else:
                 return {'message': 'Uh oh! something went wrong'}
         
@@ -441,7 +441,7 @@ class InteractComment(Resource):
             # If the Reply does not belong to the User, return 403.
             elif reply.replier != current_user.username:
                 # Raise 403 error if the current user doesn't match the Post owner id
-                return api.abort(403)
+                return {'message': 'This reply does not belong to you'}
             else:
                 return {'message': 'Uh oh! Something went wrong.'}
 
@@ -464,7 +464,7 @@ class InteractComment(Resource):
             # If the Post does not belong to the User, return 403.
             elif reply.replier != current_user.username:
                 # Raise 403 error if the current user doesn't match the Post owner id
-                return {'message': 'This reply does not belong to you.'}
+                return {'message': 'This reply does not belong to you'}
             else:
                 return {'message': 'Uh oh! something went wrong'}
 
@@ -476,8 +476,3 @@ page, then we can CRUD these models and objects within it using Flask-Admin.
 admin.add_view(ProtectedModelView(Role, db.session))
 admin.add_view(ProtectedModelView(User, db.session))
 admin.add_view(ProtectedModelView(Posts, db.session))
-admin.add_view(ProtectedModelView(Comments, db.session))
-admin.add_view(ProtectedModelView(Reply, db.session))
-admin.add_view(ProtectedModelView(PostLike, db.session))
-admin.add_view(ProtectedModelView(CommentLike, db.session))
-admin.add_view(ProtectedModelView(ReplyLike, db.session))
