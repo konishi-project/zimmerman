@@ -292,14 +292,19 @@ class PostComments(Resource):
     })
     def post(self, post_id):
         if authenticated():
-            data = request.get_json()
-            # Pass the information to the variables
-            content = data['content']
-            modified = data['modified']
-            new_comment = Comments(on_post=post_id, commenter=current_user.username, content=content, modified=modified)
-            db.session.add(new_comment)
-            db.session.commit()
-            return {'message': 'Commented on the post'}, 201
+            # Check if the Post's status is 'NORMAL'
+            post = Posts.query.filter_by(id=post_id).first()
+            if post.status == 'NORMAL':
+                data = request.get_json()
+                # Pass the information to the variables
+                content = data['content']
+                modified = data['modified']
+                new_comment = Comments(on_post=post_id, commenter=current_user.username, content=content, modified=modified)
+                db.session.add(new_comment)
+                db.session.commit()
+                return {'message': 'Commented on the post'}, 201
+            else:
+                return {'message': 'Post is locked, unable to comment.'}, 403
 
 # Interact with specific comments, comment API routes.
 @api.route('/post/comment/<int:comment_id>')
