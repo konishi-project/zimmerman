@@ -349,7 +349,7 @@ class InteractComment(Resource):
             # If the Post does not belong to the User, return 403.
             elif comment.commenter != current_user.username:
                 # Raise 403 error if the current user doesn't match the Post owner id
-                return api.abort(403)
+                return {'error': 'Forbidden!'}, 403
             else:
                 return {'message': 'Uh oh! Something went wrong.'}
 
