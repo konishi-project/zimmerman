@@ -6,28 +6,17 @@ Configuration for the Flask Application
 from app import app
 import os
 
+# Debug mode
 DEBUG = True
-""" 
-Secret Key to Encrypt Sessions, Change this in Production.
-The one provided now is just an example to make some 
-things work for testing, also needed in production.
-"""
+# Flask Secret Key for encrypting sessions
 SECRET_KEY = 'SomeSecretKeyThisIsJustAnExample'
+# Secret key for JWT
+JWT_SECRET_KEY = 'SuperSecreto'
 
 """
-DATABASE_URL is meant for PostgreSQL, When adding the Postgres Addon
-it will have a DATABASE_URL, this is to connect it.
-
-SQLAlchemy URI format is 'postgresql://username:password@localhost:5432/mydatabase'
-What you see here is an example of my Postgres and Sample Password with postgres as username.
+Check out documentation for Flask-SQLAlchemy Here
+---
+http://flask-sqlalchemy.pocoo.org/2.3/
 """
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgres://postgres:password@localhost:5432/konishidb')
 SQLALCHEMY_TRACK_MODIFICATIONS = True
-
-# Flask-Security Configuration, Change in production (MUST BE VERY SECReT)
-SECURITY_PASSWORD_SALT = 'SomeRandomTextToEncryptPassword'
-SECURITY_PASSWORD_HASH = 'pbkdf2_sha512'
-# User Can Register, Set to [ON] at the moment.
-SECURITY_REGISTERABLE = True
-# User Account Needs to be confirmed to Login.
-SECURITY_CONFIRMABLE = False
