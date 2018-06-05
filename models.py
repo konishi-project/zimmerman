@@ -5,7 +5,7 @@ Database models, Security models, and Model Schemas.
 """
 from app import app, ma, api
 from app import db
-from flask import redirect, url_for, abort
+from flask import redirect, url_for, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.declarative import declarative_base
 from flask_admin import AdminIndexView
@@ -29,25 +29,25 @@ roles_users = db.Table('roles_users',
         db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
         db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
 
-class Role(db.Model, RoleMixin):
+class Role(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
     def __repr__(self):
         return '{}'.format(self.name)
     
-class User(db.Model, UserMixin):
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True)
     username = db.Column(db.String(20), unique=True)
-    full_name = db.Column(db.String(50))
+    first_name = db.Column(db.String(50))
+    last_name = db.Column(db.String(50), nullable=True)
     bio = db.Column(db.Text, nullable=True)
     password = db.Column(db.String(255))
     posts = db.relationship('Posts', backref='user')
     post_likes = db.relationship('PostLike', backref='user')
     comment_likes = db.relationship('CommentLike', backref='user')
     reply_like = db.relationship('ReplyLike', backref='user')
-    active = db.Column(db.Boolean())
     confirmed_at = db.Column(db.DateTime())
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
@@ -136,29 +136,24 @@ class ReplySchema(ma.ModelSchema):
 # Admin Index View is the Main Index, not the ModelView
 class MainAdminIndexView(AdminIndexView):
     def is_accessible(self):
-        """ 
-        Check if the Current Logged in User has 
-        the admin role to access this page. If not it will
-        redirect to security Login page and checks if the 
-        user has the admin role again. If not, it will
-        raise a 403 error.
-        """
-        return current_user.has_role('admin')
+        return True
+        #return current_user.has_role('admin')
     def inaccessible_callback(self, name, **kwargs):
         if not current_user.is_authenticated:
             return redirect(url_for('security.login'))
         else:
-            api.abort(403)
+            return jsonify({'error': 'Forbidden!'}), 403
 
 # This is exactly similar to above Model but for ModelViews not Admin Index View.
 class ProtectedModelView(ModelView):
     def is_accessible(self):
-        return current_user.has_role('admin')
+        return True
+        #return current_user.has_role('admin')
     def inaccessible_callback(self, name, **kwargs):
         if not current_user.is_authenticated:
             return redirect(url_for('security.login'))
         else:
-            api.abort(403)
+            return jsonify({'error': 'Forbidden!'}), 403
 	
 # Setup Flask-Security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
