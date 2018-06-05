@@ -18,16 +18,21 @@ with the API and Routes.
 Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
-from app import app, api, ma
+from app import app, api, ma, jwt
 from flask import jsonify, request
 from flask_security.utils import encrypt_password
 from flask_security import roles_accepted, roles_required
 from flask_admin import Admin, AdminIndexView
 from flask_login import login_required
 from flask_restplus import Resource, SchemaModel
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from models import *
 from serializers import *
 from decorators import *
+from datetime import datetime, timedelta
+import json
+import jwt
 import os
 
 """
@@ -471,6 +476,61 @@ class InteractComment(Resource):
                 return {'message': 'This reply does not belong to you'}
             else:
                 return {'message': 'Uh oh! something went wrong'}
+
+@api.route('/protected')
+class Protect(Resource):
+    @jwt_required
+    def get(self):
+        current_user = get_jwt_identity()
+        return jsonify({'username': current_user})
+
+@api.route('/testlogin')
+class UserLogin(Resource):
+    @api.expect(user_login)
+    def post(self):
+        data = request.get_json()
+        if not data or not data['username'] or not data['password']:
+            return jsonify({'msg': 'No login data found!'})
+        username = data['username']
+        password = data['password']
+        # Query and check if the User is in the Database
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({'msg': 'User not found!'})
+        if user.username == username and check_password_hash(user.password, password):
+            access_token = create_access_token(identity=username)
+            return {'access_token': access_token}, 200
+        else:
+            return {'msg': 'Invalid credentials!'}, 401
+
+@api.route('/testregister')
+class UserRegister(Resource):
+    @api.expect(user_registration)
+    def post(self):
+        # Get json objects
+        data = request.get_json()
+        # Pass the data
+        email = data['email']
+        username = data['username']
+        password = data['password']
+        confirm_password = data['confirm_password']
+        first_name = data['first_name']
+        last_name = data['last_name']
+        # Check if the username exists
+        if User.query.filter_by(username=username).first() is not None:
+            return jsonify({'message': 'Username already taken!'})
+        # Check if the email is used
+        if User.query.filter_by(email=email).first() is not None:
+            return jsonify({'message': 'Email already taken!'})
+        if password != confirm_password:
+            return jsonify({'message': 'Passwords don\'t match!'})
+        else:
+            pass
+        hashed_password = generate_password_hash(password, method='sha512')
+        new_user = User(email=email, username=username, password=hashed_password, first_name=first_name, last_name=last_name)
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify({'message': 'Successfully registered!'})
 
 """ 
 Add Admin Views,
