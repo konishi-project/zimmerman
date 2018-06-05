@@ -10,7 +10,9 @@ Flask-Marshmallow - http://flask-marshmallow.readthedocs.io/en/latest/
 """
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_restplus import Api
+from flask_jwt_extended import JWTManager 
 from flask_marshmallow import Marshmallow
 import os
 
@@ -24,6 +26,10 @@ db = SQLAlchemy(app)
 api = Api(app)
 # Init Marshmallow
 ma = Marshmallow(app)
+# Init Migrate
+migrate = Migrate(app, db)
+# Init JWT
+jwt = JWTManager(app)
 """
 Import everything from 'views.py'.
 ---
