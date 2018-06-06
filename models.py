@@ -53,6 +53,7 @@ class User(db.Model):
                             backref=db.backref('users', lazy='dynamic'))
     def __repr__(self):
         return '{}'.format(self.username)
+
 """
 Used One to Many relationship for Posts.
 Posts to Comments, Comments to Replies.

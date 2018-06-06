@@ -2,10 +2,6 @@
 views.py
 ---
 Import the Flask app, ma, and the api from 'app.py'.
-Encrypt Password will be used to add users without registering them with
-a default password that can be changed later on, but is encrypted.
-More information related to Flask-Security found here:
-https://pythonhosted.org/Flask-Security/
 We use Flask-Login for handling current user and sessions.
 Documentation - https://flask-login.readthedocs.io/en/latest
 Flask-Admin is used for managing and CRUD models, This is similar to Django Admin.
@@ -20,13 +16,10 @@ Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
 from app import app, api, ma, jwt
 from flask import jsonify, request
-from flask_security.utils import encrypt_password
-from flask_security import roles_accepted, roles_required
 from flask_admin import Admin, AdminIndexView
-from flask_login import login_required
 from flask_restplus import Resource, SchemaModel
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, current_user, get_current_user
 from models import *
 from serializers import *
 from decorators import *
@@ -106,14 +99,8 @@ class ReadPost(Resource):
     def get(self, post_id):
         """
         Interact with a specific post
-        ---
-        1. Flask-SQLAlchemy looks for the Post with the corresponding ID provided by the client side,
-        and it checks if it exists, if it doesn't then it will raise a 404 error.
-        2. It gets the first Post it finds with that ID.
-        3. Then it gets the Model Schema from 'models.py' so that it can be turned into JSON format.
-        4. The Post Schema is then used to dump the data about the Post into JSON and then returns
-        a JSON formatted output for Flask-RESTPlus 
         """
+        # Get specific post using the post_id
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
             return {'message': 'Post not found!'}, 404
@@ -330,28 +317,28 @@ class InteractComment(Resource):
         403: 'Forbidden',
         200: 'Comment successfully been updated'
     })
+    @jwt_required
     def put(self, comment_id):
         """
         Update or Edit a specific comment
         """
-        if authenticated():
-            comment = Comments.query.filter_by(id=comment_id).first()
-            if not comment:
-                return api.abort(404)
-            # Similar to the get method for specific post but updates instead.
-            # Check if the Post belongs to the current user or the current user is an admin.
-            elif comment.id == current_user.id or is_admin():
-                # Get the new data
-                data = request.get_json()
-                comment.content = data['content']
-                db.session.commit()
-                return {'message': 'Comment has successfully been updated.'}, 200
-            # If the Post does not belong to the User, return 403.
-            elif comment.commenter != current_user.username:
-                # Raise 403 error if the current user doesn't match the Post owner id
-                return api.abort(403)
-            else:
-                return {'message': 'Uh oh! Something went wrong.'}
+        comment = Comments.query.filter_by(id=comment_id).first()
+        if not comment:
+            return api.abort(404)
+        # Similar to the get method for specific post but updates instead.
+        # Check if the Post belongs to the current user or the current user is an admin.
+        elif comment.id == current_user.id or is_admin():
+            # Get the new data
+            data = request.get_json()
+            comment.content = data['content']
+            db.session.commit()
+            return {'message': 'Comment has successfully been updated.'}, 200
+        # If the Post does not belong to the User, return 403.
+        elif comment.commenter != current_user.username:
+            # Raise 403 error if the current user doesn't match the Post owner id
+            return api.abort(403)
+        else:
+            something_went_wrong()
 
     def delete(self, comment_id):
         """ 
@@ -397,16 +384,16 @@ class PostComments(Resource):
     @api.doc(responses={
         201: 'Replied on the comment'
     })
+    @jwt_required
     def post(self, comment_id):
-        if authenticated():
-            data = request.get_json()
-            # Pass the information to the variables
-            content = data['content']
-            modified = data['modified']
-            new_reply = Reply(on_comment=comment_id, replier=current_user.username, content=content, modified=modified)
-            db.session.add(new_reply)
-            db.session.commit()
-            return {'message': 'Replied on the comment'}, 201
+        data = request.get_json()
+        # Pass the information to the variables
+        content = data['content']
+        modified = data['modified']
+        new_reply = Reply(on_comment=comment_id, replier=current_user.username, content=content, modified=modified)
+        db.session.add(new_reply)
+        db.session.commit()
+        return {'message': 'Replied on the comment'}, 201
 
 # Interact with specific replies, reply API routes.
 @api.route('/comment/reply/<int:reply_id>')
@@ -450,9 +437,9 @@ class InteractComment(Resource):
             # If the Reply does not belong to the User, return 403.
             elif reply.replier != current_user.username:
                 # Raise 403 error if the current user doesn't match the Post owner id
-                return {'message': 'This reply does not belong to you'}
+                return jsonify({'message': 'This reply does not belong to you'}), 403
             else:
-                return {'message': 'Uh oh! Something went wrong.'}
+                something_went_wrong()
 
     def delete(self, reply_id):
         """ 
@@ -473,16 +460,15 @@ class InteractComment(Resource):
             # If the Post does not belong to the User, return 403.
             elif reply.replier != current_user.username:
                 # Raise 403 error if the current user doesn't match the Post owner id
-                return {'message': 'This reply does not belong to you'}
+                return jsonify({'message': 'This reply does not belong to you'}), 403
             else:
-                return {'message': 'Uh oh! something went wrong'}
+                something_went_wrong()
 
 @api.route('/protected')
 class Protect(Resource):
     @jwt_required
     def get(self):
-        current_user = get_jwt_identity()
-        return jsonify({'username': current_user})
+        return jsonify({'message': 'Welcome'}), 200
 
 @api.route('/testlogin')
 class UserLogin(Resource):
@@ -496,9 +482,9 @@ class UserLogin(Resource):
         # Query and check if the User is in the Database
         user = User.query.filter_by(username=username).first()
         if not user:
-            return jsonify({'msg': 'User not found!'})
+            return jsonify({'message': 'User not found!'})
         if user.username == username and check_password_hash(user.password, password):
-            access_token = create_access_token(identity=username)
+            access_token = create_access_token(identity=username, expires_delta=False)
             return {'access_token': access_token}, 200
         else:
             return {'msg': 'Invalid credentials!'}, 401
