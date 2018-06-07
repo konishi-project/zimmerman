@@ -14,7 +14,7 @@ with the API and Routes.
 Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
-from app import app, api, ma, jwt
+from app import app, api, ma, jwt, login_manager
 from flask import jsonify, request
 from flask_admin import Admin, AdminIndexView
 from flask_restplus import Resource, SchemaModel
@@ -25,7 +25,7 @@ from serializers import *
 from decorators import *
 from datetime import datetime, timedelta
 import json
-import jwt
+from uuid import uuid4
 import os
 
 """
@@ -322,12 +322,17 @@ class InteractComment(Resource):
         """
         Update or Edit a specific comment
         """
+        # Get current username
+        user = get_jwt_identity()
+        # Get data for current user
+        current_user = User.query.filter_by(username=username).first()
+        # Get information
         comment = Comments.query.filter_by(id=comment_id).first()
         if not comment:
             return api.abort(404)
         # Similar to the get method for specific post but updates instead.
         # Check if the Post belongs to the current user or the current user is an admin.
-        elif comment.id == current_user.id or is_admin():
+        elif comment.commenter == current_user.username or is_admin():
             # Get the new data
             data = request.get_json()
             comment.content = data['content']
@@ -468,7 +473,9 @@ class InteractComment(Resource):
 class Protect(Resource):
     @jwt_required
     def get(self):
-        return jsonify({'message': 'Welcome'}), 200
+        user_pubid = get_jwt_identity()
+        current_user = User.query.filter_by(public_id=user_pubid).first()
+        return {'message': current_user.username}
 
 @api.route('/testlogin')
 class UserLogin(Resource):
@@ -484,7 +491,7 @@ class UserLogin(Resource):
         if not user:
             return jsonify({'message': 'User not found!'})
         if user.username == username and check_password_hash(user.password, password):
-            access_token = create_access_token(identity=username, expires_delta=False)
+            access_token = create_access_token(identity=public_id, expires_delta=False)
             return {'access_token': access_token}, 200
         else:
             return {'msg': 'Invalid credentials!'}, 401
@@ -513,7 +520,7 @@ class UserRegister(Resource):
         else:
             pass
         hashed_password = generate_password_hash(password, method='sha512')
-        new_user = User(email=email, username=username, password=hashed_password, first_name=first_name, last_name=last_name)
+        new_user = User(public_id=str(uuid4()), email=email, username=username, password=hashed_password, first_name=first_name, last_name=last_name)
         db.session.add(new_user)
         db.session.commit()
         return jsonify({'message': 'Successfully registered!'})
