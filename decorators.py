@@ -1,6 +1,5 @@
 from app import app, jwt
 from flask_security import current_user
-from flask_jwt_extended import get_jwt_claims
 from flask import jsonify, request
 from functools import wraps
 
