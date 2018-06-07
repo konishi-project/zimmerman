@@ -13,6 +13,7 @@ from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_restplus import SchemaModel
 from datetime import datetime
+from decorators import is_admin
 
 """ 
 Defining the Models
@@ -36,6 +37,7 @@ class User(db.Model):
     reply_like = db.relationship('ReplyLike', backref='user')
     ##
     member = db.Column(db.Boolean(), default=False)
+    joined_date = db.Column(db.DateTime)
     status = db.Column(db.String(10))
 
     def __repr__(self):
@@ -121,21 +123,16 @@ class ReplySchema(ma.ModelSchema):
 class MainAdminIndexView(AdminIndexView):
     @jwt_required
     def is_accessible(self):
-        return True
-        # current_user = User.query.filter_by(username=get_jwt_identity()).first()
-        # return current_user.status == 'admin'
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        return is_admin(current_user)
     def inaccessible_callback(self, name, **kwargs):
-        if not current_user.is_authenticated:
-            return redirect(url_for('security.login'))
-        else:
-            return jsonify({'error': 'Forbidden!'}), 403
+        return jsonify({'message': 'Forbidden!'}), 403
 
 # This is exactly similar to above Model but for ModelViews not Admin Index View.
 class ProtectedModelView(ModelView):
     @jwt_required
     def is_accessible(self):
-        return True
-        # current_user = User.query.filter_by(username=get_jwt_identity()).first()
-        # return current_user.status == 'admin'
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        return is_admin(current_user)
     def inaccessible_callback(self, name, **kwargs):
         return jsonify({'message': 'Forbidden!'}), 403
