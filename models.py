@@ -101,10 +101,6 @@ class ReplyLike(db.Model):
     liked_on = db.Column(db.DateTime, default=datetime.now)
 
 ## Model Schemas
-class RoleSchema(ma.ModelSchema):
-    class Meta:
-        model = Role
-
 class UserSchema(ma.ModelSchema):
     class Meta:
         model = User
