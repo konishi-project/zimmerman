@@ -38,6 +38,7 @@ class Role(db.Model):
     
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(50), unique=True)
     email = db.Column(db.String(255), unique=True)
     username = db.Column(db.String(20), unique=True)
     first_name = db.Column(db.String(50))
@@ -45,10 +46,12 @@ class User(db.Model):
     bio = db.Column(db.Text, nullable=True)
     password = db.Column(db.String(255))
     posts = db.relationship('Posts', backref='user')
+    # Likes 
     post_likes = db.relationship('PostLike', backref='user')
     comment_likes = db.relationship('CommentLike', backref='user')
     reply_like = db.relationship('ReplyLike', backref='user')
-    confirmed_at = db.Column(db.DateTime())
+    ##
+    member = db.Column(db.Boolean())
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
     def __repr__(self):
