@@ -64,7 +64,7 @@ class UserList(Resource):
             output = user_schema.dump(users).data
             return jsonify({'users': output})
         else:
-            return jsonify({'message': 'Forbidden!'}), 403
+            return {'message': 'Forbidden!'}, 403
 
 @api.route('/posts')
 class NewsFeed(Resource):
@@ -136,16 +136,16 @@ class ReadPost(Resource):
         # Similar to the get method for specific post but updates instead.
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
-            return jsonify({'message': 'Post not found!'})
+            return {'message': 'Post not found!'}, 404
         elif current_user.id == post.owner_id and post.status == 'NORMAL' or is_admin(current_user):
             # Get the new data
             data = request.get_json()
             post.content = data['content']
             post.status = data['status']
             db.session.commit()
-            return jsonify({'message': 'Post has successfully been updated.'}) 
+            return {'message': 'Post has successfully been updated.'}, 200
         elif post.status == 'LOCKED':
-            return jsonify({'message': 'This post is locked.'}) 
+            return {'message': 'This post is locked.'}, 403
         else:
             return jsonify({'message': 'You do not own this post.'})
 
@@ -358,7 +358,7 @@ class InteractComment(Resource):
             # Raise 403 error if the current user doesn't match the Post owner id
             return api.abort(403)
         else:
-            something_went_wrong()
+            return {'message': 'Uh oh! Something went wrong.'}, 500
 
     @jwt_required
     def delete(self, comment_id):
@@ -376,13 +376,13 @@ class InteractComment(Resource):
             delete_comment = Comments.query.filter_by(id=comment_id).delete()
             # Commit those changes
             db.session.commit()
-            return jsonify({'result': 'Post has successfully been deleted.'}), 200
+            return {'result': 'Post has successfully been deleted.'}, 200
         # If the Post does not belong to the User, return 403.
         elif comment.commenter != current_user.username:
             # Raise 403 error if the current user doesn't match the Post owner id
-            return jsonify({'message': 'This comment does not belong to you.'}), 403
+            return {'message': 'This comment does not belong to you.'}, 403
         else:
-            something_went_wrong()
+            return {'message': 'Uh oh! Something went wrong,'}, 500
         
 # Reply System
 @api.route('/comment/<int:comment_id>/replies')
@@ -454,13 +454,13 @@ class InteractComment(Resource):
             data = request.get_json()
             reply.content = data['content']
             db.session.commit()
-            return jsonify({'message': 'Reply has successfully been updated.'}), 200
+            return {'message': 'Reply has successfully been updated.'}, 200
         # If the Reply does not belong to the User, return 403.
         elif reply.replier != current_user.username:
             # Raise 403 error if the current user doesn't match the Post owner id
-            return jsonify({'message': 'This reply does not belong to you.'}), 403
+            return {'message': 'This reply does not belong to you.'}, 403
         else:
-            something_went_wrong()
+            return {'message': 'Uh oh! Something went wrong.'}, 500
 
     def delete(self, reply_id):
         """ 
@@ -481,17 +481,18 @@ class InteractComment(Resource):
             # If the Post does not belong to the User, return 403.
             elif reply.replier != current_user.username:
                 # Raise 403 error if the current user doesn't match the Post owner id
-                return jsonify({'message': 'This reply does not belong to you'}), 403
+                return {'message': 'This reply does not belong to you'}, 403
             else:
-                something_went_wrong()
+                return {'message': 'Uh oh! Something went wrong.'}, 500
 
 @api.route('/protected')
 class Protect(Resource):
     @jwt_required
+    @member_only 
     def get(self):
         current_user = User.query.filter_by(username=get_jwt_identity()).first()
         if is_admin(current_user):
-            return jsonify({'message': 'You are an admin!'})
+            return {'message': 'You are an admin!'}, 200
         return jsonify({'message': current_user.username})
 
 @api.route('/login')
@@ -500,13 +501,13 @@ class UserLogin(Resource):
     def post(self):
         data = request.get_json()
         if not data or not data['username'] or not data['password']:
-            return jsonify({'msg': 'No login data found!'})
+            return {'msg': 'No login data found!'}, 404
         username = data['username']
         password = data['password']
         # Query and check if the User is in the Database
         user = User.query.filter_by(username=username).first()
         if not user:
-            return jsonify({'message': 'User not found!'})
+            return {'message': 'User not found!'}, 404
         if user.username == username and check_password_hash(user.password, password):
             access_token = create_access_token(identity=username, expires_delta=False)
             return {'access_token': access_token}, 200
@@ -528,12 +529,12 @@ class UserRegister(Resource):
         last_name = data['last_name']
         # Check if the username exists
         if User.query.filter_by(username=username).first() is not None:
-            return jsonify({'message': 'Username already taken!'})
+            return {'message': 'Username already taken!'}, 403
         # Check if the email is used
         if User.query.filter_by(email=email).first() is not None:
-            return jsonify({'message': 'Email already taken!'})
+            return {'message': 'Email already taken!'}, 403
         if password != confirm_password:
-            return jsonify({'message': 'Passwords don\'t match!'})
+            return {'message': 'Passwords don\'t match!'}, 406
         else:
             pass
         hashed_password = generate_password_hash(password, method='sha512')
@@ -541,7 +542,7 @@ class UserRegister(Resource):
                         first_name=first_name, last_name=last_name, joined_date=datetime.now())
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({'message': 'Successfully registered!'})
+        return {'message': 'Successfully registered!'}, 200
 
 """ 
 Add Admin Views,
