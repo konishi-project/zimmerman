@@ -16,7 +16,7 @@ def is_admin(current_user):
 
 def check_like(likes, current_user):
     for like in likes:
-        if like.owner_id == current_user.public_id:
+        if like.owner_id == current_user.id:
             return True
         else:
             pass
