@@ -50,6 +50,22 @@ class IdFeed(Resource):
         output = [i["id"] for i in post_schema.dump(posts_ids).data]
         return jsonify({'posts_ids': output})
 
+@api.route('/users')
+class UserList(Resource):
+    @jwt_required
+    def get(self):
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # Query all the user
+        if is_admin(current_user):
+            users = User.query.order_by(User.joined_date.desc())
+            # Grab the user schema
+            user_schema = UserSchema(many=True)
+            # Dump the information of the users
+            output = user_schema.dump(users).data
+            return jsonify({'users': output})
+        else:
+            return jsonify({'message': 'Forbidden!'}), 403
+
 @api.route('/posts')
 class NewsFeed(Resource):
     def get(self):
@@ -81,7 +97,7 @@ class NewsFeed(Resource):
         status = data['status']
         modified = data['modified']
         # Create a new post and commit to database.
-        new_post = Posts(owner_id=current_user.public_id, creator_name=current_user.username, content=content, status=status, modified=modified)
+        new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, content=content, status=status, modified=modified)
         db.session.add(new_post)
         db.session.commit()
         return {'message': 'Post has successfully been created'}, 201
@@ -120,16 +136,18 @@ class ReadPost(Resource):
         # Similar to the get method for specific post but updates instead.
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
-            return jsonify({'message': 'Post not found!'}), 404
-        elif current_user.public_id == post.owner_id or is_admin(current_user):
+            return jsonify({'message': 'Post not found!'})
+        elif current_user.id == post.owner_id and post.status == 'NORMAL' or is_admin(current_user):
             # Get the new data
             data = request.get_json()
             post.content = data['content']
             post.status = data['status']
             db.session.commit()
-            return jsonify({'message': 'Post has successfully been updated.'}), 200
+            return jsonify({'message': 'Post has successfully been updated.'}) 
+        elif post.status == 'LOCKED':
+            return jsonify({'message': 'This post is locked.'}) 
         else:
-            return jsonify({'message': 'You do not own this post.'}), 403
+            return jsonify({'message': 'You do not own this post.'})
 
     @api.response(200, 'Post has successfully been deleted')
     @api.response(404, 'Post not found!')
@@ -143,7 +161,7 @@ class ReadPost(Resource):
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
             return jsonify({'message', 'Post not found.'}), 404
-        elif current_user.public_id == post.owner_id or is_admin(current_user):
+        elif current_user.id == post.owner_id or is_admin(current_user):
             post = Posts.query.filter_by(id=post_id).delete()
             # Commit those changes
             db.session.commit()
@@ -164,14 +182,14 @@ class LikePost(Resource):
         # Check if the user already liked
         likes = PostLike.query.filter_by(on_post=post_id).all()
         if check_like(likes, current_user):
-            return jsonify({'message': 'User has already liked the post.'}), 403
+            return jsonify({'message': 'User has already liked the post.'})
         else:
             # Create a like and add it
-            likepost = PostLike(on_post=post.id, owner_id=current_user.public_id)
+            likepost = PostLike(on_post=post.id, owner_id=current_user.id)
             # Add to session
             db.session.add(likepost)
             db.session.commit()
-            return jsonify({'message': 'User has liked the post.'}), 200
+            return jsonify({'message': 'User has liked the post.'})
 
     @jwt_required
     def delete(self, post_id):
@@ -182,10 +200,10 @@ class LikePost(Resource):
         # Query the post and find the like
         post = Posts.query.filter_by(id=post_id).first()
         for like in post.likes:
-            if like.owner_id == current_user.public_id:
+            if like.owner_id == current_user.id:
                 db.session.delete(like)
                 db.session.commit()
-        return jsonify({'message': 'User has unliked the post.'}), 200
+        return jsonify({'message': 'User has unliked the post.'})
 
 # Comment liking
 @api.route('/comment/<int:comment_id>/like')
@@ -204,7 +222,7 @@ class LikeComment(Resource):
             return jsonify({'message': 'User has already liked the comment.'}), 403
         else:
             # Create a like and add it
-            like_comment = CommentLike(on_comment=comment.id, owner_id=current_user.public_id)
+            like_comment = CommentLike(on_comment=comment.id, owner_id=current_user.id)
             # Add to session
             db.session.add(like_comment)
             db.session.commit()
@@ -216,7 +234,7 @@ class LikeComment(Resource):
         # Query the comment and find the like
         comment = Comments.query.filter_by(id=comment_id).first()
         for like in comment.likes:
-            if like.owner_id == current_user.public_id:
+            if like.owner_id == current_user.id:
                 db.session.delete(like)
                 db.session.commit()
         return jsonify({'message': 'User has unliked the comment.'}), 200
@@ -238,7 +256,7 @@ class LikeReply(Resource):
             return jsonify({'message': 'User has already liked the reply.'}), 403
         else:
             # Create a like and add it
-            like_reply = ReplyLike(on_reply=reply.id, owner_id=current_user.public_id)
+            like_reply = ReplyLike(on_reply=reply.id, owner_id=current_user.id)
             # Add to session
             db.session.add(like_reply)
             db.session.commit()
@@ -251,7 +269,7 @@ class LikeReply(Resource):
         # Query the comment and find the like
         reply = Reply.query.filter_by(id=reply_id).first()
         for like in reply.likes:
-            if like.owner_id == current_user.public_id:
+            if like.owner_id == current_user.id:
                 db.session.delete(like)
                 db.session.commit()
         return jsonify({'message': 'User has unliked the reply.'}), 200
@@ -279,15 +297,20 @@ class PostComments(Resource):
     })
     @jwt_required
     def post(self, post_id):
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
-        data = request.get_json()
-        # Pass the information to the variables
-        content = data['content']
-        modified = data['modified']
-        new_comment = Comments(on_post=post_id, commenter=current_user.username, content=content, modified=modified)
-        db.session.add(new_comment)
-        db.session.commit()
-        return {'message': 'Commented on the post.'}, 201
+        post = Posts.query.filter_by(id=post_id).first()
+        # Check if post is not locked.
+        if post.status == 'NORMAL':
+            current_user = User.query.filter_by(username=get_jwt_identity()).first()
+            data = request.get_json()
+            # Pass the information to the variables
+            content = data['content']
+            modified = data['modified']
+            new_comment = Comments(on_post=post_id, commenter=current_user.username, content=content, modified=modified)
+            db.session.add(new_comment)
+            db.session.commit()
+            return jsonify({'message': 'Commented on the post.'})
+        else:
+            return jsonify({'message': 'Post is locked, unable to comment.'})
 
 # Interact with specific comments, comment API routes.
 @api.route('/post/comment/<int:comment_id>')
@@ -469,7 +492,7 @@ class Protect(Resource):
         current_user = User.query.filter_by(username=get_jwt_identity()).first()
         if is_admin(current_user):
             return jsonify({'message': 'You are an admin!'})
-        return {'message': current_user.status}
+        return jsonify({'message': current_user.username})
 
 @api.route('/login')
 class UserLogin(Resource):
@@ -514,7 +537,8 @@ class UserRegister(Resource):
         else:
             pass
         hashed_password = generate_password_hash(password, method='sha512')
-        new_user = User(public_id=str(uuid4()), email=email, username=username, password=hashed_password, first_name=first_name, last_name=last_name)
+        new_user = User(public_id=str(uuid4()), email=email, username=username, password=hashed_password,\
+                        first_name=first_name, last_name=last_name, joined_date=datetime.now())
         db.session.add(new_user)
         db.session.commit()
         return jsonify({'message': 'Successfully registered!'})
