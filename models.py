@@ -3,16 +3,14 @@ models.py
 ---
 Database models, Security models, and Model Schemas.
 """
-from app import app, ma, api
+from app import app, ma
 from app import db
-from flask import redirect, url_for, abort, jsonify
+from flask import redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy.ext.declarative import declarative_base
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
-from flask_login import current_user
-from flask_security import Security, SQLAlchemyUserDatastore, \
-    UserMixin, RoleMixin, login_required
 from flask_restplus import SchemaModel
 from datetime import datetime
 
@@ -22,20 +20,6 @@ Defining the Models
 Some of the items is directly from Flask-Security but modified to fit our needs.
 Documentation - https://pythonhosted.org/Flask-Security/ 
 """
-
-Base = declarative_base()
-
-roles_users = db.Table('roles_users',
-        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
-        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
-
-class Role(db.Model):
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(80), unique=True)
-    description = db.Column(db.String(255))
-    def __repr__(self):
-        return '{}'.format(self.name)
-    
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(50), unique=True)
@@ -51,9 +35,9 @@ class User(db.Model):
     comment_likes = db.relationship('CommentLike', backref='user')
     reply_like = db.relationship('ReplyLike', backref='user')
     ##
-    member = db.Column(db.Boolean())
-    roles = db.relationship('Role', secondary=roles_users,
-                            backref=db.backref('users', lazy='dynamic'))
+    member = db.Column(db.Boolean(), default=False)
+    status = db.Column(db.String(10))
+
     def __repr__(self):
         return '{}'.format(self.username)
 
@@ -67,7 +51,7 @@ class Posts(db.Model):
     creator_name = db.Column(db.String(20))
     content = db.Column(db.Text)
     status = db.Column(db.String(10))
-    created = db.Column(db.DateTime,default=datetime.now)
+    created = db.Column(db.DateTime, default=datetime.now)
     modified = db.Column(db.DateTime, default=datetime.now)
     likes = db.relationship('PostLike', backref='posts')
     comments = db.relationship('Comments', backref='posts')
@@ -139,9 +123,11 @@ class ReplySchema(ma.ModelSchema):
 
 # Admin Index View is the Main Index, not the ModelView
 class MainAdminIndexView(AdminIndexView):
+    @jwt_required
     def is_accessible(self):
         return True
-        #return current_user.has_role('admin')
+        # current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # return current_user.status == 'admin'
     def inaccessible_callback(self, name, **kwargs):
         if not current_user.is_authenticated:
             return redirect(url_for('security.login'))
@@ -150,15 +136,10 @@ class MainAdminIndexView(AdminIndexView):
 
 # This is exactly similar to above Model but for ModelViews not Admin Index View.
 class ProtectedModelView(ModelView):
+    @jwt_required
     def is_accessible(self):
         return True
-        #return current_user.has_role('admin')
+        # current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # return current_user.status == 'admin'
     def inaccessible_callback(self, name, **kwargs):
-        if not current_user.is_authenticated:
-            return redirect(url_for('security.login'))
-        else:
-            return jsonify({'error': 'Forbidden!'}), 403
-	
-# Setup Flask-Security
-user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-security = Security(app, user_datastore)
+        return jsonify({'message': 'Forbidden!'}), 403
