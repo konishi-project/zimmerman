@@ -4,7 +4,6 @@ serializers.py
 API Models
 """
 from flask_restplus import fields
-from flask_security import current_user
 from models import *
 from datetime import datetime
 from app import api
