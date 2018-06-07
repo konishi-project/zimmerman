@@ -524,6 +524,5 @@ Add Admin Views,
 This will add the models for Flask-Admin which will appear in the Admin
 page, then we can CRUD these models and objects within it using Flask-Admin.
 """
-admin.add_view(ProtectedModelView(Role, db.session))
 admin.add_view(ProtectedModelView(User, db.session))
 admin.add_view(ProtectedModelView(Posts, db.session))
