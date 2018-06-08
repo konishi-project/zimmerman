@@ -94,10 +94,8 @@ class NewsFeed(Resource):
         data = request.get_json()
         # Pass the information to the variables
         content = data['content']
-        status = data['status']
-        modified = data['modified']
         # Create a new post and commit to database.
-        new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, content=content, status=status, modified=modified)
+        new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, content=content, status='NORMAL', modified=datetime.now())
         db.session.add(new_post)
         db.session.commit()
         return {'message': 'Post has successfully been created'}, 201
@@ -126,11 +124,6 @@ class ReadPost(Resource):
     def put(self, post_id):
         """
         Update or Edit a specific post
-        ---
-        1. Flask-SQLAlchemy will query for the post and filters it by provided id, and tries
-        to get the first result of the matched unique id.
-        2. If it the post is not found it will raise a 404 error, else it will
-        update the post with the user provided API Payload, then it commits to the Database.
         """
         current_user = User.query.filter_by(username=get_jwt_identity()).first()
         # Similar to the get method for specific post but updates instead.
@@ -141,13 +134,12 @@ class ReadPost(Resource):
             # Get the new data
             data = request.get_json()
             post.content = data['content']
-            post.status = data['status']
             db.session.commit()
             return {'message': 'Post has successfully been updated.'}, 200
         elif post.status == 'LOCKED':
             return {'message': 'This post is locked.'}, 403
         else:
-            return jsonify({'message': 'You do not own this post.'})
+            return jsonify({'message': 'You do not own this post.'}), 403
 
     @api.response(200, 'Post has successfully been deleted')
     @api.response(404, 'Post not found!')
@@ -160,7 +152,7 @@ class ReadPost(Resource):
         # Query for that post
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
-            return jsonify({'message', 'Post not found.'}), 404
+            return {'message', 'Post not found.'}, 404
         elif current_user.id == post.owner_id or is_admin(current_user):
             post = Posts.query.filter_by(id=post_id).delete()
             # Commit those changes
@@ -182,14 +174,14 @@ class LikePost(Resource):
         # Check if the user already liked
         likes = PostLike.query.filter_by(on_post=post_id).all()
         if check_like(likes, current_user):
-            return jsonify({'message': 'User has already liked the post.'})
+            return {'message': 'User has already liked the post.'}, 403
         else:
             # Create a like and add it
             likepost = PostLike(on_post=post.id, owner_id=current_user.id)
             # Add to session
             db.session.add(likepost)
             db.session.commit()
-            return jsonify({'message': 'User has liked the post.'})
+            return {'message': 'User has liked the post.'}, 201
 
     @jwt_required
     def delete(self, post_id):
@@ -203,7 +195,7 @@ class LikePost(Resource):
             if like.owner_id == current_user.id:
                 db.session.delete(like)
                 db.session.commit()
-        return jsonify({'message': 'User has unliked the post.'})
+        return {'message': 'User has unliked the post.'}, 200
 
 # Comment liking
 @api.route('/comment/<int:comment_id>/like')
@@ -226,7 +218,7 @@ class LikeComment(Resource):
             # Add to session
             db.session.add(like_comment)
             db.session.commit()
-            return jsonify({'message': 'User has liked the comment.'}), 200
+            return jsonify({'message': 'User has liked the comment.'}), 201
 
     @jwt_required
     def delete(self, comment_id):
@@ -237,7 +229,7 @@ class LikeComment(Resource):
             if like.owner_id == current_user.id:
                 db.session.delete(like)
                 db.session.commit()
-        return jsonify({'message': 'User has unliked the comment.'}), 200
+        return {'message': 'User has unliked the comment.'}, 200
 
 # Reply liking
 @api.route('/reply/<int:reply_id>/like')
@@ -253,14 +245,14 @@ class LikeReply(Resource):
         # Check if the user already liked
         likes = ReplyLike.query.filter_by(on_reply=reply_id).all()
         if check_like(likes, current_user):
-            return jsonify({'message': 'User has already liked the reply.'}), 403
+            return {'message': 'User has already liked the reply.'}, 403
         else:
             # Create a like and add it
             like_reply = ReplyLike(on_reply=reply.id, owner_id=current_user.id)
             # Add to session
             db.session.add(like_reply)
             db.session.commit()
-            return jsonify({'message': 'User has liked the reply.'}), 200
+            return {'message': 'User has liked the reply.'}, 201
 
     def delete(self, reply_id):
         """
@@ -272,15 +264,15 @@ class LikeReply(Resource):
             if like.owner_id == current_user.id:
                 db.session.delete(like)
                 db.session.commit()
-        return jsonify({'message': 'User has unliked the reply.'}), 200
+        return {'message': 'User has unliked the reply.'}, 200
 
 # Commenting System
 @api.route('/post/<int:post_id>/comments')
 class PostComments(Resource):
-    """
-    Read or Comment on a post.
-    """
     def get(self, post_id):
+        """
+        Read comments on a specific post.
+        """
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
             return api.abort(404)
@@ -297,6 +289,9 @@ class PostComments(Resource):
     })
     @jwt_required
     def post(self, post_id):
+        """
+        Comment on a specific post.
+        """
         post = Posts.query.filter_by(id=post_id).first()
         # Check if post is not locked.
         if post.status == 'NORMAL':
@@ -304,25 +299,24 @@ class PostComments(Resource):
             data = request.get_json()
             # Pass the information to the variables
             content = data['content']
-            modified = data['modified']
-            new_comment = Comments(on_post=post_id, commenter=current_user.username, content=content, modified=modified)
+            new_comment = Comments(on_post=post_id, commenter=current_user.username, content=content, modified=datetime.now())
             db.session.add(new_comment)
             db.session.commit()
-            return jsonify({'message': 'Commented on the post.'})
+            return {'message': 'Commented on the post.'}, 201
         else:
-            return jsonify({'message': 'Post is locked, unable to comment.'})
+            return {'message': 'Post is locked, unable to comment.'}, 403
 
 # Interact with specific comments, comment API routes.
 @api.route('/post/comment/<int:comment_id>')
 class InteractComment(Resource):
-    """
-    Interact with specific comments.
-    """
     def get(self, comment_id):
+        """
+        Get a specific comment.
+        """
         # Query for the comment
         comment = Comments.query.filter_by(id=comment_id).first()
         if not comment:
-            return api.abort(404)
+            return {'message': 'Comment not found.'}, 404
         else:
             comment = Comments.query.filter_by(id=comment_id).first()
             comment_schema = CommentSchema()
@@ -356,7 +350,7 @@ class InteractComment(Resource):
         # If the Post does not belong to the User, return 403.
         elif comment.commenter != current_user.username:
             # Raise 403 error if the current user doesn't match the Post owner id
-            return api.abort(403)
+            return {'message': 'This comment does not belong to you.'}, 403
         else:
             return {'message': 'Uh oh! Something went wrong.'}, 500
 
@@ -369,14 +363,14 @@ class InteractComment(Resource):
         # Check if there's a post that exists with that id
         comment = Comments.query.filter_by(id=comment_id).first()
         if not comment:
-            return api.abort(404)
+            return {'message': 'Comment not found.'}, 404
             # Check if the Post belongs to the User or the user is an Admin
         elif comment.commenter == current_user.username or is_admin(current_user):
             # Delete the post if it exists using the given 'post_id'
             delete_comment = Comments.query.filter_by(id=comment_id).delete()
             # Commit those changes
             db.session.commit()
-            return {'result': 'Post has successfully been deleted.'}, 200
+            return {'message': 'Post has successfully been deleted.'}, 200
         # If the Post does not belong to the User, return 403.
         elif comment.commenter != current_user.username:
             # Raise 403 error if the current user doesn't match the Post owner id
@@ -407,11 +401,14 @@ class PostComments(Resource):
     })
     @jwt_required
     def post(self, comment_id):
+        """
+        Reply on a specific comment.
+        """
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
         data = request.get_json()
         # Pass the information to the variables
         content = data['content']
-        modified = data['modified']
-        new_reply = Reply(on_comment=comment_id, replier=current_user.username, content=content, modified=modified)
+        new_reply = Reply(on_comment=comment_id, replier=current_user.username, content=content, modified=datetime.now())
         db.session.add(new_reply)
         db.session.commit()
         return {'message': 'Replied on the comment.'}, 201
@@ -419,10 +416,10 @@ class PostComments(Resource):
 # Interact with specific replies, reply API routes.
 @api.route('/comment/reply/<int:reply_id>')
 class InteractComment(Resource):
-    """
-    Interact with specific replies
-    """
     def get(self, reply_id):
+        """
+        Get a specific reply.
+        """
         # Query for the Reply
         reply = Reply.query.filter_by(id=reply_id).first()
         if not reply:
@@ -440,6 +437,7 @@ class InteractComment(Resource):
         403: 'Forbidden',
         200: 'Reply successfully been updated'
     })
+    @jwt_required
     def put(self, reply_id):
         """
         Update or Edit a specific Reply
@@ -462,28 +460,29 @@ class InteractComment(Resource):
         else:
             return {'message': 'Uh oh! Something went wrong.'}, 500
 
+    @jwt_required
     def delete(self, reply_id):
         """ 
         Delete a specific reply by id
         """
-        if authenticated():
-            # Check if there's a reply that exists with that id
-            reply = Reply.query.filter_by(id=reply_id).first()
-            if not reply:
-                return {'message': 'Reply not found'}, 404
-                # Check if the Reply belongs to the User or the user is an Admin
-            elif reply.replier == current_user.username or is_admin():
-                # Delete the reply if it exists using the given 'post_id'
-                delete_comment = Comments.query.filter_by(id=comment_id).delete()
-                # Commit those changes
-                db.session.commit()
-                return {'result': 'Reply has successfully been deleted'}, 200
-            # If the Post does not belong to the User, return 403.
-            elif reply.replier != current_user.username:
-                # Raise 403 error if the current user doesn't match the Post owner id
-                return {'message': 'This reply does not belong to you'}, 403
-            else:
-                return {'message': 'Uh oh! Something went wrong.'}, 500
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # Check if there's a reply that exists with that id
+        reply = Reply.query.filter_by(id=reply_id).first()
+        if not reply:
+            return {'message': 'Reply not found'}, 404
+            # Check if the Reply belongs to the User or the user is an Admin
+        elif reply.replier == current_user.username or is_admin(current_user):
+            # Delete the reply if it exists using the given 'post_id'
+            delete_comment = Comments.query.filter_by(id=comment_id).delete()
+            # Commit those changes
+            db.session.commit()
+            return {'result': 'Reply has successfully been deleted'}, 200
+        # If the Post does not belong to the User, return 403.
+        elif reply.replier != current_user.username:
+            # Raise 403 error if the current user doesn't match the Post owner id
+            return {'message': 'This reply does not belong to you'}, 403
+        else:
+            return {'message': 'Uh oh! Something went wrong.'}, 500
 
 @api.route('/protected')
 class Protect(Resource):
