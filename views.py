@@ -19,6 +19,7 @@ from flask import jsonify, request
 from flask_admin import Admin, AdminIndexView
 from flask_restplus import Resource, SchemaModel
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, current_user, get_current_user
 from models import *
 from serializers import *
@@ -542,6 +543,38 @@ class UserRegister(Resource):
         db.session.add(new_user)
         db.session.commit()
         return {'message': 'Successfully registered!'}, 200
+
+
+## Uploading
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@api.route('/upload')
+class UploadImg(Resource):
+    @jwt_required
+    def get(self):
+        return {'message': 'Something here.'}
+
+    @jwt_required
+    def post(self):
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            return {'message': 'No image files found!'}, 404
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            return {'message': 'No file selected.'}
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('uploaded_file',
+                                    filename=filename))
 
 """ 
 Add Admin Views,
