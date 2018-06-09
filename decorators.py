@@ -27,3 +27,10 @@ def member_only(f):
             return {'message': 'You are not a member!'}, 401
         return f(*args, **kwargs)
     return decorated
+
+def load_user(username):
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return {'message': 'User does not exist!'}, 404
+    else:
+        return user
