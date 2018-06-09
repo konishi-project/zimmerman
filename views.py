@@ -20,13 +20,13 @@ from flask_admin import Admin, AdminIndexView
 from flask_restplus import Resource, SchemaModel
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, current_user, get_current_user
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from models import *
 from serializers import *
 from decorators import *
 from datetime import datetime, timedelta
-import json
 from uuid import uuid4
+import json
 import os
 
 """
@@ -55,7 +55,7 @@ class IdFeed(Resource):
 class UserList(Resource):
     @jwt_required
     def get(self):
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         # Query all the user
         if is_admin(current_user):
             users = User.query.order_by(User.joined_date.desc())
@@ -91,7 +91,7 @@ class NewsFeed(Resource):
         we pass those data to the new variables that will be used later
         on as another argument and commit it to the database.
         """
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         data = request.get_json()
         # Pass the information to the variables
         content = data['content']
@@ -126,7 +126,7 @@ class ReadPost(Resource):
         """
         Update or Edit a specific post
         """
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         # Similar to the get method for specific post but updates instead.
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
@@ -149,7 +149,7 @@ class ReadPost(Resource):
         """
         Delete a specific post by id
         """
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         # Query for that post
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
@@ -169,7 +169,7 @@ class LikePost(Resource):
         """
         Like a post.
         """
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         # Query for that post
         post = Posts.query.filter_by(id=post_id).first()
         # Check if the user already liked
@@ -189,7 +189,7 @@ class LikePost(Resource):
         """
         Unlike a post.
         """
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         # Query the post and find the like
         post = Posts.query.filter_by(id=post_id).first()
         for like in post.likes:
@@ -206,7 +206,7 @@ class LikeComment(Resource):
     """
     @jwt_required
     def post(self, comment_id):
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         # Query for that comment
         comment = Comments.query.filter_by(id=comment_id).first()
         # Check if the user already liked
@@ -223,7 +223,7 @@ class LikeComment(Resource):
 
     @jwt_required
     def delete(self, comment_id):
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         # Query the comment and find the like
         comment = Comments.query.filter_by(id=comment_id).first()
         for like in comment.likes:
@@ -240,7 +240,7 @@ class LikeReply(Resource):
     """
     @jwt_required
     def post(self, reply_id):
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         # Query for that reply
         reply = Reply.query.filter_by(id=reply_id).first()
         # Check if the user already liked
@@ -296,7 +296,7 @@ class PostComments(Resource):
         post = Posts.query.filter_by(id=post_id).first()
         # Check if post is not locked.
         if post.status == 'NORMAL':
-            current_user = User.query.filter_by(username=get_jwt_identity()).first()
+            current_user = load_user(get_jwt_identity())
             data = request.get_json()
             # Pass the information to the variables
             content = data['content']
@@ -336,7 +336,7 @@ class InteractComment(Resource):
         """
         Update or Edit a specific comment
         """
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         # Get information
         comment = Comments.query.filter_by(id=comment_id).first()
         if not comment:
@@ -360,7 +360,7 @@ class InteractComment(Resource):
         """ 
         Delete a specific comment by id
         """
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         # Check if there's a post that exists with that id
         comment = Comments.query.filter_by(id=comment_id).first()
         if not comment:
@@ -405,7 +405,7 @@ class PostComments(Resource):
         """
         Reply on a specific comment.
         """
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         data = request.get_json()
         # Pass the information to the variables
         content = data['content']
@@ -443,7 +443,7 @@ class InteractComment(Resource):
         """
         Update or Edit a specific Reply
         """
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         reply = Reply.query.filter_by(id=reply_id).first()
         if not reply:
             return api.abort(404)
@@ -466,7 +466,7 @@ class InteractComment(Resource):
         """ 
         Delete a specific reply by id
         """
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         # Check if there's a reply that exists with that id
         reply = Reply.query.filter_by(id=reply_id).first()
         if not reply:
@@ -490,7 +490,7 @@ class Protect(Resource):
     @jwt_required
     @member_only 
     def get(self):
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         if is_admin(current_user):
             return {'message': 'You are an admin!'}, 200
         return jsonify({'message': current_user.username})
@@ -543,38 +543,6 @@ class UserRegister(Resource):
         db.session.add(new_user)
         db.session.commit()
         return {'message': 'Successfully registered!'}, 200
-
-
-## Uploading
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-@api.route('/upload')
-class UploadImg(Resource):
-    @jwt_required
-    def get(self):
-        return {'message': 'Something here.'}
-
-    @jwt_required
-    def post(self):
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            return {'message': 'No image files found!'}, 404
-            return redirect(request.url)
-        file = request.files['file']
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        if file.filename == '':
-            return {'message': 'No file selected.'}
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('uploaded_file',
-                                    filename=filename))
 
 """ 
 Add Admin Views,
