@@ -8,9 +8,9 @@ import os
 
 # Debug mode
 DEBUG = True
-# Flask Secret Key for encrypting sessions
+# Flask Secret Key for encrypting sessions, change in production to something very secret.
 SECRET_KEY = 'SomeSecretKeyThisIsJustAnExample'
-# Secret key for JWT
+# Secret key for JWT, change in production to something no one knows.
 JWT_SECRET_KEY = 'SuperSecreto'
 
 """
