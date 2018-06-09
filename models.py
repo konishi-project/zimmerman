@@ -3,16 +3,14 @@ models.py
 ---
 Database models, Security models, and Model Schemas.
 """
-from app import app, ma, api
+from app import app, ma
 from app import db
-from flask import redirect, url_for, abort
+from flask import redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy.ext.declarative import declarative_base
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
-from flask_login import current_user
-from flask_security import Security, SQLAlchemyUserDatastore, \
-    UserMixin, RoleMixin, login_required
 from flask_restplus import SchemaModel
 from datetime import datetime
 
@@ -22,37 +20,28 @@ Defining the Models
 Some of the items is directly from Flask-Security but modified to fit our needs.
 Documentation - https://pythonhosted.org/Flask-Security/ 
 """
-
-Base = declarative_base()
-
-roles_users = db.Table('roles_users',
-        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
-        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
-
-class Role(db.Model, RoleMixin):
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(80), unique=True)
-    description = db.Column(db.String(255))
-    def __repr__(self):
-        return '{}'.format(self.name)
-    
-class User(db.Model, UserMixin):
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(50), unique=True)
     email = db.Column(db.String(255), unique=True)
     username = db.Column(db.String(20), unique=True)
-    full_name = db.Column(db.String(50))
+    first_name = db.Column(db.String(50))
+    last_name = db.Column(db.String(50), nullable=True)
     bio = db.Column(db.Text, nullable=True)
     password = db.Column(db.String(255))
     posts = db.relationship('Posts', backref='user')
+    # Likes 
     post_likes = db.relationship('PostLike', backref='user')
     comment_likes = db.relationship('CommentLike', backref='user')
     reply_like = db.relationship('ReplyLike', backref='user')
-    active = db.Column(db.Boolean())
-    confirmed_at = db.Column(db.DateTime())
-    roles = db.relationship('Role', secondary=roles_users,
-                            backref=db.backref('users', lazy='dynamic'))
+    ##
+    member = db.Column(db.Boolean(), default=False)
+    joined_date = db.Column(db.DateTime)
+    status = db.Column(db.String(10))
+
     def __repr__(self):
         return '{}'.format(self.username)
+
 """
 Used One to Many relationship for Posts.
 Posts to Comments, Comments to Replies.
@@ -63,7 +52,7 @@ class Posts(db.Model):
     creator_name = db.Column(db.String(20))
     content = db.Column(db.Text)
     status = db.Column(db.String(10))
-    created = db.Column(db.DateTime,default=datetime.now)
+    created = db.Column(db.DateTime, default=datetime.now)
     modified = db.Column(db.DateTime, default=datetime.now)
     likes = db.relationship('PostLike', backref='posts')
     comments = db.relationship('Comments', backref='posts')
@@ -113,10 +102,6 @@ class ReplyLike(db.Model):
     liked_on = db.Column(db.DateTime, default=datetime.now)
 
 ## Model Schemas
-class RoleSchema(ma.ModelSchema):
-    class Meta:
-        model = Role
-
 class UserSchema(ma.ModelSchema):
     class Meta:
         model = User
@@ -135,31 +120,20 @@ class ReplySchema(ma.ModelSchema):
 
 # Admin Index View is the Main Index, not the ModelView
 class MainAdminIndexView(AdminIndexView):
+    #@jwt_required
     def is_accessible(self):
-        """ 
-        Check if the Current Logged in User has 
-        the admin role to access this page. If not it will
-        redirect to security Login page and checks if the 
-        user has the admin role again. If not, it will
-        raise a 403 error.
-        """
-        return current_user.has_role('admin')
+        return True
+        # current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # return current_user.status == 'admin'
     def inaccessible_callback(self, name, **kwargs):
-        if not current_user.is_authenticated:
-            return redirect(url_for('security.login'))
-        else:
-            api.abort(403)
+        return jsonify({'message': 'Forbidden!'}), 403
 
 # This is exactly similar to above Model but for ModelViews not Admin Index View.
 class ProtectedModelView(ModelView):
+    #@jwt_required
     def is_accessible(self):
-        return current_user.has_role('admin')
+        return True
+        # current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # return current_user.status == 'admin'
     def inaccessible_callback(self, name, **kwargs):
-        if not current_user.is_authenticated:
-            return redirect(url_for('security.login'))
-        else:
-            api.abort(403)
-	
-# Setup Flask-Security
-user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-security = Security(app, user_datastore)
+        return jsonify({'message': 'Forbidden!'}), 403

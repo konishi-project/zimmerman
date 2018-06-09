@@ -2,10 +2,6 @@
 views.py
 ---
 Import the Flask app, ma, and the api from 'app.py'.
-Encrypt Password will be used to add users without registering them with
-a default password that can be changed later on, but is encrypted.
-More information related to Flask-Security found here:
-https://pythonhosted.org/Flask-Security/
 We use Flask-Login for handling current user and sessions.
 Documentation - https://flask-login.readthedocs.io/en/latest
 Flask-Admin is used for managing and CRUD models, This is similar to Django Admin.
@@ -18,29 +14,24 @@ with the API and Routes.
 Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
-from app import app, api, ma
+from app import app, api, ma, jwt
 from flask import jsonify, request
-from flask_security.utils import encrypt_password
-from flask_security import roles_accepted, roles_required
 from flask_admin import Admin, AdminIndexView
-from flask_login import login_required
 from flask_restplus import Resource, SchemaModel
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, current_user, get_current_user
 from models import *
 from serializers import *
 from decorators import *
+from datetime import datetime, timedelta
+import json
+from uuid import uuid4
 import os
 
 """
-This will tell Flask-Admin which is which (admin), We pass the arguments
-it needs to know what to add, and specify the MainAdminIndexView (import from models)
-Bootstrap 3 comes with Flask-Admin but this isn't really a public page so it doesn't
-matter. MainAdminIndexView is already protected as seen in the models.
+This is the Admin route, how it is protected can be found in 'models.py'.
 """
 admin = Admin(app, name='Admin Area', template_mode='bootstrap3', index_view=MainAdminIndexView())
-
-@app.route('/e')
-def secretE():
-    return redirect('https://e-e.herokuapp.com/')
 
 # Get an array of post feeds
 @api.route('/feed')
@@ -59,6 +50,22 @@ class IdFeed(Resource):
         output = [i["id"] for i in post_schema.dump(posts_ids).data]
         return jsonify({'posts_ids': output})
 
+@api.route('/users')
+class UserList(Resource):
+    @jwt_required
+    def get(self):
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # Query all the user
+        if is_admin(current_user):
+            users = User.query.order_by(User.joined_date.desc())
+            # Grab the user schema
+            user_schema = UserSchema(many=True)
+            # Dump the information of the users
+            output = user_schema.dump(users).data
+            return jsonify({'users': output})
+        else:
+            return {'message': 'Forbidden!'}, 403
+
 @api.route('/posts')
 class NewsFeed(Resource):
     def get(self):
@@ -75,6 +82,7 @@ class NewsFeed(Resource):
 
     @api.response(201, 'Post has successfully been created')
     @api.expect(user_post)
+    @jwt_required
     def post(self):
         """ Create a new post.
         ---
@@ -82,17 +90,15 @@ class NewsFeed(Resource):
         we pass those data to the new variables that will be used later
         on as another argument and commit it to the database.
         """
-        if authenticated():
-            data = request.get_json()
-            # Pass the information to the variables
-            content = data['content']
-            status = data['status']
-            modified = data['modified']
-            # Create a new post and commit to database.
-            new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, content=content, status=status, modified=modified)
-            db.session.add(new_post)
-            db.session.commit()
-            return {'message': 'Post has successfully been created'}, 201
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        data = request.get_json()
+        # Pass the information to the variables
+        content = data['content']
+        # Create a new post and commit to database.
+        new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, content=content, status='NORMAL', modified=datetime.now())
+        db.session.add(new_post)
+        db.session.commit()
+        return {'message': 'Post has successfully been created'}, 201
 
 # Post system (Interact with specific posts)
 @api.route('/post/<int:post_id>')
@@ -101,14 +107,8 @@ class ReadPost(Resource):
     def get(self, post_id):
         """
         Interact with a specific post
-        ---
-        1. Flask-SQLAlchemy looks for the Post with the corresponding ID provided by the client side,
-        and it checks if it exists, if it doesn't then it will raise a 404 error.
-        2. It gets the first Post it finds with that ID.
-        3. Then it gets the Model Schema from 'models.py' so that it can be turned into JSON format.
-        4. The Post Schema is then used to dump the data about the Post into JSON and then returns
-        a JSON formatted output for Flask-RESTPlus 
         """
+        # Get specific post using the post_id
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
             return {'message': 'Post not found!'}, 404
@@ -120,82 +120,82 @@ class ReadPost(Resource):
     @api.response(200, 'Post successfully been updated.')
     @api.response(404, 'Post not found!')
     @api.expect(user_post)
+    @jwt_required
     def put(self, post_id):
         """
         Update or Edit a specific post
-        ---
-        1. Flask-SQLAlchemy will query for the post and filters it by provided id, and tries
-        to get the first result of the matched unique id.
-        2. If it the post is not found it will raise a 404 error, else it will
-        update the post with the user provided API Payload, then it commits to the Database.
         """
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
         # Similar to the get method for specific post but updates instead.
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
             return {'message': 'Post not found!'}, 404
-        else:
+        elif current_user.id == post.owner_id and post.status == 'NORMAL' or is_admin(current_user):
             # Get the new data
             data = request.get_json()
             post.content = data['content']
-            post.status = data['status']
             db.session.commit()
             return {'message': 'Post has successfully been updated.'}, 200
+        elif post.status == 'LOCKED':
+            return {'message': 'This post is locked.'}, 403
+        else:
+            return jsonify({'message': 'You do not own this post.'}), 403
 
     @api.response(200, 'Post has successfully been deleted')
     @api.response(404, 'Post not found!')
+    @jwt_required
     def delete(self, post_id):
         """
         Delete a specific post by id
         """
-        if authenticated():
-            # Query for that post
-            post = Posts.query.filter_by(id=post_id).first()
-            if not post:
-                return {'message', 'Post not found'}, 404
-            else:
-                post = Posts.query.filter_by(id=post_id).delete()
-                # Commit those changes
-                db.session.commit()
-                return {'result': 'Post has successfully been deleted'}, 200
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # Query for that post
+        post = Posts.query.filter_by(id=post_id).first()
+        if not post:
+            return {'message', 'Post not found.'}, 404
+        elif current_user.id == post.owner_id or is_admin(current_user):
+            post = Posts.query.filter_by(id=post_id).delete()
+            # Commit those changes
+            db.session.commit()
+            return jsonify({'result': 'Post has successfully been deleted.'}), 200
 
 # Liking/Unliking System (Post, Comments, Replies)
 # Post liking
 @api.route('/post/<int:post_id>/like')
 class LikePost(Resource):
+    @jwt_required
     def post(self, post_id):
         """
         Like a post.
         """
-        if authenticated():
-            # Query for that post
-            post = Posts.query.filter_by(id=post_id).first()
-            # Check if the user already liked
-            liked = PostLike.query.filter_by(on_post=post_id).all()
-            for like in liked:
-                if like.owner_id == current_user.id:
-                    return {'message': 'User has already liked the post.'}
-                else:
-                    pass
-            else:
-                # Create a like and add it
-                likepost = PostLike(on_post=post.id, owner_id=current_user.id)
-                # Add to session
-                db.session.add(likepost)
-                db.session.commit()
-                return {'message': 'User has liked the post'}, 200
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # Query for that post
+        post = Posts.query.filter_by(id=post_id).first()
+        # Check if the user already liked
+        likes = PostLike.query.filter_by(on_post=post_id).all()
+        if check_like(likes, current_user):
+            return {'message': 'User has already liked the post.'}, 403
+        else:
+            # Create a like and add it
+            likepost = PostLike(on_post=post.id, owner_id=current_user.id)
+            # Add to session
+            db.session.add(likepost)
+            db.session.commit()
+            return {'message': 'User has liked the post.'}, 201
 
+    @jwt_required
     def delete(self, post_id):
         """
         Unlike a post.
         """
-        if authenticated():
-            # Query the post and find the like
-            post = Posts.query.filter_by(id=post_id).first()
-            for like in post.likes:
-                if like.owner_id == current_user.id:
-                    db.session.delete(like)
-                    db.session.commit()
-            return {'message': 'User has unliked the post'}, 200
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # Query the post and find the like
+        post = Posts.query.filter_by(id=post_id).first()
+        for like in post.likes:
+            if like.owner_id == current_user.id:
+                db.session.delete(like)
+                db.session.commit()
+        return {'message': 'User has unliked the post.'}, 200
 
 # Comment liking
 @api.route('/comment/<int:comment_id>/like')
@@ -203,34 +203,33 @@ class LikeComment(Resource):
     """
     Like a comment.
     """
+    @jwt_required
     def post(self, comment_id):
-        if authenticated():
-            # Query for that comment
-            comment = Comments.query.filter_by(id=comment_id).first()
-            # Check if the user already liked
-            liked = CommentLike.query.filter_by(on_comment=comment_id).all()
-            for like in liked:
-                if like.owner_id == current_user.id:
-                    return {'message': 'User has already liked the comment'}
-                else:
-                    pass
-            else:
-                # Create a like and add it
-                like_comment = CommentLike(on_comment=comment.id, owner_id=current_user.id)
-                # Add to session
-                db.session.add(like_comment)
-                db.session.commit()
-                return {'message': 'User has liked the comment'}, 200
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # Query for that comment
+        comment = Comments.query.filter_by(id=comment_id).first()
+        # Check if the user already liked
+        likes = CommentLike.query.filter_by(on_comment=comment_id).all()
+        if check_like(likes, current_user):
+            return jsonify({'message': 'User has already liked the comment.'}), 403
+        else:
+            # Create a like and add it
+            like_comment = CommentLike(on_comment=comment.id, owner_id=current_user.id)
+            # Add to session
+            db.session.add(like_comment)
+            db.session.commit()
+            return jsonify({'message': 'User has liked the comment.'}), 201
 
+    @jwt_required
     def delete(self, comment_id):
-        if authenticated():
-            # Query the comment and find the like
-            comment = Comments.query.filter_by(id=comment_id).first()
-            for like in comment.likes:
-                if like.owner_id == current_user.id:
-                    db.session.delete(like)
-                    db.session.commit()
-            return {'message': 'User has unliked the comment'}, 200
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # Query the comment and find the like
+        comment = Comments.query.filter_by(id=comment_id).first()
+        for like in comment.likes:
+            if like.owner_id == current_user.id:
+                db.session.delete(like)
+                db.session.commit()
+        return {'message': 'User has unliked the comment.'}, 200
 
 # Reply liking
 @api.route('/reply/<int:reply_id>/like')
@@ -238,24 +237,22 @@ class LikeReply(Resource):
     """
     Like a reply.
     """
+    @jwt_required
     def post(self, reply_id):
-        if authenticated():
-            # Query for that reply
-            reply = Reply.query.filter_by(id=reply_id).first()
-            # Check if the user already liked
-            liked = ReplyLike.query.filter_by(on_reply=reply_id).all()
-            for like in liked:
-                if like.owner_id == current_user.id:
-                    return {'message': 'User has already liked the reply'}
-                else:
-                    pass
-            else:
-                # Create a like and add it
-                like_reply = ReplyLike(on_reply=reply.id, owner_id=current_user.id)
-                # Add to session
-                db.session.add(like_reply)
-                db.session.commit()
-                return {'message': 'User has liked the reply'}, 200
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # Query for that reply
+        reply = Reply.query.filter_by(id=reply_id).first()
+        # Check if the user already liked
+        likes = ReplyLike.query.filter_by(on_reply=reply_id).all()
+        if check_like(likes, current_user):
+            return {'message': 'User has already liked the reply.'}, 403
+        else:
+            # Create a like and add it
+            like_reply = ReplyLike(on_reply=reply.id, owner_id=current_user.id)
+            # Add to session
+            db.session.add(like_reply)
+            db.session.commit()
+            return {'message': 'User has liked the reply.'}, 201
 
     def delete(self, reply_id):
         """
@@ -267,15 +264,15 @@ class LikeReply(Resource):
             if like.owner_id == current_user.id:
                 db.session.delete(like)
                 db.session.commit()
-        return {'message': 'User has unliked the reply'}, 200
+        return {'message': 'User has unliked the reply.'}, 200
 
 # Commenting System
 @api.route('/post/<int:post_id>/comments')
 class PostComments(Resource):
-    """
-    Comment on a post.
-    """
     def get(self, post_id):
+        """
+        Read comments on a specific post.
+        """
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
             return api.abort(404)
@@ -288,30 +285,38 @@ class PostComments(Resource):
 
     @api.expect(user_comment)
     @api.doc(responses={
-        201: 'Commented on the post'
+        201: 'Commented on the post.'
     })
+    @jwt_required
     def post(self, post_id):
-        if authenticated():
+        """
+        Comment on a specific post.
+        """
+        post = Posts.query.filter_by(id=post_id).first()
+        # Check if post is not locked.
+        if post.status == 'NORMAL':
+            current_user = User.query.filter_by(username=get_jwt_identity()).first()
             data = request.get_json()
             # Pass the information to the variables
             content = data['content']
-            modified = data['modified']
-            new_comment = Comments(on_post=post_id, commenter=current_user.username, content=content, modified=modified)
+            new_comment = Comments(on_post=post_id, commenter=current_user.username, content=content, modified=datetime.now())
             db.session.add(new_comment)
             db.session.commit()
-            return {'message': 'Commented on the post'}, 201
+            return {'message': 'Commented on the post.'}, 201
+        else:
+            return {'message': 'Post is locked, unable to comment.'}, 403
 
 # Interact with specific comments, comment API routes.
 @api.route('/post/comment/<int:comment_id>')
 class InteractComment(Resource):
-    """
-    Interact with specific comments.
-    """
     def get(self, comment_id):
+        """
+        Get a specific comment.
+        """
         # Query for the comment
         comment = Comments.query.filter_by(id=comment_id).first()
         if not comment:
-            return api.abort(404)
+            return {'message': 'Comment not found.'}, 404
         else:
             comment = Comments.query.filter_by(id=comment_id).first()
             comment_schema = CommentSchema()
@@ -325,51 +330,53 @@ class InteractComment(Resource):
         403: 'Forbidden',
         200: 'Comment successfully been updated'
     })
+    @jwt_required
     def put(self, comment_id):
         """
         Update or Edit a specific comment
         """
-        if authenticated():
-            comment = Comments.query.filter_by(id=comment_id).first()
-            if not comment:
-                return api.abort(404)
-            # Similar to the get method for specific post but updates instead.
-            # Check if the Post belongs to the current user or the current user is an admin.
-            elif comment.id == current_user.id or is_admin():
-                # Get the new data
-                data = request.get_json()
-                comment.content = data['content']
-                db.session.commit()
-                return {'message': 'Comment has successfully been updated.'}, 200
-            # If the Post does not belong to the User, return 403.
-            elif comment.commenter != current_user.username:
-                # Raise 403 error if the current user doesn't match the Post owner id
-                return api.abort(403)
-            else:
-                return {'message': 'Uh oh! Something went wrong.'}
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # Get information
+        comment = Comments.query.filter_by(id=comment_id).first()
+        if not comment:
+            return api.abort(404)
+        # Check if the Post belongs to the current user or the current user is an admin.
+        elif comment.commenter == current_user.username or is_admin(current_user):
+            # Get the new data
+            data = request.get_json()
+            comment.content = data['content']
+            db.session.commit()
+            return jsonify({'message': 'Comment has successfully been updated.'}), 200
+        # If the Post does not belong to the User, return 403.
+        elif comment.commenter != current_user.username:
+            # Raise 403 error if the current user doesn't match the Post owner id
+            return {'message': 'This comment does not belong to you.'}, 403
+        else:
+            return {'message': 'Uh oh! Something went wrong.'}, 500
 
+    @jwt_required
     def delete(self, comment_id):
         """ 
         Delete a specific comment by id
         """
-        if authenticated():
-            # Check if there's a post that exists with that id
-            comment = Comments.query.filter_by(id=comment_id).first()
-            if not comment:
-                return api.abort(404)
-                # Check if the Post belongs to the User or the user is an Admin
-            elif comment.owner_id == current_user.id or is_admin():
-                # Delete the post if it exists using the given 'post_id'
-                delete_comment = Comments.query.filter_by(id=comment_id).delete()
-                # Commit those changes
-                db.session.commit()
-                return {'result': 'Post has successfully been deleted'}, 200
-            # If the Post does not belong to the User, return 403.
-            elif comment.commenter != current_user.username:
-                # Raise 403 error if the current user doesn't match the Post owner id
-                return {'message': 'This comment does not belong to you'}
-            else:
-                return {'message': 'Uh oh! something went wrong'}
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # Check if there's a post that exists with that id
+        comment = Comments.query.filter_by(id=comment_id).first()
+        if not comment:
+            return {'message': 'Comment not found.'}, 404
+            # Check if the Post belongs to the User or the user is an Admin
+        elif comment.commenter == current_user.username or is_admin(current_user):
+            # Delete the post if it exists using the given 'post_id'
+            delete_comment = Comments.query.filter_by(id=comment_id).delete()
+            # Commit those changes
+            db.session.commit()
+            return {'message': 'Post has successfully been deleted.'}, 200
+        # If the Post does not belong to the User, return 403.
+        elif comment.commenter != current_user.username:
+            # Raise 403 error if the current user doesn't match the Post owner id
+            return {'message': 'This comment does not belong to you.'}, 403
+        else:
+            return {'message': 'Uh oh! Something went wrong,'}, 500
         
 # Reply System
 @api.route('/comment/<int:comment_id>/replies')
@@ -390,30 +397,33 @@ class PostComments(Resource):
 
     @api.expect(user_reply)
     @api.doc(responses={
-        201: 'Replied on the comment'
+        201: 'Replied on the comment.'
     })
+    @jwt_required
     def post(self, comment_id):
-        if authenticated():
-            data = request.get_json()
-            # Pass the information to the variables
-            content = data['content']
-            modified = data['modified']
-            new_reply = Reply(on_comment=comment_id, replier=current_user.username, content=content, modified=modified)
-            db.session.add(new_reply)
-            db.session.commit()
-            return {'message': 'Replied on the comment'}, 201
+        """
+        Reply on a specific comment.
+        """
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        data = request.get_json()
+        # Pass the information to the variables
+        content = data['content']
+        new_reply = Reply(on_comment=comment_id, replier=current_user.username, content=content, modified=datetime.now())
+        db.session.add(new_reply)
+        db.session.commit()
+        return {'message': 'Replied on the comment.'}, 201
 
 # Interact with specific replies, reply API routes.
 @api.route('/comment/reply/<int:reply_id>')
 class InteractComment(Resource):
-    """
-    Interact with specific replies
-    """
     def get(self, reply_id):
+        """
+        Get a specific reply.
+        """
         # Query for the Reply
         reply = Reply.query.filter_by(id=reply_id).first()
         if not reply:
-            return {'message': 'Reply not found'}, 404
+            return {'message': 'Reply not found.'}, 404
         else:
             reply = Reply.query.filter_by(id=reply_id).first()
             reply_schema = ReplySchema()
@@ -427,56 +437,116 @@ class InteractComment(Resource):
         403: 'Forbidden',
         200: 'Reply successfully been updated'
     })
+    @jwt_required
     def put(self, reply_id):
         """
         Update or Edit a specific Reply
         """
-        if authenticated():
-            reply = Reply.query.filter_by(id=reply_id).first()
-            if not reply:
-                return api.abort(404)
-            # Check if the Reply belongs to the current user or the current user is an admin.
-            elif reply.replier == current_user.username or is_admin():
-                # Get the new data
-                data = request.get_json()
-                reply.content = data['content']
-                db.session.commit()
-                return {'message': 'Reply has successfully been updated.'}, 200
-            # If the Reply does not belong to the User, return 403.
-            elif reply.replier != current_user.username:
-                # Raise 403 error if the current user doesn't match the Post owner id
-                return {'message': 'This reply does not belong to you'}
-            else:
-                return {'message': 'Uh oh! Something went wrong.'}
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        reply = Reply.query.filter_by(id=reply_id).first()
+        if not reply:
+            return api.abort(404)
+        # Check if the Reply belongs to the current user or the current user is an admin.
+        elif reply.replier == current_user.username or is_admin(current_user):
+            # Get the new data
+            data = request.get_json()
+            reply.content = data['content']
+            db.session.commit()
+            return {'message': 'Reply has successfully been updated.'}, 200
+        # If the Reply does not belong to the User, return 403.
+        elif reply.replier != current_user.username:
+            # Raise 403 error if the current user doesn't match the Post owner id
+            return {'message': 'This reply does not belong to you.'}, 403
+        else:
+            return {'message': 'Uh oh! Something went wrong.'}, 500
 
+    @jwt_required
     def delete(self, reply_id):
         """ 
         Delete a specific reply by id
         """
-        if authenticated():
-            # Check if there's a reply that exists with that id
-            reply = Reply.query.filter_by(id=reply_id).first()
-            if not reply:
-                return {'message': 'Reply not found'}, 404
-                # Check if the Reply belongs to the User or the user is an Admin
-            elif reply.replier == current_user.username or is_admin():
-                # Delete the reply if it exists using the given 'post_id'
-                delete_comment = Comments.query.filter_by(id=comment_id).delete()
-                # Commit those changes
-                db.session.commit()
-                return {'result': 'Reply has successfully been deleted'}, 200
-            # If the Post does not belong to the User, return 403.
-            elif reply.replier != current_user.username:
-                # Raise 403 error if the current user doesn't match the Post owner id
-                return {'message': 'This reply does not belong to you'}
-            else:
-                return {'message': 'Uh oh! something went wrong'}
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # Check if there's a reply that exists with that id
+        reply = Reply.query.filter_by(id=reply_id).first()
+        if not reply:
+            return {'message': 'Reply not found'}, 404
+            # Check if the Reply belongs to the User or the user is an Admin
+        elif reply.replier == current_user.username or is_admin(current_user):
+            # Delete the reply if it exists using the given 'post_id'
+            delete_comment = Comments.query.filter_by(id=comment_id).delete()
+            # Commit those changes
+            db.session.commit()
+            return {'result': 'Reply has successfully been deleted'}, 200
+        # If the Post does not belong to the User, return 403.
+        elif reply.replier != current_user.username:
+            # Raise 403 error if the current user doesn't match the Post owner id
+            return {'message': 'This reply does not belong to you'}, 403
+        else:
+            return {'message': 'Uh oh! Something went wrong.'}, 500
+
+@api.route('/protected')
+class Protect(Resource):
+    @jwt_required
+    @member_only 
+    def get(self):
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        if is_admin(current_user):
+            return {'message': 'You are an admin!'}, 200
+        return jsonify({'message': current_user.username})
+
+@api.route('/login')
+class UserLogin(Resource):
+    @api.expect(user_login)
+    def post(self):
+        data = request.get_json()
+        if not data or not data['username'] or not data['password']:
+            return {'msg': 'No login data found!'}, 404
+        username = data['username']
+        password = data['password']
+        # Query and check if the User is in the Database
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return {'message': 'User not found!'}, 404
+        if user.username == username and check_password_hash(user.password, password):
+            access_token = create_access_token(identity=username, expires_delta=False)
+            return {'access_token': access_token}, 200
+        else:
+            return {'msg': 'Invalid credentials!'}, 401
+
+@api.route('/register')
+class UserRegister(Resource):
+    @api.expect(user_registration)
+    def post(self):
+        # Get json objects
+        data = request.get_json()
+        # Pass the data
+        email = data['email']
+        username = data['username']
+        password = data['password']
+        confirm_password = data['confirm_password']
+        first_name = data['first_name']
+        last_name = data['last_name']
+        # Check if the username exists
+        if User.query.filter_by(username=username).first() is not None:
+            return {'message': 'Username already taken!'}, 403
+        # Check if the email is used
+        if User.query.filter_by(email=email).first() is not None:
+            return {'message': 'Email already taken!'}, 403
+        if password != confirm_password:
+            return {'message': 'Passwords don\'t match!'}, 406
+        else:
+            pass
+        hashed_password = generate_password_hash(password, method='sha512')
+        new_user = User(public_id=str(uuid4()), email=email, username=username, password=hashed_password,\
+                        first_name=first_name, last_name=last_name, joined_date=datetime.now())
+        db.session.add(new_user)
+        db.session.commit()
+        return {'message': 'Successfully registered!'}, 200
 
 """ 
 Add Admin Views,
 This will add the models for Flask-Admin which will appear in the Admin
 page, then we can CRUD these models and objects within it using Flask-Admin.
 """
-admin.add_view(ProtectedModelView(Role, db.session))
 admin.add_view(ProtectedModelView(User, db.session))
 admin.add_view(ProtectedModelView(Posts, db.session))
