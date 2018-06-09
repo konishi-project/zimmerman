@@ -492,7 +492,11 @@ class Protect(Resource):
     def get(self):
         current_user = load_user(get_jwt_identity())
         if is_admin(current_user):
-            return {'message': 'You are an admin!'}, 200
+            return {
+                'username': current_user.username,
+                'public_id': current_user.public_id,
+                'status': current_user.status,
+            }, 200
         return jsonify({'message': current_user.username})
 
 @api.route('/login')
