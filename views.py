@@ -14,7 +14,7 @@ with the API and Routes.
 Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
-from app import app, api, ma, jwt
+from app import app, api, ma, jwt, limiter
 from flask import jsonify, request
 from flask_admin import Admin, AdminIndexView
 from flask_restplus import Resource, SchemaModel
@@ -86,6 +86,7 @@ class NewsFeed(Resource):
     @api.expect(user_post)
     @jwt_required
     @member_only
+    @limiter.limit('10/day';'5/hour') # 10 per day, 5 per hour.
     def post(self):
         """ Create a new post.
         ---
