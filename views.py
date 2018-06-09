@@ -54,6 +54,7 @@ class IdFeed(Resource):
 @api.route('/users')
 class UserList(Resource):
     @jwt_required
+    @member_only
     def get(self):
         current_user = load_user(get_jwt_identity())
         # Query all the user
