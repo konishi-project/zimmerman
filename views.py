@@ -14,7 +14,7 @@ with the API and Routes.
 Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
-from app import app, api, ma, jwt
+from app import app, api, ma, jwt, limiter
 from flask import jsonify, request
 from flask_admin import Admin, AdminIndexView
 from flask_restplus import Resource, SchemaModel
@@ -54,6 +54,7 @@ class IdFeed(Resource):
 @api.route('/users')
 class UserList(Resource):
     @jwt_required
+    @member_only
     def get(self):
         current_user = load_user(get_jwt_identity())
         # Query all the user
@@ -84,6 +85,8 @@ class NewsFeed(Resource):
     @api.response(201, 'Post has successfully been created')
     @api.expect(user_post)
     @jwt_required
+    @member_only
+    @limiter.limit('10/day';'5/hour') # 10 per day, 5 per hour.
     def post(self):
         """ Create a new post.
         ---
@@ -122,6 +125,7 @@ class ReadPost(Resource):
     @api.response(404, 'Post not found!')
     @api.expect(user_post)
     @jwt_required
+    @member_only
     def put(self, post_id):
         """
         Update or Edit a specific post
@@ -145,6 +149,7 @@ class ReadPost(Resource):
     @api.response(200, 'Post has successfully been deleted')
     @api.response(404, 'Post not found!')
     @jwt_required
+    @member_only
     def delete(self, post_id):
         """
         Delete a specific post by id
@@ -289,6 +294,7 @@ class PostComments(Resource):
         201: 'Commented on the post.'
     })
     @jwt_required
+    @member_only
     def post(self, post_id):
         """
         Comment on a specific post.
@@ -332,6 +338,7 @@ class InteractComment(Resource):
         200: 'Comment successfully been updated'
     })
     @jwt_required
+    @member_only
     def put(self, comment_id):
         """
         Update or Edit a specific comment
@@ -356,6 +363,7 @@ class InteractComment(Resource):
             return {'message': 'Uh oh! Something went wrong.'}, 500
 
     @jwt_required
+    @member_only
     def delete(self, comment_id):
         """ 
         Delete a specific comment by id
@@ -401,6 +409,7 @@ class PostComments(Resource):
         201: 'Replied on the comment.'
     })
     @jwt_required
+    @member_only
     def post(self, comment_id):
         """
         Reply on a specific comment.
@@ -439,6 +448,7 @@ class InteractComment(Resource):
         200: 'Reply successfully been updated'
     })
     @jwt_required
+    @member_only
     def put(self, reply_id):
         """
         Update or Edit a specific Reply
@@ -462,6 +472,7 @@ class InteractComment(Resource):
             return {'message': 'Uh oh! Something went wrong.'}, 500
 
     @jwt_required
+    @member_only
     def delete(self, reply_id):
         """ 
         Delete a specific reply by id
@@ -492,7 +503,11 @@ class Protect(Resource):
     def get(self):
         current_user = load_user(get_jwt_identity())
         if is_admin(current_user):
-            return {'message': 'You are an admin!'}, 200
+            return {
+                'username': current_user.username,
+                'public_id': current_user.public_id,
+                'status': current_user.status,
+            }, 200
         return jsonify({'message': current_user.username})
 
 @api.route('/login')
