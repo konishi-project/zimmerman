@@ -559,6 +559,32 @@ class UserRegister(Resource):
         db.session.commit()
         return {'message': 'Successfully registered!'}, 200
 
+# Uploading
+POST_UPLOAD_PATH = '/static/user_files/contentimg'
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@api.route('/imageupload')
+class PostImage(Resource):
+    @jwt_required
+    def post(self):
+        """
+        Upload an image.
+        """
+        # Check if there's a file
+        if 'file' not in request.files:
+            return {'message': 'File not found!'}, 404
+        file = request.files['file']
+        if file.filename == '':
+            return {'message': 'No select file.'}, 403
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(POST_UPLOAD_PATH, filename))
+            return {'message': 'File uploaded', 'filename': filename}
+
 """ 
 Add Admin Views,
 This will add the models for Flask-Admin which will appear in the Admin
