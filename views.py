@@ -583,7 +583,7 @@ class PostImage(Resource):
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(POST_UPLOAD_PATH, filename))
-            return {'message': 'File uploaded', 'filename': filename}
+            return {'message': 'File uploaded', 'id': filename}
 
 """ 
 Add Admin Views,
