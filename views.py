@@ -86,7 +86,7 @@ class NewsFeed(Resource):
     @api.expect(user_post)
     @jwt_required
     @member_only
-    @limiter.limit('10/day';'5/hour') # 10 per day, 5 per hour.
+    @limiter.limit('10/day;5/hour') # 10 per day, 5 per hour.
     def post(self):
         """ Create a new post.
         ---
