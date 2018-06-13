@@ -52,29 +52,10 @@ class IdFeed(Resource):
         output = [i["id"] for i in post_schema.dump(posts_ids).data]
         return jsonify({'posts_ids': output})
 
-@api.route('/users')
-class UserList(Resource):
-    @jwt_required
-    @member_only
-    def get(self):
-        current_user = load_user(get_jwt_identity())
-        # Query all the user
-        if is_admin(current_user):
-            users = User.query.order_by(User.joined_date.desc())
-            # Grab the user schema
-            user_schema = UserSchema(many=True)
-            # Dump the information of the users
-            output = user_schema.dump(users).data
-            return jsonify({'users': output})
-        else:
-            return {'message': 'Forbidden!'}, 403
-
 @api.route('/posts')
 class NewsFeed(Resource):
     def get(self):
-        """
-        Read all the posts
-        """
+        """ Read all the posts. """
         # Query all the posts and order them by newest to oldest
         posts = Posts.query.order_by(Posts.created.desc())
         # Grab the post schema
@@ -207,11 +188,9 @@ class LikePost(Resource):
 # Comment liking
 @api.route('/comment/<int:comment_id>/like')
 class LikeComment(Resource):
-    """
-    Like a comment.
-    """
     @jwt_required
     def post(self, comment_id):
+        """ Like a comment. """
         current_user = load_user(get_jwt_identity())
         # Query for that comment
         comment = Comments.query.filter_by(id=comment_id).first()
@@ -229,6 +208,7 @@ class LikeComment(Resource):
 
     @jwt_required
     def delete(self, comment_id):
+        """ Unlike a comment. """
         current_user = load_user(get_jwt_identity())
         # Query the comment and find the like
         comment = Comments.query.filter_by(id=comment_id).first()
@@ -241,11 +221,9 @@ class LikeComment(Resource):
 # Reply liking
 @api.route('/reply/<int:reply_id>/like')
 class LikeReply(Resource):
-    """
-    Like a reply.
-    """
     @jwt_required
     def post(self, reply_id):
+        """ Like a reply. """
         current_user = load_user(get_jwt_identity())
         # Query for that reply
         reply = Reply.query.filter_by(id=reply_id).first()
@@ -262,9 +240,7 @@ class LikeReply(Resource):
             return {'message': 'User has liked the reply.'}, 201
 
     def delete(self, reply_id):
-        """
-        Unlike a reply.
-        """
+        """ Unlike a reply. """
         # Query the comment and find the like
         reply = Reply.query.filter_by(id=reply_id).first()
         for like in reply.likes:
@@ -277,9 +253,7 @@ class LikeReply(Resource):
 @api.route('/post/<int:post_id>/comments')
 class PostComments(Resource):
     def get(self, post_id):
-        """
-        Read comments on a specific post.
-        """
+        """ Read comments on a specific post. """
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
             return api.abort(404)
@@ -297,9 +271,7 @@ class PostComments(Resource):
     @jwt_required
     @member_only
     def post(self, post_id):
-        """
-        Comment on a specific post.
-        """
+        """ Comment on a specific post. """
         post = Posts.query.filter_by(id=post_id).first()
         # Check if post is not locked.
         if post.status == 'NORMAL':
@@ -391,10 +363,8 @@ class InteractComment(Resource):
 # Reply System
 @api.route('/comment/<int:comment_id>/replies')
 class PostComments(Resource):
-    """
-    Reply to a comment.
-    """
     def get(self, comment_id):
+        """ Reply to a comment. """
         comment = Comments.query.filter_by(id=comment_id).first()
         if not comment:
             return {'message': 'Comment not found.'}, 404
@@ -412,9 +382,7 @@ class PostComments(Resource):
     @jwt_required
     @member_only
     def post(self, comment_id):
-        """
-        Reply on a specific comment.
-        """
+        """ Reply on a specific comment. """
         current_user = load_user(get_jwt_identity())
         data = request.get_json()
         # Pass the information to the variables
@@ -497,11 +465,13 @@ class InteractComment(Resource):
         else:
             return {'message': 'Uh oh! Something went wrong.'}, 500
 
+# Will be removed once everything works well.
 @api.route('/protected')
 class Protect(Resource):
     @jwt_required
     @member_only 
     def get(self):
+        """ Route for testing jwt and security. """
         current_user = load_user(get_jwt_identity())
         if is_admin(current_user):
             return {
@@ -515,6 +485,7 @@ class Protect(Resource):
 class UserLogin(Resource):
     @api.expect(user_login)
     def post(self):
+        """ Login and get a token. """
         data = request.get_json()
         if not data or not data['username'] or not data['password']:
             return {'msg': 'No login data found!'}, 404
@@ -534,6 +505,7 @@ class UserLogin(Resource):
 class UserRegister(Resource):
     @api.expect(user_registration)
     def post(self):
+        """ Register to Konishi. """
         # Get json objects
         data = request.get_json()
         # Pass the data
