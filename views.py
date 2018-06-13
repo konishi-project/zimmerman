@@ -28,6 +28,7 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 import json
 import os
+import hashlib
 
 """
 This is the Admin route, how it is protected can be found in 'models.py'.
@@ -560,7 +561,7 @@ class UserRegister(Resource):
         return {'message': 'Successfully registered!'}, 200
 
 # Uploading
-POST_UPLOAD_PATH = '/static/user_files/contentimg'
+POST_UPLOAD_PATH = 'static/user_files/contentimg/'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 def allowed_file(filename):
@@ -581,9 +582,11 @@ class PostImage(Resource):
         if file.filename == '':
             return {'message': 'No select file.'}, 403
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(POST_UPLOAD_PATH, filename))
-            return {'message': 'File uploaded', 'id': filename}
+            filename = file.filename
+            extension = '.' + filename.split('.')[1]
+            hashed_file = hashlib.sha256(str(file.filename).encode('utf-8')).hexdigest()[:32]
+            file.save(os.path.join(POST_UPLOAD_PATH, hashed_file + extension))
+            return jsonify({'success': True, 'image_id': hashed_file})
 
 """ 
 Add Admin Views,
