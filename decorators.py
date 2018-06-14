@@ -19,7 +19,7 @@ def member_only(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         # Check if the current user is a member.
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        current_user = load_user(get_jwt_identity())
         # current_user = User.query.filter_by(username=get_jwt_identity()).first()
         if current_user.member == True:
             pass
@@ -27,3 +27,10 @@ def member_only(f):
             return {'message': 'You are not a member!'}, 401
         return f(*args, **kwargs)
     return decorated
+
+def load_user(username):
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return {'message': 'User does not exist!'}, 404
+    else:
+        return user

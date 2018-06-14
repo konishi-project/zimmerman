@@ -14,6 +14,8 @@ from flask_migrate import Migrate
 from flask_restplus import Api
 from flask_jwt_extended import JWTManager 
 from flask_marshmallow import Marshmallow
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import os
 
 # Init Flask App
@@ -30,6 +32,12 @@ ma = Marshmallow(app)
 migrate = Migrate(app, db)
 # Init JWT
 jwt = JWTManager(app)
+# Init Limiter
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=["10 per day", "5 per hour"]
+    )
 """
 Import everything from 'views.py'.
 ---
