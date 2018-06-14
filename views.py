@@ -27,6 +27,7 @@ from decorators import *
 from datetime import datetime, timedelta
 from uuid import uuid4
 import json
+import glob
 import os
 import hashlib
 
@@ -80,8 +81,9 @@ class NewsFeed(Resource):
         data = request.get_json()
         # Pass the information to the variables
         content = data['content']
+        image_id = data['image_id']
         # Create a new post and commit to database.
-        new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, content=content, status='NORMAL', modified=datetime.now())
+        new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, content=content, image_file=image_id,status='NORMAL', modified=datetime.now())
         db.session.add(new_post)
         db.session.commit()
         return {'message': 'Post has successfully been created'}, 201
@@ -99,9 +101,16 @@ class ReadPost(Resource):
         if not post:
             return {'message': 'Post not found!'}, 404
         else:
+            post = Posts.query.filter_by(id=post_id).first()
             post_schema = PostSchema()
             output = post_schema.dump(post).data
-            return jsonify({'post': output})
+            if post.image_file != None:
+                img_id = post.image_file
+                img_url = glob.glob(os.path.join(POST_UPLOAD_PATH, '{}.*'.format(img_id)))
+                output['image_url'] = img_url[0]
+                return jsonify({'post': output})
+            else:
+                return jsonify({'post': output})
 
     @api.response(200, 'Post successfully been updated.')
     @api.response(404, 'Post not found!')
