@@ -51,7 +51,7 @@ class Posts(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator_name = db.Column(db.String(20))
     content = db.Column(db.Text)
-    image_file = db.Column(db.String(20), default=None, nullable=True)
+    image_file = db.Column(db.String(35), default=None, nullable=True)
     status = db.Column(db.String(10))
     created = db.Column(db.DateTime, default=datetime.now)
     modified = db.Column(db.DateTime, default=datetime.now)
