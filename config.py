@@ -9,9 +9,9 @@ import os
 # Debug mode
 DEBUG = True
 # Flask Secret Key for encrypting sessions, change in production to something very secret.
-SECRET_KEY = 'SomeSecretKeyThisIsJustAnExample'
+SECRET_KEY = os.environ.get('SECRET_KEY', os.urandom(24))
 # Secret key for JWT, change in production to something no one knows.
-JWT_SECRET_KEY = 'SuperSecreto'
+JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', "4cRK'[pGI%28blJ6$?/Oy+')uG=Txx")
 
 """
 Check out documentation for Flask-SQLAlchemy Here
