@@ -77,8 +77,8 @@ class NewsFeed(Resource):
         content = data['content']
         image_id = data['image_id']
         # Create a new post and commit to database.
-        new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, content=content, 
-                         image_file=image_id,status='NORMAL', modified=datetime.now())
+        new_post = Posts(owner_id=current_user.public_id, creator_name=current_user.username, 
+                   content=content, image_file=image_id,status='NORMAL', modified=datetime.now())
         db.session.add(new_post)
         db.session.commit()
         return {'message': 'Post has successfully been created'}, 201
