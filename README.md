@@ -40,4 +40,4 @@ Arch Linux - ```https://wiki.archlinux.org/index.php/PostgreSQL```
 ``` $ python3.6 app.py ```
 
 ## Extra Documentation
-You can find extra documentation related to the files and python modules for the application [here](https://github.com/konishi-project/zimmerman/tree/next/Documentation) (GITHUB TREE - NEXT) or they are written in the file itself.
+You can find extra documentation related to the files and python modules for the application [here](https://github.com/konishi-project/zimmerman/tree/next/Documentation).
