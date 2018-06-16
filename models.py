@@ -13,6 +13,7 @@ from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_restplus import SchemaModel
 from datetime import datetime
+from decorators import load_user
 
 """ 
 Defining the Models
@@ -22,6 +23,7 @@ Documentation - https://pythonhosted.org/Flask-Security/
 """
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    ## User details
     public_id = db.Column(db.String(50), unique=True)
     email = db.Column(db.String(255), unique=True)
     username = db.Column(db.String(20), unique=True)
@@ -30,11 +32,11 @@ class User(db.Model):
     bio = db.Column(db.Text, nullable=True)
     password = db.Column(db.String(255))
     posts = db.relationship('Posts', backref='user')
-    # Likes 
+    ## Likes 
     post_likes = db.relationship('PostLike', backref='user')
     comment_likes = db.relationship('CommentLike', backref='user')
     reply_like = db.relationship('ReplyLike', backref='user')
-    ##
+    ## Statuses
     member = db.Column(db.Boolean(), default=False)
     joined_date = db.Column(db.DateTime)
     status = db.Column(db.String(10))
@@ -124,17 +126,17 @@ class MainAdminIndexView(AdminIndexView):
     #@jwt_required
     def is_accessible(self):
         return True
-        # current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # current_user = load_user(get_jwt_identity())
         # return current_user.status == 'admin'
     def inaccessible_callback(self, name, **kwargs):
-        return jsonify({'message': 'Forbidden!'}), 403
+        return {'message': 'Forbidden!'}, 403
 
 # This is exactly similar to above Model but for ModelViews not Admin Index View.
 class ProtectedModelView(ModelView):
     #@jwt_required
     def is_accessible(self):
         return True
-        # current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # current_user = load_user(get_jwt_identity())
         # return current_user.status == 'admin'
     def inaccessible_callback(self, name, **kwargs):
-        return jsonify({'message': 'Forbidden!'}), 403
+        return {'message': 'Forbidden!'}, 403
