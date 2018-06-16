@@ -40,9 +40,7 @@ admin = Admin(app, name='Admin Area', template_mode='bootstrap3', index_view=Mai
 @api.route('/feed')
 class IdFeed(Resource):
     def get(self):
-        """ 
-        Get IDs from Database
-        """
+        """  Get Post IDs from Database. """
         # Limit how many posts are being queried
         limit = request.args.get('limit', default=1000)
         # Query posts, order by newest to oldest then limit the results, and get the IDs only
@@ -69,21 +67,18 @@ class NewsFeed(Resource):
     @api.expect(user_post)
     @jwt_required
     @member_only
-    @limiter.limit('10/day;5/hour') # 10 per day, 5 per hour.
+    @limiter.limit('10/day;5/hour')
     def post(self):
-        """ Create a new post.
-        ---
-        The 'data' variable requests for the incoming JSON and then
-        we pass those data to the new variables that will be used later
-        on as another argument and commit it to the database.
-        """
+        """ Create a new post. """
         current_user = load_user(get_jwt_identity())
+        # Get the incoming JSON body.
         data = request.get_json()
         # Pass the information to the variables
         content = data['content']
         image_id = data['image_id']
         # Create a new post and commit to database.
-        new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, content=content, image_file=image_id,status='NORMAL', modified=datetime.now())
+        new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, content=content, 
+                         image_file=image_id,status='NORMAL', modified=datetime.now())
         db.session.add(new_post)
         db.session.commit()
         return {'message': 'Post has successfully been created'}, 201
@@ -93,9 +88,7 @@ class NewsFeed(Resource):
 class ReadPost(Resource):
     @api.response(404, 'Post not found!')
     def get(self, post_id):
-        """
-        Interact with a specific post
-        """
+        """ Interact with a specific post. """
         # Get specific post using the post_id
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
@@ -104,9 +97,13 @@ class ReadPost(Resource):
             post = Posts.query.filter_by(id=post_id).first()
             post_schema = PostSchema()
             output = post_schema.dump(post).data
+            # Check if there's an image file
             if post.image_file != None:
+                # Get the id
                 img_id = post.image_file
+                # Search for the img in the post image files
                 img_url = glob.glob(os.path.join(POST_UPLOAD_PATH, '{}.*'.format(img_id)))
+                # Attach it and jsonify the output
                 output['image_url'] = img_url[0]
                 return jsonify({'post': output})
             else:
@@ -118,9 +115,7 @@ class ReadPost(Resource):
     @jwt_required
     @member_only
     def put(self, post_id):
-        """
-        Update or Edit a specific post
-        """
+        """ Update or Edit a specific post. """
         current_user = load_user(get_jwt_identity())
         # Similar to the get method for specific post but updates instead.
         post = Posts.query.filter_by(id=post_id).first()
@@ -142,9 +137,7 @@ class ReadPost(Resource):
     @jwt_required
     @member_only
     def delete(self, post_id):
-        """
-        Delete a specific post by id
-        """
+        """ Delete a specific post by id. """
         current_user = load_user(get_jwt_identity())
         # Query for that post
         post = Posts.query.filter_by(id=post_id).first()
@@ -162,9 +155,7 @@ class ReadPost(Resource):
 class LikePost(Resource):
     @jwt_required
     def post(self, post_id):
-        """
-        Like a post.
-        """
+        """ Like a post. """
         current_user = load_user(get_jwt_identity())
         # Query for that post
         post = Posts.query.filter_by(id=post_id).first()
@@ -182,9 +173,7 @@ class LikePost(Resource):
 
     @jwt_required
     def delete(self, post_id):
-        """
-        Unlike a post.
-        """
+        """ Unlike a post. """
         current_user = load_user(get_jwt_identity())
         # Query the post and find the like
         post = Posts.query.filter_by(id=post_id).first()
@@ -265,7 +254,7 @@ class PostComments(Resource):
         """ Read comments on a specific post. """
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
-            return api.abort(404)
+            return {'message': 'Post not found!'}, 404
         else:
             post = Posts.query.filter_by(id=post_id).first()
             comments = post.comments
@@ -288,7 +277,8 @@ class PostComments(Resource):
             data = request.get_json()
             # Pass the information to the variables
             content = data['content']
-            new_comment = Comments(on_post=post_id, commenter=current_user.username, content=content, modified=datetime.now())
+            new_comment = Comments(on_post=post_id, commenter=current_user.username,
+                                   content=content, modified=datetime.now())
             db.session.add(new_comment)
             db.session.commit()
             return {'message': 'Commented on the post.'}, 201
@@ -329,7 +319,7 @@ class InteractComment(Resource):
         # Get information
         comment = Comments.query.filter_by(id=comment_id).first()
         if not comment:
-            return api.abort(404)
+            return {'message': 'Comment not found!'}, 404
         # Check if the Post belongs to the current user or the current user is an admin.
         elif comment.commenter == current_user.username or is_admin(current_user):
             # Get the new data
@@ -396,7 +386,8 @@ class PostComments(Resource):
         data = request.get_json()
         # Pass the information to the variables
         content = data['content']
-        new_reply = Reply(on_comment=comment_id, replier=current_user.username, content=content, modified=datetime.now())
+        new_reply = Reply(on_comment=comment_id, replier=current_user.username, 
+                          content=content, modified=datetime.now())
         db.session.add(new_reply)
         db.session.commit()
         return {'message': 'Replied on the comment.'}, 201
@@ -428,13 +419,11 @@ class InteractComment(Resource):
     @jwt_required
     @member_only
     def put(self, reply_id):
-        """
-        Update or Edit a specific Reply
-        """
+        """ Update or Edit a specific Reply. """
         current_user = load_user(get_jwt_identity())
         reply = Reply.query.filter_by(id=reply_id).first()
         if not reply:
-            return api.abort(404)
+            return {'message': 'Reply not found!'}, 404
         # Check if the Reply belongs to the current user or the current user is an admin.
         elif reply.replier == current_user.username or is_admin(current_user):
             # Get the new data
@@ -452,9 +441,7 @@ class InteractComment(Resource):
     @jwt_required
     @member_only
     def delete(self, reply_id):
-        """ 
-        Delete a specific reply by id
-        """
+        """ Delete a specific reply by id. """
         current_user = load_user(get_jwt_identity())
         # Check if there's a reply that exists with that id
         reply = Reply.query.filter_by(id=reply_id).first()
@@ -543,7 +530,7 @@ class UserRegister(Resource):
 
 # Uploading
 POST_UPLOAD_PATH = 'static/user_files/contentimg/'
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -553,20 +540,23 @@ def allowed_file(filename):
 class PostImage(Resource):
     @jwt_required
     def post(self):
-        """
-        Upload an image.
-        """
+        """ Upload an image. """
         # Check if there's a file
         if 'file' not in request.files:
             return {'message': 'File not found!'}, 404
         file = request.files['file']
+        # Check if the filename is not none
         if file.filename == '':
             return {'message': 'No select file.'}, 403
         if file and allowed_file(file.filename):
+            # Get the filename
             filename = file.filename
             extension = '.' + filename.split('.')[1]
+            # Hash the file and limit to 32 chars
             hashed_file = hashlib.sha256(str(file.filename).encode('utf-8')).hexdigest()[:32]
+            # Save it and attach the extension
             file.save(os.path.join(POST_UPLOAD_PATH, hashed_file + extension))
+            # Return hashed filename to the client
             return jsonify({'success': True, 'image_id': hashed_file})
 
 """ 
