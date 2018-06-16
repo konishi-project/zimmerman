@@ -522,7 +522,7 @@ class UserRegister(Resource):
         else:
             pass
         hashed_password = generate_password_hash(password, method='sha512')
-        new_user = User(public_id=str(uuid4()), email=email, username=username, password=hashed_password,\
+        new_user = User(public_id=str(uuid4()), email=email, username=username, password=hashed_password,
                         first_name=first_name, last_name=last_name, joined_date=datetime.now())
         db.session.add(new_user)
         db.session.commit()
