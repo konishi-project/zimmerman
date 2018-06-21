@@ -8,8 +8,9 @@ from models import *
 from datetime import datetime
 from app import api
 
-user_post = api.model('Post', {
+user_post = api.model('User Post', {
     'content': fields.String(required=True, description='Post content'),
+    'image_id': fields.String(required=False, description='Uploaded Image ID for the post.'),
 })
 
 user_comment = api.model('Comment', {

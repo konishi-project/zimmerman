@@ -107,4 +107,8 @@ ENV/
 konishienv
 # Ignore VSCode
 .vscode
+<<<<<<< HEAD
 migrations
+=======
+migrations
+>>>>>>> 08bae1d2cc48bd6cae877ec0bed02ae5a55e807c

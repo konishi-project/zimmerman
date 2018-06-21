@@ -36,7 +36,7 @@ jwt = JWTManager(app)
 limiter = Limiter(
     app,
     key_func=get_remote_address,
-    default_limits=["10 per day", "5 per hour"]
+    default_limits=["1000 per day", "500 per hour"]
     )
 """
 Import everything from 'views.py'.
