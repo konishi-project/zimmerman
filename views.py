@@ -106,8 +106,7 @@ class ReadPost(Resource):
                 # Attach it and jsonify the output
                 output['image_url'] = img_url[0]
                 return jsonify({'post': output})
-            else:
-                return jsonify({'post': output})
+            return jsonify({'post': output})
 
     @api.response(200, 'Post successfully been updated.')
     @api.response(404, 'Post not found!')
