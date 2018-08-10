@@ -9,6 +9,7 @@ Resources:
 Flask-Marshmallow - http://flask-marshmallow.readthedocs.io/en/latest/
 """
 from flask import Flask
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restplus import Api
@@ -24,6 +25,8 @@ app = Flask(__name__)
 app.config.from_pyfile('config.py')
 # Init the Database
 db = SQLAlchemy(app)
+# Init CORS
+CORS(app)
 # Init RESTPlus
 api = Api(app)
 # Init Marshmallow
