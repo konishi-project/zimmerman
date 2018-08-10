@@ -61,7 +61,7 @@ class NewsFeed(Resource):
         post_schema = PostSchema(many=True)
         # Dump the information of the posts
         output = post_schema.dump(posts).data
-        return jsonify({'posts': output})
+        return jsonify(output)
 
     @api.response(201, 'Post has successfully been created')
     @api.expect(user_post)
