@@ -15,21 +15,6 @@ def check_like(likes, current_user):
         else:
             pass
 
-def member_only(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        # Set to true atm, set to be implemented at a later stage.
-        return True
-        # Check if the current user is a member.
-        # current_user = load_user(get_jwt_identity())
-        # current_user = User.query.filter_by(username=get_jwt_identity()).first()
-        # if current_user.member == True:
-        #     pass
-        # else:
-        #     return {'message': 'You are not a member!'}, 401
-        return f(*args, **kwargs)
-    return decorated
-
 def load_user(username):
     user = User.query.filter_by(username=username).first()
     if not user:

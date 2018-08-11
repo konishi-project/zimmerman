@@ -13,7 +13,6 @@ from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_restplus import SchemaModel
 from datetime import datetime
-from decorators import load_user
 
 """ 
 Defining the Models
@@ -21,6 +20,15 @@ Defining the Models
 Some of the items is directly from Flask-Security but modified to fit our needs.
 Documentation - https://pythonhosted.org/Flask-Security/ 
 """
+roles_users = db.Table('roles_users',
+        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+
+class Role(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+    description = db.Column(db.String(255))
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ## User details
@@ -37,9 +45,9 @@ class User(db.Model):
     comment_likes = db.relationship('CommentLike', backref='user')
     reply_like = db.relationship('ReplyLike', backref='user')
     ## Statuses
-    member = db.Column(db.Boolean(), default=False)
     joined_date = db.Column(db.DateTime)
-    status = db.Column(db.String(10))
+    roles = db.relationship('Role', secondary=roles_users,
+                            backref=db.backref('users', lazy='dynamic'))
 
     def __repr__(self):
         return '{}'.format(self.username)
@@ -123,11 +131,11 @@ class ReplySchema(ma.ModelSchema):
 
 # Admin Index View is the Main Index, not the ModelView
 class MainAdminIndexView(AdminIndexView):
-    #@jwt_required
+    # @jwt_required
     def is_accessible(self):
         return True
-        # current_user = load_user(get_jwt_identity())
-        # return current_user.status == 'admin'
+        # current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        # return current_user.roles[0] == 1
     def inaccessible_callback(self, name, **kwargs):
         return {'message': 'Forbidden!'}, 403
 

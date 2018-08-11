@@ -53,6 +53,7 @@ class IdFeed(Resource):
 
 @api.route('/posts')
 class NewsFeed(Resource):
+    @jwt_required
     def get(self):
         """ Read all the posts. """
         # Query all the posts and order them by newest to oldest
@@ -61,12 +62,11 @@ class NewsFeed(Resource):
         post_schema = PostSchema(many=True)
         # Dump the information of the posts
         output = post_schema.dump(posts).data
-        return jsonify({'posts': output})
+        return jsonify(output)
 
     @api.response(201, 'Post has successfully been created')
     @api.expect(user_post)
     @jwt_required
-    @member_only
     @limiter.limit('10/day;5/hour')
     def post(self):
         """ Create a new post. """
@@ -77,11 +77,11 @@ class NewsFeed(Resource):
         content = data['content']
         image_id = data['image_id']
         # Create a new post and commit to database.
-        new_post = Posts(owner_id=current_user.public_id, creator_name=current_user.username, 
+        new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, 
                    content=content, image_file=image_id,status='NORMAL', modified=datetime.now())
         db.session.add(new_post)
         db.session.commit()
-        return {'message': 'Post has successfully been created'}, 201
+        return {'message': 'Post has successfully been created', 'success': True}, 201
 
 # Post system (Interact with specific posts)
 @api.route('/post/<int:post_id>')
@@ -112,7 +112,6 @@ class ReadPost(Resource):
     @api.response(404, 'Post not found!')
     @api.expect(user_post)
     @jwt_required
-    @member_only
     def put(self, post_id):
         """ Update or Edit a specific post. """
         current_user = load_user(get_jwt_identity())
@@ -134,7 +133,6 @@ class ReadPost(Resource):
     @api.response(200, 'Post has successfully been deleted')
     @api.response(404, 'Post not found!')
     @jwt_required
-    @member_only
     def delete(self, post_id):
         """ Delete a specific post by id. """
         current_user = load_user(get_jwt_identity())
@@ -266,12 +264,11 @@ class PostComments(Resource):
         201: 'Commented on the post.'
     })
     @jwt_required
-    @member_only
     def post(self, post_id):
         """ Comment on a specific post. """
         post = Posts.query.filter_by(id=post_id).first()
         # Check if post is not locked.
-        if post.status == 'NORMAL':
+        if post.status.lower() == 'normal':
             current_user = load_user(get_jwt_identity())
             data = request.get_json()
             # Pass the information to the variables
@@ -309,7 +306,6 @@ class InteractComment(Resource):
         200: 'Comment successfully been updated'
     })
     @jwt_required
-    @member_only
     def put(self, comment_id):
         """
         Update or Edit a specific comment
@@ -334,7 +330,6 @@ class InteractComment(Resource):
             return {'message': 'Uh oh! Something went wrong.'}, 500
 
     @jwt_required
-    @member_only
     def delete(self, comment_id):
         """ 
         Delete a specific comment by id
@@ -378,7 +373,6 @@ class PostComments(Resource):
         201: 'Replied on the comment.'
     })
     @jwt_required
-    @member_only
     def post(self, comment_id):
         """ Reply on a specific comment. """
         current_user = load_user(get_jwt_identity())
@@ -416,7 +410,6 @@ class InteractComment(Resource):
         200: 'Reply successfully been updated'
     })
     @jwt_required
-    @member_only
     def put(self, reply_id):
         """ Update or Edit a specific Reply. """
         current_user = load_user(get_jwt_identity())
@@ -438,7 +431,6 @@ class InteractComment(Resource):
             return {'message': 'Uh oh! Something went wrong.'}, 500
 
     @jwt_required
-    @member_only
     def delete(self, reply_id):
         """ Delete a specific reply by id. """
         current_user = load_user(get_jwt_identity())
@@ -464,7 +456,6 @@ class InteractComment(Resource):
 @api.route('/protected')
 class Protect(Resource):
     @jwt_required
-    @member_only 
     def get(self):
         """ Route for testing jwt and security. """
         current_user = load_user(get_jwt_identity())
@@ -492,9 +483,18 @@ class UserLogin(Resource):
             return {'message': 'User not found!'}, 404
         if user.username == username and check_password_hash(user.password, password):
             access_token = create_access_token(identity=username, expires_delta=False)
-            return {'access_token': access_token}, 200
+            return {'access_token': access_token, 'success': True}, 200
         else:
             return {'msg': 'Invalid credentials!'}, 401
+
+@api.route('/currentuser')
+class CurrentUser(Resource):
+    @jwt_required
+    def get(self):
+        currentUser = load_user(get_jwt_identity())
+        userSchema = UserSchema()
+        output = userSchema.dump(currentUser).data
+        return jsonify(output)
 
 @api.route('/register')
 class UserRegister(Resource):
@@ -565,3 +565,4 @@ page, then we can CRUD these models and objects within it using Flask-Admin.
 """
 admin.add_view(ProtectedModelView(User, db.session))
 admin.add_view(ProtectedModelView(Posts, db.session))
+admin.add_view(ProtectedModelView(Role, db.session))
