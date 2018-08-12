@@ -54,6 +54,7 @@ class IdFeed(Resource):
 @api.route('/posts')
 class NewsFeed(Resource):
     @jwt_required
+    @limiter.limit('20/day;10/hour;5/minute')
     def get(self):
         """ Read all the posts. """
         # Query all the posts and order them by newest to oldest
@@ -470,6 +471,7 @@ class Protect(Resource):
 @api.route('/login')
 class UserLogin(Resource):
     @api.expect(user_login)
+    @limiter.limit('5/day;1/minute')
     def post(self):
         """ Login and get a token. """
         data = request.get_json()
@@ -511,12 +513,12 @@ class UserRegister(Resource):
         first_name = data['first_name']
         last_name = data['last_name']
         entry_key = data['entry_key']
-        # Check if the username exists
-        if User.query.filter_by(username=username).first() is not None:
-            return {'message': 'Username already taken!'}, 403
         # Check if the email is used
         if User.query.filter_by(email=email).first() is not None:
-            return {'message': 'Email already taken!'}, 403
+            return {'message': 'Email already taken!', 'reason': 'email'}, 403
+        # Check if the username exists
+        if User.query.filter_by(username=username).first() is not None:
+            return {'message': 'Username already taken!', 'reason': 'username'}, 403
         if password != confirm_password:
             return {'message': 'Passwords don\'t match!'}, 406
         # Check if entry key is right
