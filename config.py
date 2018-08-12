@@ -20,3 +20,5 @@ http://flask-sqlalchemy.pocoo.org/2.3/
 """
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgres://postgres:password@localhost:5432/konishidb')
 SQLALCHEMY_TRACK_MODIFICATIONS = True
+
+ENTRY_KEY = "KonishiTesting"
