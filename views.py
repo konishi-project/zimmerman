@@ -510,6 +510,7 @@ class UserRegister(Resource):
         confirm_password = data['confirm_password']
         first_name = data['first_name']
         last_name = data['last_name']
+        entry_key = data['entry_key']
         # Check if the username exists
         if User.query.filter_by(username=username).first() is not None:
             return {'message': 'Username already taken!'}, 403
@@ -518,6 +519,9 @@ class UserRegister(Resource):
             return {'message': 'Email already taken!'}, 403
         if password != confirm_password:
             return {'message': 'Passwords don\'t match!'}, 406
+        # Check if entry key is right
+        if entry_key != app.config['ENTRY_KEY']:
+            return {'message': 'Entry key not correct!', 'reason': 'key'}, 406
         else:
             pass
         hashed_password = generate_password_hash(password, method='sha512')
@@ -525,7 +529,7 @@ class UserRegister(Resource):
                         first_name=first_name, last_name=last_name, joined_date=datetime.now())
         db.session.add(new_user)
         db.session.commit()
-        return {'message': 'Successfully registered!'}, 200
+        return {'message': 'Successfully registered!', 'success': True}, 200
 
 # Uploading
 POST_UPLOAD_PATH = 'static/user_files/contentimg/'
