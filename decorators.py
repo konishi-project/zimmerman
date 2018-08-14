@@ -5,9 +5,12 @@ from models import *
 from functools import wraps
 
 def is_admin(current_user):
-    # Get primary role
-    if current_user.roles[0] == 1:
-        return True
+    # Get admin role
+    for role in current_user.roles:
+        if role.name == 'admin':
+            return True
+        else:
+            return False
 
 def check_like(likes, current_user):
     for like in likes:
