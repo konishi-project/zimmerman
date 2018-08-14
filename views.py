@@ -58,7 +58,7 @@ class NewsFeed(Resource):
     def get(self):
         """ Read all the posts. """
         # Query all the posts and order them by newest to oldest
-        posts = Posts.query.order_by(Posts.created.desc())
+        posts = Posts.query.order_by(Posts.created.desc()).limit(500)
         # Grab the post schema
         post_schema = PostSchema(many=True)
         # Dump the information of the posts
@@ -120,6 +120,7 @@ class ReadPost(Resource):
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
             return {'message': 'Post not found!'}, 404
+        # Check post owner
         elif current_user.id == post.owner_id and post.status == 'NORMAL' or is_admin(current_user):
             # Get the new data
             data = request.get_json()
@@ -129,7 +130,7 @@ class ReadPost(Resource):
         elif post.status == 'LOCKED':
             return {'message': 'This post is locked.'}, 403
         else:
-            return jsonify({'message': 'You do not own this post.'}), 403
+            return {'message': 'You do not own this post.'}, 403
 
     @api.response(200, 'Post has successfully been deleted')
     @api.response(404, 'Post not found!')
@@ -141,11 +142,15 @@ class ReadPost(Resource):
         post = Posts.query.filter_by(id=post_id).first()
         if not post:
             return {'message', 'Post not found.'}, 404
+        # Check post owner
         elif current_user.id == post.owner_id or is_admin(current_user):
-            post = Posts.query.filter_by(id=post_id).delete()
+            del_post = Posts.query.filter_by(id=post_id).first()
             # Commit those changes
+            db.session.delete(del_post)
             db.session.commit()
-            return jsonify({'result': 'Post has successfully been deleted.'}), 200
+            return {'result': 'Post has successfully been deleted.', 'success': True}, 200
+        else:
+            return {'message': 'You do not own this post.'}, 403
 
 # Liking/Unliking System (Post, Comments, Replies)
 # Post liking
@@ -316,14 +321,14 @@ class InteractComment(Resource):
         comment = Comments.query.filter_by(id=comment_id).first()
         if not comment:
             return {'message': 'Comment not found!'}, 404
-        # Check if the Post belongs to the current user or the current user is an admin.
+        # Check if the Comment belongs to the current user or the current user is an admin.
         elif comment.commenter == current_user.username or is_admin(current_user):
             # Get the new data
             data = request.get_json()
             comment.content = data['content']
             db.session.commit()
             return jsonify({'message': 'Comment has successfully been updated.'}), 200
-        # If the Post does not belong to the User, return 403.
+        # If the Comment does not belong to the User, return 403.
         elif comment.commenter != current_user.username:
             # Raise 403 error if the current user doesn't match the Post owner id
             return {'message': 'This comment does not belong to you.'}, 403
@@ -340,14 +345,15 @@ class InteractComment(Resource):
         comment = Comments.query.filter_by(id=comment_id).first()
         if not comment:
             return {'message': 'Comment not found.'}, 404
-            # Check if the Post belongs to the User or the user is an Admin
+            # Check if the Comment belongs to the User or the user is an Admin
         elif comment.commenter == current_user.username or is_admin(current_user):
             # Delete the post if it exists using the given 'post_id'
-            delete_comment = Comments.query.filter_by(id=comment_id).delete()
+            del_comment = Comments.query.filter_by(id=comment_id).first()
+            db.session.delete(del_comment)
             # Commit those changes
             db.session.commit()
             return {'message': 'Post has successfully been deleted.'}, 200
-        # If the Post does not belong to the User, return 403.
+        # If the Comment does not belong to the User, return 403.
         elif comment.commenter != current_user.username:
             # Raise 403 error if the current user doesn't match the Post owner id
             return {'message': 'This comment does not belong to you.'}, 403
@@ -442,7 +448,8 @@ class InteractComment(Resource):
             # Check if the Reply belongs to the User or the user is an Admin
         elif reply.replier == current_user.username or is_admin(current_user):
             # Delete the reply if it exists using the given 'post_id'
-            delete_comment = Comments.query.filter_by(id=comment_id).delete()
+            del_reply = Reply.query.filter_by(id=reply_id).first()
+            db.session.delete(del_reply)
             # Commit those changes
             db.session.commit()
             return {'result': 'Reply has successfully been deleted'}, 200
