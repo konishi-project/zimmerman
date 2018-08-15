@@ -57,13 +57,15 @@ class NewsFeed(Resource):
     @limiter.limit('20/day;10/hour;5/minute')
     def get(self):
         """ Read all the posts. """
+        limit = request.args.get('limit', default=15)
         # Query all the posts and order them by newest to oldest
-        posts = Posts.query.order_by(Posts.created.desc()).limit(500)
+        posts = Posts.query.order_by(Posts.created.desc()).limit(limit)
         # Grab the post schema
         post_schema = PostSchema(many=True)
         # Dump the information of the posts
-        output = post_schema.dump(posts).data
-        return jsonify(output)
+        posts_output = post_schema.dump(posts).data
+        total = len(posts_output)
+        return jsonify({'posts': posts_output, 'total': total})
 
     @api.response(201, 'Post has successfully been created')
     @api.expect(user_post)
@@ -87,6 +89,8 @@ class NewsFeed(Resource):
 # Post system (Interact with specific posts)
 @api.route('/post/<int:post_id>')
 class ReadPost(Resource):
+
+    @jwt_required
     @api.response(404, 'Post not found!')
     def get(self, post_id):
         """ Interact with a specific post. """
@@ -500,9 +504,14 @@ class UserLogin(Resource):
 class CurrentUser(Resource):
     @jwt_required
     def get(self):
-        currentUser = load_user(get_jwt_identity())
+        current_user = load_user(get_jwt_identity())
         userSchema = UserSchema()
-        output = userSchema.dump(currentUser).data
+        output = userSchema.dump(current_user).data
+        if request.args.get('type') == 'likes':
+            current_likes = current_user.post_likes
+            postlike_schema = PostLikeSchema(many=True)
+            currentlikes_output = postlike_schema.dump(current_likes).data
+            return jsonify(currentlikes_output)
         return jsonify(output)
 
 @api.route('/register')

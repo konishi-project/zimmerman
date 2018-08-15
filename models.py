@@ -28,6 +28,8 @@ class Role(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
+    def __repr__(self):
+        return '{}'.format(self.name)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -99,6 +101,8 @@ class PostLike(db.Model):
     on_post = db.Column(db.Integer, db.ForeignKey('posts.id'))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     liked_on = db.Column(db.DateTime, default=datetime.now)
+    def __repr__(self):
+        return '{}'.format(self.on_post)
 
 class CommentLike(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -128,6 +132,10 @@ class CommentSchema(ma.ModelSchema):
 class ReplySchema(ma.ModelSchema):
     class Meta:
         model = Reply
+
+class PostLikeSchema(ma.ModelSchema):
+    class Meta:
+        model = PostLike
 
 # Admin Index View is the Main Index, not the ModelView
 class MainAdminIndexView(AdminIndexView):
