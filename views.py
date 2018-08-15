@@ -43,13 +43,21 @@ class IdFeed(Resource):
         """  Get Post IDs from Database. """
         # Limit how many posts are being queried
         limit = request.args.get('limit', default=1000)
-        # Query posts, order by newest to oldest then limit the results, and get the IDs only
-        posts_ids = Posts.query.order_by(Posts.created.desc()).limit(limit).with_entities(Posts.id)
-        # Grab the post schema
-        post_schema = PostSchema(many=True)
+        # Query comments, order by newest to oldest then limit the results, and get the IDs of the post they belong to
+        posts_ids = Comments.query.order_by(Comments.created.desc()).limit(limit)
+        # Get the comment schema
+        comment_schema = CommentSchema(many=True)
         # Get the value of "id" in each list and turn it into an array
-        output = [i["id"] for i in post_schema.dump(posts_ids).data]
+        output =  [i["posts"] for i in comment_schema.dump(posts_ids).data]
+        print(output)
         return jsonify({'posts_ids': output})
+
+    def post(self, id_array):
+        posts = []
+        for post_id in id_array:
+            # Get the post
+            post = Posts.query.filter_by(id=post_id).first()
+            print(post)
 
 @api.route('/posts')
 class NewsFeed(Resource):
@@ -57,7 +65,7 @@ class NewsFeed(Resource):
     @limiter.limit('20/day;10/hour;5/minute')
     def get(self):
         """ Read all the posts. """
-        limit = request.args.get('limit', default=15)
+        limit = request.args.get('limit', default=29)
         # Query all the posts and order them by newest to oldest
         posts = Posts.query.order_by(Posts.created.desc()).limit(limit)
         # Grab the post schema
