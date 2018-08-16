@@ -76,21 +76,22 @@ class IdFeed(Resource):
             posts.append(post_info)
         return jsonify({"posts": posts})
 
-@api.route('/posts')
-class NewsFeed(Resource):
-    @jwt_required
-    @limiter.limit('20/day;10/hour;5/minute')
-    def get(self):
-        """ Read all the posts. """
-        limit = request.args.get('limit', default=29)
-        # Query all the posts and order them by newest to oldest
-        posts = Posts.query.order_by(Posts.created.desc()).limit(limit)
-        # Grab the post schema
-        post_schema = PostSchema(many=True)
-        # Dump the information of the posts
-        posts_output = post_schema.dump(posts).data
-        total = len(posts_output)
-        return jsonify({'posts': posts_output, 'total': total})
+# DEPRECATED
+# @api.route('/posts')
+# class NewsFeed(Resource):
+#     @jwt_required
+#     @limiter.limit('20/day;10/hour;5/minute')
+#     def get(self):
+#         """ Read all the posts. """
+#         limit = request.args.get('limit', default=29)
+#         # Query all the posts and order them by newest to oldest
+#         posts = Posts.query.order_by(Posts.created.desc()).limit(limit)
+#         # Grab the post schema
+#         post_schema = PostSchema(many=True)
+#         # Dump the information of the posts
+#         posts_output = post_schema.dump(posts).data
+#         total = len(posts_output)
+#         return jsonify({'posts': posts_output, 'total': total})
 
     @api.response(201, 'Post has successfully been created')
     @api.expect(user_post)
