@@ -25,3 +25,12 @@ def load_user(username):
         return {'message': 'User does not exist!'}, 404
     else:
         return user
+
+def uniq(a_list):
+    encountered = set()
+    result = []
+    for elem in a_list:
+        if elem not in encountered:
+            result.append(elem)
+        encountered.add(elem)
+    return result
