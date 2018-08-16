@@ -33,3 +33,7 @@ user_registration = api.model('Register', {
     'first_name': fields.String(required=True),
     'last_name': fields.String(required=False)
 })
+
+id_array = api.model('IdArray', {
+    "post_ids": fields.List(fields.Integer)
+})
