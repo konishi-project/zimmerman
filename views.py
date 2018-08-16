@@ -43,21 +43,38 @@ class IdFeed(Resource):
         """  Get Post IDs from Database. """
         # Limit how many posts are being queried
         limit = request.args.get('limit', default=1000)
-        # Query comments, order by newest to oldest then limit the results, and get the IDs of the post they belong to
-        posts_ids = Comments.query.order_by(Comments.created.desc()).limit(limit)
-        # Get the comment schema
+        # Post, get 15 initial post
+        posts = Posts.query.limit(15).all()
+        post_schema = PostSchema(many=True)
+        post_info = post_schema.dump(posts).data
+        # Comments
+        comments = Comments.query.order_by(Comments.created.desc()).all()
         comment_schema = CommentSchema(many=True)
-        # Get the value of "id" in each list and turn it into an array
-        output =  [i["posts"] for i in comment_schema.dump(posts_ids).data]
-        print(output)
-        return jsonify({'posts_ids': output})
+        comment_info = comment_schema.dump(comments).data
+        # Get the activity based on the latest comments
+        post_activity_from_comments = [
+            {
+                "id": c["posts"],
+                "created": c["created"]
+            } for c in comment_info]
+        feed = uniq(x["id"] for x in sorted(post_info + post_activity_from_comments,
+                                            key=lambda x: x["created"]))
+        return jsonify({'posts_ids': feed})
 
-    def post(self, id_array):
+    @api.expect(id_array)
+    def post(self):
+        data = request.get_json()
+        id_array = data['post_ids']
         posts = []
         for post_id in id_array:
-            # Get the post
+            # Get the post and schema
             post = Posts.query.filter_by(id=post_id).first()
-            print(post)
+            post_schema = PostSchema() 
+            # Dump the data and append it to the posts list
+            post_info = post_schema.dump(post).data
+            post_info['liked'] = True
+            posts.append(post_info)
+        return jsonify({"posts": posts})
 
 @api.route('/posts')
 class NewsFeed(Resource):
