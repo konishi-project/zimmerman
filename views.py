@@ -2,7 +2,6 @@
 views.py
 ---
 Import the Flask app, ma, and the api from 'app.py'.
-We use Flask-Login for handling current user and sessions.
 Documentation - https://flask-login.readthedocs.io/en/latest
 Flask-Admin is used for managing and CRUD models, This is similar to Django Admin.
 Documentation - https://flask-admin.readthedocs.io/en/latest/
@@ -39,12 +38,13 @@ admin = Admin(app, name='Admin Area', template_mode='bootstrap3', index_view=Mai
 # Get an array of post feeds
 @api.route('/feed')
 class IdFeed(Resource):
+    @jwt_required
     def get(self):
         """  Get Post IDs from Database. """
         # Limit how many posts are being queried
         limit = request.args.get('limit', default=1000)
-        # Post, get 15 initial post
-        posts = Posts.query.limit(15).all()
+        # Post
+        posts = Posts.query.order_by(Posts.created.asc()).all()
         post_schema = PostSchema(many=True)
         post_info = post_schema.dump(posts).data
         # Comments
@@ -59,8 +59,9 @@ class IdFeed(Resource):
             } for c in comment_info]
         feed = uniq(x["id"] for x in sorted(post_info + post_activity_from_comments,
                                             key=lambda x: x["created"]))
-        return jsonify({'posts_ids': feed})
+        return jsonify({'post_ids': feed})
 
+    @jwt_required
     @api.expect(id_array)
     def post(self):
         data = request.get_json()
@@ -72,31 +73,49 @@ class IdFeed(Resource):
             post_schema = PostSchema() 
             # Dump the data and append it to the posts list
             post_info = post_schema.dump(post).data
-            post_info['liked'] = True
+            # Check if the current user has liked the post
+            current_user = load_user(get_jwt_identity())
+            # Get the latest likes
+            user_likes = PostLike.query.filter_by(on_post=post_id).order_by(PostLike.liked_on.desc())
+            if check_like(user_likes, current_user):
+                post_info['liked'] = True
+            else:
+                post_info['liked'] = False
             posts.append(post_info)
         return jsonify({"posts": posts})
 
-# DEPRECATED
-# @api.route('/posts')
-# class NewsFeed(Resource):
-#     @jwt_required
-#     @limiter.limit('20/day;10/hour;5/minute')
-#     def get(self):
-#         """ Read all the posts. """
-#         limit = request.args.get('limit', default=29)
-#         # Query all the posts and order them by newest to oldest
-#         posts = Posts.query.order_by(Posts.created.desc()).limit(limit)
-#         # Grab the post schema
-#         post_schema = PostSchema(many=True)
-#         # Dump the information of the posts
-#         posts_output = post_schema.dump(posts).data
-#         total = len(posts_output)
-#         return jsonify({'posts': posts_output, 'total': total})
-
-    @api.response(201, 'Post has successfully been created')
-    @api.expect(user_post)
+@api.route('/postcomments')
+class PostComments(Resource):
     @jwt_required
+    @api.expect(comment_id_array)
+    def post(self):
+        data = request.get_json()
+        id_array = data['comment_ids']
+        comments = []
+        for comment_id in id_array:
+            # Get the post and schema
+            comment = Comments.query.filter_by(id=comment_id).first()
+            comment_schema = CommentSchema() 
+            # Dump the data and append it to the posts list
+            comment_info = comment_schema.dump(comment).data
+            # Check if the current user has liked the comment
+            current_user = load_user(get_jwt_identity())
+            # Get the latest likes
+            user_likes = CommentLike.query.filter_by(on_comment=comment_id).order_by(CommentLike.liked_on.desc())
+            if check_like(user_likes, current_user):
+                comment_info['liked'] = True
+            else:
+                comment_info['liked'] = False
+            comments.append(comment_info)
+        return jsonify({"comments": comments})
+
+@api.route('/posts')
+class NewsFeed(Resource):
+
     @limiter.limit('10/day;5/hour')
+    @api.response(201, 'Post has successfully been created')
+    @jwt_required
+    @api.expect(user_post)
     def post(self):
         """ Create a new post. """
         current_user = load_user(get_jwt_identity())
@@ -111,6 +130,22 @@ class IdFeed(Resource):
         db.session.add(new_post)
         db.session.commit()
         return {'message': 'Post has successfully been created', 'success': True}, 201
+
+# DEPRECATED
+#     @jwt_required
+#     @limiter.limit('20/day;10/hour;5/minute')
+#     def get(self):
+#         """ Read all the posts. """
+#         limit = request.args.get('limit', default=29)
+#         # Query all the posts and order them by newest to oldest
+#         posts = Posts.query.order_by(Posts.created.desc()).limit(limit)
+#         # Grab the post schema
+#         post_schema = PostSchema(many=True)
+#         # Dump the information of the posts
+#         posts_output = post_schema.dump(posts).data
+#         total = len(posts_output)
+#         return jsonify({'posts': posts_output, 'total': total})
+
 
 # Post system (Interact with specific posts)
 @api.route('/post/<int:post_id>')
@@ -181,6 +216,8 @@ class ReadPost(Resource):
             return {'result': 'Post has successfully been deleted.', 'success': True}, 200
         else:
             return {'message': 'You do not own this post.'}, 403
+    
+
 
 # Liking/Unliking System (Post, Comments, Replies)
 # Post liking
@@ -228,14 +265,14 @@ class LikeComment(Resource):
         # Check if the user already liked
         likes = CommentLike.query.filter_by(on_comment=comment_id).all()
         if check_like(likes, current_user):
-            return jsonify({'message': 'User has already liked the comment.'}), 403
+            return {'message': 'User has already liked the comment.'}, 403
         else:
             # Create a like and add it
             like_comment = CommentLike(on_comment=comment.id, owner_id=current_user.id)
             # Add to session
             db.session.add(like_comment)
             db.session.commit()
-            return jsonify({'message': 'User has liked the comment.'}), 201
+            return {'message': 'User has liked the comment.'}, 201
 
     @jwt_required
     def delete(self, comment_id):
