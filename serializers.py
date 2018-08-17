@@ -37,3 +37,7 @@ user_registration = api.model('Register', {
 id_array = api.model('IdArray', {
     "post_ids": fields.List(fields.Integer)
 })
+
+comment_id_array = api.model('CommentIdArray', {
+    "comment_ids": fields.List(fields.Integer)
+})
