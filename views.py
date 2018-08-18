@@ -23,7 +23,7 @@ from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identi
 from models import *
 from serializers import *
 from decorators import *
-from datetime import datetime, timedelta
+from datetime import datetime
 from uuid import uuid4
 import json
 import glob
@@ -44,11 +44,11 @@ class IdFeed(Resource):
         # Limit how many posts are being queried
         limit = request.args.get('limit', default=1000)
         # Post
-        posts = Posts.query.order_by(Posts.created.asc()).all()
+        posts = Posts.query.with_entities(Posts.id, Posts.created).all()
         post_schema = PostSchema(many=True)
         post_info = post_schema.dump(posts).data
         # Comments
-        comments = Comments.query.order_by(Comments.created.desc()).all()
+        comments = Comments.query.all()
         comment_schema = CommentSchema(many=True)
         comment_info = comment_schema.dump(comments).data
         # Get the activity based on the latest comments
@@ -57,8 +57,8 @@ class IdFeed(Resource):
                 "id": c["posts"],
                 "created": c["created"]
             } for c in comment_info]
-        feed = uniq(x["id"] for x in sorted(post_info + post_activity_from_comments,
-                                            key=lambda x: x["created"]))
+        feed = uniq(x["id"] for x in sorted(post_activity_from_comments + post_info,
+                                            key=lambda x: x["created"], reverse=True))
         return jsonify({'post_ids': feed})
 
     @jwt_required
@@ -83,15 +83,19 @@ class IdFeed(Resource):
                 post_info['liked'] = False
             posts.append(post_info)
         return jsonify({"posts": posts})
-
+    
 @api.route('/postcomments')
 class PostComments(Resource):
     @jwt_required
     @api.expect(comment_id_array)
     def post(self):
+        limit = request.args.get('limit')
         data = request.get_json()
         id_array = data['comment_ids']
         comments = []
+        if limit == 3:
+            # Get the first 3 items
+            return id_array[:3]
         for comment_id in id_array:
             # Get the post and schema
             comment = Comments.query.filter_by(id=comment_id).first()
@@ -129,7 +133,7 @@ class NewsFeed(Resource):
                    content=content, image_file=image_id,status='NORMAL', modified=datetime.now())
         db.session.add(new_post)
         db.session.commit()
-        return {'message': 'Post has successfully been created', 'success': True}, 201
+        return jsonify({'message': 'Post has successfully been created', 'success': True}, 201)
 
 # DEPRECATED
 #     @jwt_required
@@ -145,7 +149,6 @@ class NewsFeed(Resource):
 #         posts_output = post_schema.dump(posts).data
 #         total = len(posts_output)
 #         return jsonify({'posts': posts_output, 'total': total})
-
 
 # Post system (Interact with specific posts)
 @api.route('/post/<int:post_id>')
@@ -174,6 +177,28 @@ class ReadPost(Resource):
                 return jsonify({'post': output})
             return jsonify({'post': output})
 
+    @jwt_required
+    @api.response(201, 'Comment has successfully been created')
+    @api.expect(user_comment)
+    def post(self, post_id):
+        # Get the post being commented on
+        on_post = Posts.query.filter_by(id=post_id).first()
+        # Get the comment data
+        data = request.get_json()
+        comment_content = data['content']
+        # Current user
+        current_user = load_user(get_jwt_identity())
+        # Add the comment
+        new_comment = Comments(on_post=post_id, commenter=current_user.username, content=comment_content)
+        # Add to database session
+        db.session.add(new_comment)
+        db.session.commit()
+        # Get that comment and return it as a response
+        comment = Comments.query.filter_by(on_post=post_id).order_by(Comments.created.desc()).first()
+        comment_schema = CommentSchema()
+        comment_info = comment_schema.dump(comment).data
+        return jsonify({'comment': comment_info, 'success': True})
+
     @api.response(200, 'Post successfully been updated.')
     @api.response(404, 'Post not found!')
     @api.expect(user_post)
@@ -189,7 +214,9 @@ class ReadPost(Resource):
         elif current_user.id == post.owner_id and post.status == 'NORMAL' or is_admin(current_user):
             # Get the new data
             data = request.get_json()
-            post.content = data['content']
+            if data['content'] != None:
+                post.content = data['content']
+            post.modified = data['modified']
             db.session.commit()
             return {'message': 'Post has successfully been updated.'}, 200
         elif post.status == 'LOCKED':
@@ -216,8 +243,6 @@ class ReadPost(Resource):
             return {'result': 'Post has successfully been deleted.', 'success': True}, 200
         else:
             return {'message': 'You do not own this post.'}, 403
-    
-
 
 # Liking/Unliking System (Post, Comments, Replies)
 # Post liking
@@ -651,3 +676,4 @@ page, then we can CRUD these models and objects within it using Flask-Admin.
 admin.add_view(ProtectedModelView(User, db.session))
 admin.add_view(ProtectedModelView(Posts, db.session))
 admin.add_view(ProtectedModelView(Role, db.session))
+admin.add_view(ProtectedModelView(Comments, db.session))
