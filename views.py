@@ -93,10 +93,7 @@ class PostComments(Resource):
         data = request.get_json()
         id_array = data['comment_ids']
         comments = []
-        if limit == 3:
-            # Get the first 3 items
-            return id_array[:3]
-        for comment_id in id_array:
+        for comment_id in sorted(id_array, reverse=True):
             # Get the post and schema
             comment = Comments.query.filter_by(id=comment_id).first()
             comment_schema = CommentSchema() 
