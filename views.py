@@ -620,6 +620,15 @@ class PostImage(Resource):
             # Return hashed filename to the client
             return jsonify({'success': True, 'image_id': hashed_file})
 
+# Error Handlers
+@app.errorhandler(404)
+def resource_not_found(e):
+    return {"messages": "Resource not found!"}, 404
+
+@app.errorhandler(500)
+def server_error(e):
+    return {"messages": "Something went wrong in the server!"}, 500
+
 """ 
 Add Admin Views,
 This will add the models for Flask-Admin which will appear in the Admin
