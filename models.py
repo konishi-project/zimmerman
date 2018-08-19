@@ -78,7 +78,7 @@ class Comments(db.Model):
     commenter = db.Column(db.String(20))
     content = db.Column(db.Text)
     created = db.Column(db.DateTime, default=datetime.now)
-    modified = db.Column(db.DateTime, default=datetime.now)
+    edited = db.Column(db.Boolean)
     likes = db.relationship('CommentLike', backref='comments')
     replies = db.relationship('Reply', backref='comments')
     def __repr__(self):
