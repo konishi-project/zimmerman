@@ -89,7 +89,6 @@ class PostComments(Resource):
     @jwt_required
     @api.expect(comment_id_array)
     def post(self):
-        limit = request.args.get('limit')
         data = request.get_json()
         id_array = data['comment_ids']
         comments = []
@@ -130,22 +129,7 @@ class NewsFeed(Resource):
                    content=content, image_file=image_id,status='NORMAL', modified=datetime.now())
         db.session.add(new_post)
         db.session.commit()
-        return jsonify({'message': 'Post has successfully been created', 'success': True}, 201)
-
-# DEPRECATED
-#     @jwt_required
-#     @limiter.limit('20/day;10/hour;5/minute')
-#     def get(self):
-#         """ Read all the posts. """
-#         limit = request.args.get('limit', default=29)
-#         # Query all the posts and order them by newest to oldest
-#         posts = Posts.query.order_by(Posts.created.desc()).limit(limit)
-#         # Grab the post schema
-#         post_schema = PostSchema(many=True)
-#         # Dump the information of the posts
-#         posts_output = post_schema.dump(posts).data
-#         total = len(posts_output)
-#         return jsonify({'posts': posts_output, 'total': total})
+        return jsonify({'message': 'Post has successfully been created', 'success': True})
 
 # Post system (Interact with specific posts)
 @api.route('/post/<int:post_id>')
@@ -173,28 +157,6 @@ class ReadPost(Resource):
                 output['image_url'] = img_url[0]
                 return jsonify({'post': output})
             return jsonify({'post': output})
-
-    @jwt_required
-    @api.response(201, 'Comment has successfully been created')
-    @api.expect(user_comment)
-    def post(self, post_id):
-        # Get the post being commented on
-        on_post = Posts.query.filter_by(id=post_id).first()
-        # Get the comment data
-        data = request.get_json()
-        comment_content = data['content']
-        # Current user
-        current_user = load_user(get_jwt_identity())
-        # Add the comment
-        new_comment = Comments(on_post=post_id, commenter=current_user.username, content=comment_content)
-        # Add to database session
-        db.session.add(new_comment)
-        db.session.commit()
-        # Get that comment and return it as a response
-        comment = Comments.query.filter_by(on_post=post_id).order_by(Comments.created.desc()).first()
-        comment_schema = CommentSchema()
-        comment_info = comment_schema.dump(comment).data
-        return jsonify({'comment': comment_info, 'success': True})
 
     @api.response(200, 'Post successfully been updated.')
     @api.response(404, 'Post not found!')
@@ -233,9 +195,15 @@ class ReadPost(Resource):
             return {'message', 'Post not found.'}, 404
         # Check post owner
         elif current_user.id == post.owner_id or is_admin(current_user):
-            del_post = Posts.query.filter_by(id=post_id).first()
+            post = Posts.query.filter_by(id=post_id).first()
+            comments = Comments.query.filter_by(on_post=post_id).all()
+            # Delete all replies first
+            for comment in comments:
+                delete_replies(comment.id)
+            # Delete all the comments afterwards
+            delete_comments(post_id)
             # Commit those changes
-            db.session.delete(del_post)
+            db.session.delete(post)
             db.session.commit()
             return {'result': 'Post has successfully been deleted.', 'success': True}, 200
         else:
@@ -549,21 +517,6 @@ class InteractComment(Resource):
         else:
             return {'message': 'Uh oh! Something went wrong.'}, 500
 
-# Will be removed once everything works well.
-@api.route('/protected')
-class Protect(Resource):
-    @jwt_required
-    def get(self):
-        """ Route for testing jwt and security. """
-        current_user = load_user(get_jwt_identity())
-        if is_admin(current_user):
-            return {
-                'username': current_user.username,
-                'public_id': current_user.public_id,
-                'status': current_user.status,
-            }, 200
-        return jsonify({'message': current_user.username})
-
 @api.route('/login')
 class UserLogin(Resource):
     @api.expect(user_login)
@@ -606,6 +559,8 @@ class UserRegister(Resource):
         """ Register to Konishi. """
         # Get json objects
         data = request.get_json()
+        if not data:
+            return {'message': 'No json data found'}, 404
         # Pass the data
         email = data['email']
         username = data['username']
