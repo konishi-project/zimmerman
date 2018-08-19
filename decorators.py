@@ -34,3 +34,19 @@ def uniq(a_list):
             result.append(elem)
         encountered.add(elem)
     return result
+
+def delete_replies(commentid):
+    comment = Comments.query.filter_by(id=commentid).first()
+    # Check if there are replies
+    if comment.replies != None:
+        for reply in comment.replies:
+            db.session.delete(reply)
+        db.session.commit()
+
+def delete_comments(postid):
+    post = Posts.query.filter_by(id=postid).first()
+    # Check if there are comments
+    if post.comments != None:
+        for comment in post.comments:
+            db.session.delete(comment)
+        db.session.commit()
