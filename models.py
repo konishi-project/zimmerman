@@ -29,7 +29,7 @@ class Role(db.Model):
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
     def __repr__(self):
-        return '{}'.format(self.name)
+        return '{} - {}'.format(self.name, self.id)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -37,7 +37,7 @@ class User(db.Model):
     public_id = db.Column(db.String(50), unique=True)
     email = db.Column(db.String(255), unique=True)
     username = db.Column(db.String(20), unique=True)
-    first_name = db.Column(db.String(50))
+    first_name = db.Column(db.String(50), nullable=True)
     last_name = db.Column(db.String(50), nullable=True)
     bio = db.Column(db.Text, nullable=True)
     password = db.Column(db.String(255))
