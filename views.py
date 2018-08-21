@@ -542,7 +542,8 @@ class UserLogin(Resource):
 class CurrentUser(Resource):
     @jwt_required
     def get(self):
-        current_user = load_user(get_jwt_identity())
+        current_user = User.query.filter_by(username=get_jwt_identity()).with_entities(User.bio,
+                       User.email, User.first_name, User.last_name, User.roles).first()
         userSchema = UserSchema()
         output = userSchema.dump(current_user).data
         if request.args.get('type') == 'likes':
