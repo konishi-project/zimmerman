@@ -543,14 +543,9 @@ class CurrentUser(Resource):
     @jwt_required
     def get(self):
         current_user = User.query.filter_by(username=get_jwt_identity()).with_entities(User.bio,
-                       User.email, User.first_name, User.last_name, User.roles).first()
+                       User.email, User.first_name, User.last_name, User.roles, User.username, User.joined_date).first()
         userSchema = UserSchema()
         output = userSchema.dump(current_user).data
-        if request.args.get('type') == 'likes':
-            current_likes = current_user.post_likes
-            postlike_schema = PostLikeSchema(many=True)
-            currentlikes_output = postlike_schema.dump(current_likes).data
-            return jsonify(currentlikes_output)
         return jsonify(output)
 
 @api.route('/register')
