@@ -82,6 +82,7 @@ class IdFeed(Resource):
             else:
                 post_info['liked'] = False
             posts.append(post_info)
+        print(posts)
         return jsonify({"posts": posts})
     
 @api.route('/postcomments')
@@ -128,8 +129,11 @@ class NewsFeed(Resource):
         new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, 
                    content=content, image_file=image_id ,status='NORMAL', modified=datetime.now())
         db.session.add(new_post)
+        db.session.flush()
+        post_schema = PostSchema()
+        latest_post = post_schema.dump(new_post).data
         db.session.commit()
-        return jsonify({'message': 'Post has successfully been created', 'success': True})
+        return jsonify({'message': 'Post has successfully been created', 'success': True, 'new_post': latest_post})
 
 # Post system (Interact with specific posts)
 @api.route('/post/<int:post_id>')
@@ -542,10 +546,10 @@ class UserLogin(Resource):
 class CurrentUser(Resource):
     @jwt_required
     def get(self):
-        current_user = User.query.filter_by(username=get_jwt_identity()).with_entities(User.id, User.username,
-                       User.bio, User.email, User.first_name, User.last_name, User.roles, User.joined_date).first()
+        current_user = User.query.filter_by(username=get_jwt_identity()).first()
         userSchema = UserSchema()
         output = userSchema.dump(current_user).data
+        print(output)
         return jsonify(output)
 
 @api.route('/register')
