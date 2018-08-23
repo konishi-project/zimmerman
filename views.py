@@ -126,7 +126,7 @@ class NewsFeed(Resource):
         image_id = data['image_id']
         # Create a new post and commit to database.
         new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, 
-                   content=content, image_file=image_id,status='NORMAL', modified=datetime.now())
+                   content=content, image_file=image_id ,status='NORMAL', modified=datetime.now())
         db.session.add(new_post)
         db.session.commit()
         return jsonify({'message': 'Post has successfully been created', 'success': True})
@@ -542,8 +542,8 @@ class UserLogin(Resource):
 class CurrentUser(Resource):
     @jwt_required
     def get(self):
-        current_user = User.query.filter_by(username=get_jwt_identity()).with_entities(User.bio,
-                       User.email, User.first_name, User.last_name, User.roles, User.username, User.joined_date).first()
+        current_user = User.query.filter_by(username=get_jwt_identity()).with_entities(User.id, User.username,
+                       User.bio, User.email, User.first_name, User.last_name, User.roles, User.joined_date).first()
         userSchema = UserSchema()
         output = userSchema.dump(current_user).data
         return jsonify(output)
@@ -634,3 +634,5 @@ admin.add_view(ProtectedModelView(User, db.session))
 admin.add_view(ProtectedModelView(Posts, db.session))
 admin.add_view(ProtectedModelView(Role, db.session))
 admin.add_view(ProtectedModelView(Comments, db.session))
+admin.add_view(ProtectedModelView(PostLike, db.session))
+admin.add_view(ProtectedModelView(CommentLike, db.session))
