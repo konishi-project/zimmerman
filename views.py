@@ -82,7 +82,6 @@ class IdFeed(Resource):
             else:
                 post_info['liked'] = False
             posts.append(post_info)
-        print(posts)
         return jsonify({"posts": posts})
     
 @api.route('/postcomments')
@@ -127,13 +126,44 @@ class NewsFeed(Resource):
         image_id = data['image_id']
         # Create a new post and commit to database.
         new_post = Posts(owner_id=current_user.id, creator_name=current_user.username, 
-                   content=content, image_file=image_id ,status='NORMAL', modified=datetime.now())
+                   content=content, image_file=image_id ,status='NORMAL')
         db.session.add(new_post)
         db.session.flush()
         post_schema = PostSchema()
         latest_post = post_schema.dump(new_post).data
         db.session.commit()
         return jsonify({'message': 'Post has successfully been created', 'success': True, 'new_post': latest_post})
+
+# Post locking/unlocked
+@api.route('/post/<int:post_id>/lock')
+class LockPost(Resource):
+
+    @jwt_required
+    @api.response(200,"Post successfully locked")
+    @api.expect(user_post_method)
+    def put(self, post_id):
+        current_user = load_user(get_jwt_identity())
+        post = Posts.query.filter_by(id=post_id).first()
+        data = request.get_json()
+        method = data['method']
+
+        # Check if the user owns the post or an admin
+        if not post:
+            return {'message': 'Post not found!'}, 404
+        # Check if it's not locked already
+        elif current_user.id == post.owner_id or is_admin(current_user) and method.lower() == 'lock':
+            # Lock the post
+            post.status = 'LOCKED'
+            db.session.commit()
+            return {'message': 'Post has been locked!'}, 200
+        elif current_user.id == post.owner_id or is_admin(current_user) and method.lower() == 'unlock':
+            # Unlock the post
+            post.status = 'NORMAL'
+            db.session.commit()
+        elif post.status == 'LOCKED' and method.lower() == 'lock':
+            return {'message': 'Post already locked!', 'reason': 'locked'}, 403
+        else:
+            return {'message': 'You have no permission to lock this post!', 'reason': 'owner'}, 403
 
 # Post system (Interact with specific posts)
 @api.route('/post/<int:post_id>')
@@ -171,21 +201,21 @@ class ReadPost(Resource):
         current_user = load_user(get_jwt_identity())
         # Similar to the get method for specific post but updates instead.
         post = Posts.query.filter_by(id=post_id).first()
+        data = request.get_json()
         if not post:
             return {'message': 'Post not found!'}, 404
         # Check post owner
         elif current_user.id == post.owner_id and post.status == 'NORMAL' or is_admin(current_user):
             # Get the new data
-            data = request.get_json()
             if data['content'] != None:
                 post.content = data['content']
-            post.modified = data['modified']
+            post.edited = True
             db.session.commit()
             return {'message': 'Post has successfully been updated.'}, 200
-        elif post.status == 'LOCKED':
-            return {'message': 'This post is locked.'}, 403
+        elif post.status.lower() == 'locked':
+            return {'message': 'This post is locked.', 'reason': 'locked'}, 403
         else:
-            return {'message': 'You do not own this post.'}, 403
+            return {'message': 'You do not own this post.', 'reason': 'permission'}, 403
 
     @api.response(200, 'Post has successfully been deleted')
     @api.response(404, 'Post not found!')
@@ -341,7 +371,7 @@ class PostComments(Resource):
             # Pass the information to the variables
             content = data['content']
             new_comment = Comments(on_post=post_id, commenter=current_user.username,
-                                   content=content, modified=datetime.now())
+                                   content=content)
             db.session.add(new_comment)
             db.session.commit()
             return {'message': 'Commented on the post.'}, 201
@@ -448,7 +478,7 @@ class PostComments(Resource):
         # Pass the information to the variables
         content = data['content']
         new_reply = Reply(on_comment=comment_id, replier=current_user.username, 
-                          content=content, modified=datetime.now())
+                          content=content)
         db.session.add(new_reply)
         db.session.commit()
         return {'message': 'Replied on the comment.'}, 201
@@ -549,7 +579,6 @@ class CurrentUser(Resource):
         current_user = User.query.filter_by(username=get_jwt_identity()).first()
         userSchema = UserSchema()
         output = userSchema.dump(current_user).data
-        print(output)
         return jsonify(output)
 
 @api.route('/register')
