@@ -14,7 +14,7 @@ Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
 from app import app, api, ma, jwt, limiter
-from flask import jsonify, request
+from flask import jsonify, request, abort
 from flask_admin import Admin, AdminIndexView
 from flask_restplus import Resource, SchemaModel
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -553,9 +553,10 @@ class InteractComment(Resource):
 
 @api.route('/login')
 class UserLogin(Resource):
+
     @api.expect(user_login)
-    @limiter.limit('5/day;1/minute')
     def post(self):
+        decorators = [limiter.limit("5/hour")]
         """ Login and get a token. """
         data = request.get_json()
         if not data or not data['username'] or not data['password']:
@@ -612,7 +613,7 @@ class UserRegister(Resource):
         else:
             pass
         hashed_password = generate_password_hash(password, method='sha512')
-        new_user = User(public_id=str(uuid4()), email=email, username=username, password=hashed_password,
+        new_user = User(email=email, username=username, password=hashed_password,
                         first_name=first_name, last_name=last_name, joined_date=datetime.now())
         db.session.add(new_user)
         db.session.commit()
@@ -650,13 +651,8 @@ class PostImage(Resource):
             return jsonify({'success': True, 'image_id': hashed_file})
 
 # Error Handlers
-@app.errorhandler(404)
-def resource_not_found(e):
-    return {"messages": "Resource not found!"}, 404
-
-@app.errorhandler(500)
-def server_error(e):
-    return {"messages": "Something went wrong in the server!"}, 500
+abort(404, 'Resource not found!')
+abort(500, 'Something went wrong during the process')
 
 """ 
 Add Admin Views,
