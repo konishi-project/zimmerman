@@ -34,7 +34,6 @@ class Role(db.Model):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ## User details
-    public_id = db.Column(db.String(50), unique=True)
     email = db.Column(db.String(255), unique=True)
     username = db.Column(db.String(20), unique=True)
     first_name = db.Column(db.String(50), nullable=True)
@@ -66,7 +65,7 @@ class Posts(db.Model):
     image_file = db.Column(db.String(35), default=None, nullable=True)
     status = db.Column(db.String(10))
     created = db.Column(db.DateTime, default=datetime.now)
-    modified = db.Column(db.DateTime, default=datetime.now)
+    edited = db.Column(db.Boolean, default=False)
     likes = db.relationship('PostLike', backref='posts')
     comments = db.relationship('Comments', backref='posts')
     def __repr__(self):
@@ -78,7 +77,7 @@ class Comments(db.Model):
     commenter = db.Column(db.String(20))
     content = db.Column(db.Text)
     created = db.Column(db.DateTime, default=datetime.now)
-    edited = db.Column(db.Boolean)
+    edited = db.Column(db.Boolean, default=False)
     likes = db.relationship('CommentLike', backref='comments')
     replies = db.relationship('Reply', backref='comments')
     def __repr__(self):
