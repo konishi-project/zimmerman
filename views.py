@@ -14,7 +14,7 @@ Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
 from app import app, api, ma, jwt, limiter
-from flask import jsonify, request, abort
+from flask import jsonify, request
 from flask_admin import Admin, AdminIndexView
 from flask_restplus import Resource, SchemaModel
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -649,10 +649,6 @@ class PostImage(Resource):
             file.save(os.path.join(POST_UPLOAD_PATH, hashed_file + extension))
             # Return hashed filename to the client
             return jsonify({'success': True, 'image_id': hashed_file})
-
-# Error Handlers
-abort(404, 'Resource not found!')
-abort(500, 'Something went wrong during the process')
 
 """ 
 Add Admin Views,
