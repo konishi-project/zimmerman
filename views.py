@@ -58,7 +58,8 @@ class IdFeed(Resource):
                 "created": c["created"]
             } for c in comment_info]
         feed = uniq(x["id"] for x in sorted(post_activity_from_comments + post_info,
-                                            key=lambda x: x["created"], reverse=True))
+                                            key=lambda x: x["created"], 
+                                            reverse=True))
         return jsonify({'post_ids': feed})
 
     @jwt_required
@@ -350,11 +351,20 @@ class PostComments(Resource):
         if not post:
             return {'message': 'Post not found!'}, 404
         else:
-            post = Posts.query.filter_by(id=post_id).first()
-            comments = post.comments
+            # Get the comment IDs
+            comments = Comments.query.filter_by(on_post=post_id).with_entities(Comments.id, Comments.created).all()
             comment_schema = CommentSchema(many=True)
-            output = comment_schema.dump(comments).data
-            return jsonify({'comments': output})
+            comment_info = comment_schema.dump(comments).data
+            # Get the activity based on the latest comments
+            comment_from_latest_activity = [
+                {
+                    "id": c["id"],
+                    "created": c["created"]
+                } for c in comment_info]
+            comment_ids = uniq(x["id"] for x in sorted(comment_from_latest_activity,
+                                                key=lambda x: x["created"], 
+                                                reverse=True))
+            return jsonify({'comment_ids': comment_ids})
 
     @api.expect(user_comment)
     @api.doc(responses={
