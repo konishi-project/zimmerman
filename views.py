@@ -589,8 +589,11 @@ class CurrentUser(Resource):
     def get(self):
         current_user = User.query.filter_by(username=get_jwt_identity()).first()
         userSchema = UserSchema()
-        output = userSchema.dump(current_user).data
-        return jsonify(output)
+        userInfo = userSchema.dump(current_user).data
+        # Add a filter to avoid giving salted passwords.
+        del userInfo['password']
+        print(userInfo)
+        return jsonify(userInfo)
 
 @api.route('/register')
 class UserRegister(Resource):
