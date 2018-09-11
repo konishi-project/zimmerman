@@ -24,7 +24,6 @@ from models import *
 from serializers import *
 from decorators import *
 from datetime import datetime
-from uuid import uuid4
 import json
 import glob
 import os
@@ -345,6 +344,7 @@ class LikeReply(Resource):
 # Commenting System
 @api.route('/post/<int:post_id>/comments')
 class PostComments(Resource):
+    @jwt_required
     def get(self, post_id):
         """ Read comments on a specific post. """
         post = Posts.query.filter_by(id=post_id).first()
