@@ -50,3 +50,20 @@ def delete_comments(postid):
         for comment in post.comments:
             db.session.delete(comment)
         db.session.commit()
+
+def delete_likes(postid):
+    post = Posts.query.filter_by(id=postid).first()
+    # Check if there are comments
+    if post.likes != None:
+        for like in post.likes:
+            db.session.delete(like)
+        db.session.commit()
+
+def delete_comment_likes(commentid):
+    comment = Comments.query.filter_by(id=commentid).first()
+    # Check if there are replies
+    if comment.likes != None:
+        for like in comment.likes:
+            db.session.delete(like)
+        db.session.commit()
+
