@@ -586,7 +586,7 @@ class UserLogin(Resource):
         password = data['password']
         # Query and check if the User is in the Database
         user = User.query.filter_by(username=username).first()
-        elif not user:
+        if not user:
             return {'message': 'User not found!'}, 404
         elif user.username == username and check_password_hash(user.password, password):
             access_token = create_access_token(identity=username, expires_delta=False)
