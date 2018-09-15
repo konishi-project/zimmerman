@@ -247,6 +247,7 @@ class ReadPost(Resource):
 # Post liking
 @api.route('/post/<int:post_id>/like')
 class LikePost(Resource):
+
     @jwt_required
     def post(self, post_id):
         """ Like a post. """
@@ -255,7 +256,10 @@ class LikePost(Resource):
         post = Posts.query.filter_by(id=post_id).first()
         # Check if the user already liked
         likes = PostLike.query.filter_by(on_post=post_id).all()
-        if check_like(likes, current_user):
+        # Check if the post exists
+        if not post:
+            return {'message': 'Post does not exist!'}, 404
+        elif check_like(likes, current_user):
             return {'message': 'User has already liked the post.'}, 403
         else:
             # Create a like and add it
@@ -280,6 +284,7 @@ class LikePost(Resource):
 # Comment liking
 @api.route('/comment/<int:comment_id>/like')
 class LikeComment(Resource):
+
     @jwt_required
     def post(self, comment_id):
         """ Like a comment. """
@@ -288,7 +293,10 @@ class LikeComment(Resource):
         comment = Comments.query.filter_by(id=comment_id).first()
         # Check if the user already liked
         likes = CommentLike.query.filter_by(on_comment=comment_id).all()
-        if check_like(likes, current_user):
+        # Check if the comment exists
+        if not comment:
+            return {'message': 'Comment does not exist!'}, 404
+        elif check_like(likes, current_user):
             return {'message': 'User has already liked the comment.'}, 403
         else:
             # Create a like and add it
@@ -313,6 +321,7 @@ class LikeComment(Resource):
 # Reply liking
 @api.route('/reply/<int:reply_id>/like')
 class LikeReply(Resource):
+
     @jwt_required
     def post(self, reply_id):
         """ Like a reply. """
@@ -344,6 +353,7 @@ class LikeReply(Resource):
 # Commenting System
 @api.route('/post/<int:post_id>/comments')
 class PostComments(Resource):
+
     @jwt_required
     def get(self, post_id):
         """ Read comments on a specific post. """
@@ -368,7 +378,8 @@ class PostComments(Resource):
 
     @api.expect(user_comment)
     @api.doc(responses={
-        201: 'Commented on the post.'
+        201: 'Commented on the post.',
+        403: 'Post is locked'
     })
     @jwt_required
     def post(self, post_id):
@@ -383,18 +394,21 @@ class PostComments(Resource):
             new_comment = Comments(on_post=post_id, commenter=current_user.username,
                                    content=content)
             db.session.add(new_comment)
+            db.session.flush()
+            comment_schema = CommentSchema()
+            latest_comment = comment_schema.dump(new_comment).data
             db.session.commit()
-            return {'message': 'Commented on the post.'}, 201
+            return jsonify({'message': 'Comment has successfully been created', 'success': True, 'new_comment': latest_comment})
         else:
             return {'message': 'Post is locked, unable to comment.'}, 403
 
 # Interact with specific comments, comment API routes.
 @api.route('/post/comment/<int:comment_id>')
 class InteractComment(Resource):
+
+    @jwt_required
     def get(self, comment_id):
-        """
-        Get a specific comment.
-        """
+        """ Get a specific comment. """
         # Query for the comment
         comment = Comments.query.filter_by(id=comment_id).first()
         if not comment:
@@ -414,9 +428,7 @@ class InteractComment(Resource):
     })
     @jwt_required
     def put(self, comment_id):
-        """
-        Update or Edit a specific comment
-        """
+        """ Update or Edit a specific comment """
         current_user = load_user(get_jwt_identity())
         # Get information
         comment = Comments.query.filter_by(id=comment_id).first()
@@ -496,10 +508,10 @@ class PostComments(Resource):
 # Interact with specific replies, reply API routes.
 @api.route('/comment/reply/<int:reply_id>')
 class InteractComment(Resource):
+
+    @jwt_required
     def get(self, reply_id):
-        """
-        Get a specific reply.
-        """
+        """ Get a specific reply. """
         # Query for the Reply
         reply = Reply.query.filter_by(id=reply_id).first()
         if not reply:
@@ -566,37 +578,38 @@ class UserLogin(Resource):
 
     @api.expect(user_login)
     def post(self):
-        decorators = [limiter.limit("5/hour")]
         """ Login and get a token. """
         data = request.get_json()
         if not data or not data['username'] or not data['password']:
-            return {'msg': 'No login data found!'}, 404
+            return {'message': 'No login data found!'}, 404
         username = data['username']
         password = data['password']
         # Query and check if the User is in the Database
         user = User.query.filter_by(username=username).first()
-        if not user:
+        elif not user:
             return {'message': 'User not found!'}, 404
-        if user.username == username and check_password_hash(user.password, password):
+        elif user.username == username and check_password_hash(user.password, password):
             access_token = create_access_token(identity=username, expires_delta=False)
             return {'access_token': access_token, 'success': True}, 200
         else:
-            return {'msg': 'Invalid credentials!'}, 401
+            return {'message': 'Invalid credentials!'}, 401
 
 @api.route('/currentuser')
 class CurrentUser(Resource):
+
     @jwt_required
     def get(self):
         current_user = User.query.filter_by(username=get_jwt_identity()).first()
         userSchema = UserSchema()
         userInfo = userSchema.dump(current_user).data
-        # Add a filter to avoid giving salted passwords.
+        # Delete password to avoid giving information unintendedly.
         del userInfo['password']
         print(userInfo)
         return jsonify(userInfo)
 
 @api.route('/register')
 class UserRegister(Resource):
+
     @api.expect(user_registration)
     def post(self):
         """ Register to Konishi. """
