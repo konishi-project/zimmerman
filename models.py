@@ -138,11 +138,11 @@ class PostLikeSchema(ma.ModelSchema):
 
 # Admin Index View is the Main Index, not the ModelView
 class MainAdminIndexView(AdminIndexView):
-    # @jwt_required
+    #@jwt_required
     def is_accessible(self):
         return True
-        # current_user = User.query.filter_by(username=get_jwt_identity()).first()
-        # return current_user.roles[0] == 1
+        #current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        #return current_user.roles[0] == 1
     def inaccessible_callback(self, name, **kwargs):
         return {'message': 'Forbidden!'}, 403
 
@@ -151,7 +151,7 @@ class ProtectedModelView(ModelView):
     #@jwt_required
     def is_accessible(self):
         return True
-        # current_user = load_user(get_jwt_identity())
-        # return current_user.status == 'admin'
+        #current_user = load_user(get_jwt_identity())
+        #return current_user.status == 'admin'
     def inaccessible_callback(self, name, **kwargs):
         return {'message': 'Forbidden!'}, 403
