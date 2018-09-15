@@ -237,12 +237,8 @@ class ReadPost(Resource):
         # Check post owner
         elif current_user.id == post.owner_id or is_admin(current_user):
             post = Posts.query.filter_by(id=post_id).first()
-            comments = Comments.query.filter_by(on_post=post_id).all()
-            # Delete all replies first
-            for comment in comments:
-                delete_replies(comment.id)
+
             # Check if there's an image
-            print(post.image_file)
             if post.image_file:
                 # Get the image_id
                 img_id = post.image_file
@@ -251,6 +247,14 @@ class ReadPost(Resource):
                 # Attach it and jsonify the output
                 os.remove(img_url[0])
 
+            comments = Comments.query.filter_by(on_post=post_id).all()
+            # Delete all post likes
+            delete_likes(post_id)
+            for comment in comments:
+                # Delete replies
+                delete_replies(comment.id)
+                # Delete comment likes
+                delete_comment_likes(comment.id)
             # Delete all the comments afterwards
             delete_comments(post_id)
             # Commit those changes
