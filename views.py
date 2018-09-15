@@ -241,6 +241,16 @@ class ReadPost(Resource):
             # Delete all replies first
             for comment in comments:
                 delete_replies(comment.id)
+            # Check if there's an image
+            print(post.image_file)
+            if post.image_file:
+                # Get the image_id
+                img_id = post.image_file
+                # Search for the img in the post image files
+                img_url = glob.glob(os.path.join(POST_UPLOAD_PATH, '{}.*'.format(img_id)))
+                # Attach it and jsonify the output
+                os.remove(img_url[0])
+
             # Delete all the comments afterwards
             delete_comments(post_id)
             # Commit those changes
