@@ -13,7 +13,7 @@ with the API and Routes.
 Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
-from app import app, api, ma, jwt, limiter
+from app import app, api, ma, jwt
 from flask import jsonify, request
 from flask_admin import Admin, AdminIndexView
 from flask_restplus import Resource, SchemaModel
@@ -81,6 +81,14 @@ class IdFeed(Resource):
                 post_info['liked'] = True
             else:
                 post_info['liked'] = False
+            # Check if it has an image
+            if post_info['image_file']:
+                # Get the id
+                img_id = post_info['image_file']
+                # Search for the img in the post image files
+                img_url = glob.glob(os.path.join(POST_UPLOAD_PATH, '{}.*'.format(img_id)))
+                # Attach it and jsonify the output
+                post_info['image_url'] = img_url[0]
             posts.append(post_info)
         return jsonify({"posts": posts})
     
@@ -92,7 +100,7 @@ class PostComments(Resource):
         data = request.get_json()
         id_array = data['comment_ids']
         comments = []
-        for comment_id in sorted(id_array, reverse=True):
+        for comment_id in sorted(id_array):
             # Get the post and schema
             comment = Comments.query.filter_by(id=comment_id).first()
             comment_schema = CommentSchema() 
@@ -112,7 +120,6 @@ class PostComments(Resource):
 @api.route('/posts')
 class NewsFeed(Resource):
 
-    @limiter.limit('10/day;5/hour')
     @api.response(201, 'Post has successfully been created')
     @jwt_required
     @api.expect(user_post)
@@ -182,7 +189,7 @@ class ReadPost(Resource):
             post_schema = PostSchema()
             output = post_schema.dump(post).data
             # Check if there's an image file
-            if post.image_file != None:
+            if not post.image_file:
                 # Get the id
                 img_id = post.image_file
                 # Search for the img in the post image files
@@ -476,6 +483,8 @@ class InteractComment(Resource):
 # Reply System
 @api.route('/comment/<int:comment_id>/replies')
 class PostComments(Resource):
+
+    @jwt_required
     def get(self, comment_id):
         """ Reply to a comment. """
         comment = Comments.query.filter_by(id=comment_id).first()
