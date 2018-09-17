@@ -89,6 +89,7 @@ class IdFeed(Resource):
                 img_url = glob.glob(os.path.join(POST_UPLOAD_PATH, '{}.*'.format(img_id)))
                 # Attach it and jsonify the output
                 post_info['image_url'] = img_url[0]
+
             posts.append(post_info)
         return jsonify({"posts": posts})
     
@@ -139,6 +140,14 @@ class NewsFeed(Resource):
         post_schema = PostSchema()
         latest_post = post_schema.dump(new_post).data
         db.session.commit()
+        if latest_post['image_file']:
+            # Get the id
+            img_id = latest_post['image_file']
+            # Search for the img in the post image files
+            img_url = glob.glob(os.path.join(POST_UPLOAD_PATH, '{}.*'.format(img_id)))
+            # Attach it and jsonify the output
+            latest_post['image_url'] = img_url[0]
+
         return jsonify({'message': 'Post has successfully been created', 'success': True, 'new_post': latest_post})
 
 # Post locking/unlocked
@@ -189,7 +198,7 @@ class ReadPost(Resource):
             post_schema = PostSchema()
             output = post_schema.dump(post).data
             # Check if there's an image file
-            if not post.image_file:
+            if post.image_file:
                 # Get the id
                 img_id = post.image_file
                 # Search for the img in the post image files
@@ -237,16 +246,6 @@ class ReadPost(Resource):
         # Check post owner
         elif current_user.id == post.owner_id or is_admin(current_user):
             post = Posts.query.filter_by(id=post_id).first()
-
-            # Check if there's an image
-            if post.image_file:
-                # Get the image_id
-                img_id = post.image_file
-                # Search for the img in the post image files
-                img_url = glob.glob(os.path.join(POST_UPLOAD_PATH, '{}.*'.format(img_id)))
-                # Attach it and jsonify the output
-                os.remove(img_url[0])
-
             comments = Comments.query.filter_by(on_post=post_id).all()
             # Delete all post likes
             delete_likes(post_id)
@@ -682,9 +681,11 @@ class PostImage(Resource):
     def post(self):
         """ Upload an image. """
         # Check if there's a file
-        if 'file' not in request.files:
+        print(request.files)
+        if 'image' not in request.files:
             return {'message': 'File not found!'}, 404
-        file = request.files['file']
+        file = request.files['image']
+        print(file)
         # Check if the filename is not none
         if file.filename == '':
             return {'message': 'No select file.'}, 403
