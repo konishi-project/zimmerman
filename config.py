@@ -22,3 +22,4 @@ SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgres://postgres:pa
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 ENTRY_KEY = "KonishiTesting"
+MAX_CONTENT_LENGTH = 10 * 1024 * 1024
