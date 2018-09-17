@@ -626,7 +626,6 @@ class CurrentUser(Resource):
         userInfo = userSchema.dump(current_user).data
         # Delete password to avoid giving information unintendedly.
         del userInfo['password']
-        print(userInfo)
         return jsonify(userInfo)
 
 @api.route('/register')
@@ -681,11 +680,9 @@ class PostImage(Resource):
     def post(self):
         """ Upload an image. """
         # Check if there's a file
-        print(request.files)
         if 'image' not in request.files:
             return {'message': 'File not found!'}, 404
         file = request.files['image']
-        print(file)
         # Check if the filename is not none
         if file.filename == '':
             return {'message': 'No select file.'}, 403
