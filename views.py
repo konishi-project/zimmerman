@@ -89,7 +89,23 @@ class IdFeed(Resource):
                 img_url = glob.glob(os.path.join(POST_UPLOAD_PATH, '{}.*'.format(img_id)))
                 # Attach it and jsonify the output
                 post_info['image_url'] = img_url[0]
+            # Get latest 5 comments
+            comments = []
+            if post_info['comments']:
+                for comment_id in post_info['comments'][:5]:
+                    # Get the comment info
+                    comment = Comments.query.filter_by(id=comment_id).first()
+                    comment_schema = CommentSchema()
+                    comment_info = comment_schema.dump(comment).data
+                    # Check if comment is liked
+                    user_likes = CommentLike.query.filter_by(on_comment=comment_id).order_by(CommentLike.liked_on.desc())
+                    if check_like(user_likes, current_user):
+                        comment_info['liked'] = True
+                    else:
+                        comment_info['liked'] = False
+                    comments.append(comment_info)
 
+            post_info['initial_comments'] = comments
             posts.append(post_info)
         return jsonify({"posts": posts})
     
