@@ -7,13 +7,13 @@ This version uses PostgreSQL(10) although you can use SQLite if you wish to.
 
 When creating a Postgres Database, make sure to name it 'konishidb' or whatever you like and change the config name for the database in 'config.py'
 
-Zimmerman is written in Python 3.6 to install Python 3.6 simply use:
+Zimmerman is written in Python 3 to install Python 3 simply use:
 
 ### Python Installation
 | OS/Distro |  Command  |
 |-----------|:---------:|
 | Ubuntu 16.04 and Older | ```You will need to install using the PPA or a 3rd party Python distribution (i.e. Anaconda)``` |
-| Ubuntu 16.10+ | ```sudo apt install python3.6``` |
+| Ubuntu 16.10+ | ```sudo apt install python3``` |
 | Arch Linux | ```sudo pacman -Syy python3``` |
 | Gentoo | ``` sudo emerge -av dev-lang/python ``` |
 
@@ -37,7 +37,7 @@ Arch Linux - ```https://wiki.archlinux.org/index.php/PostgreSQL```
 **PostgreSQL Website** - ```https://www.postgresql.org/```
 
 ## Running the Application
-``` $ python3.6 app.py ```
+``` $ python3 app.py ```
 
 ## Extra Documentation
 You can find extra documentation related to the files and python modules for the application [here](https://github.com/konishi-project/zimmerman/tree/next/Documentation).
