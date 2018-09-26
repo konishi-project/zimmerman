@@ -39,5 +39,19 @@ Arch Linux - ```https://wiki.archlinux.org/index.php/PostgreSQL```
 ## Running the Application
 ``` $ python3 app.py ```
 
+## Setting up the database
+You need to have PostgreSQL running and make sure you've set the configurations to math your local PSQL credentials.
+Once you've setup the virtual environment and activated it, create an empty database using.
+
+```bash
+$ python
+```
+
+```python 
+>>> from app import db # Import the database object from app.py
+>>> db.create_all() # Create the database cluster
+>>> quit() # Exit out of python
+```
+
 ## Extra Documentation
 You can find extra documentation related to the files and python modules for the application [here](https://github.com/konishi-project/zimmerman/tree/next/Documentation).
