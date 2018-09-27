@@ -13,17 +13,19 @@ with the API and Routes.
 Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
-from app import app, api, ma, jwt
+from app import app, api, jwt
 from flask import jsonify, request
 from flask_admin import Admin, AdminIndexView
-from flask_restplus import Resource, SchemaModel
+from flask_restplus import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
+
 from models import *
 from serializers import *
 from decorators import *
 from datetime import datetime
+
 import json
 import glob
 import os

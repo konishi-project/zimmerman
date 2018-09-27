@@ -3,12 +3,8 @@ models.py
 ---
 Database models, Security models, and Model Schemas.
 """
-from app import app, ma
-from app import db
-from flask import redirect, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from app import app, ma, db
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from sqlalchemy.ext.declarative import declarative_base
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_restplus import SchemaModel
@@ -64,7 +60,7 @@ class Posts(db.Model):
     content = db.Column(db.Text)
     image_file = db.Column(db.String(35), default=None, nullable=True)
     status = db.Column(db.String(10))
-    created = db.Column(db.DateTime, default=datetime.now)
+    created = db.Column(db.DateTime, default=datetime.now())
     edited = db.Column(db.Boolean, default=False)
     likes = db.relationship('PostLike', backref='posts')
     comments = db.relationship('Comments', backref='posts')
@@ -76,7 +72,7 @@ class Comments(db.Model):
     on_post = db.Column(db.Integer, db.ForeignKey('posts.id'))
     commenter = db.Column(db.String(20))
     content = db.Column(db.Text)
-    created = db.Column(db.DateTime, default=datetime.now)
+    created = db.Column(db.DateTime, default=datetime.now())
     edited = db.Column(db.Boolean, default=False)
     likes = db.relationship('CommentLike', backref='comments')
     replies = db.relationship('Reply', backref='comments')
@@ -89,8 +85,8 @@ class Reply(db.Model):
     on_comment = db.Column(db.Integer, db.ForeignKey('comments.id'))
     replier = db.Column(db.String(20))
     content = db.Column(db.Text)
-    created = db.Column(db.DateTime,default=datetime.now)
-    modified = db.Column(db.DateTime, default=datetime.now)
+    created = db.Column(db.DateTime,default=datetime.now())
+    modified = db.Column(db.DateTime, default=datetime.now())
     likes = db.relationship('ReplyLike', backref='reply')
     def __repr__(self):
         return 'Reply ID - {}'.format(self.id)
@@ -99,7 +95,7 @@ class PostLike(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     on_post = db.Column(db.Integer, db.ForeignKey('posts.id'))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    liked_on = db.Column(db.DateTime, default=datetime.now)
+    liked_on = db.Column(db.DateTime, default=datetime.now())
     def __repr__(self):
         return '{}'.format(self.on_post)
 
@@ -107,13 +103,13 @@ class CommentLike(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     on_comment = db.Column(db.Integer, db.ForeignKey('comments.id'))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    liked_on = db.Column(db.DateTime, default=datetime.now)
+    liked_on = db.Column(db.DateTime, default=datetime.now())
 
 class ReplyLike(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     on_reply = db.Column(db.Integer, db.ForeignKey('reply.id'))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    liked_on = db.Column(db.DateTime, default=datetime.now)
+    liked_on = db.Column(db.DateTime, default=datetime.now())
 
 ## Model Schemas
 class UserSchema(ma.ModelSchema):

@@ -4,7 +4,6 @@ serializers.py
 API Models
 """
 from flask_restplus import fields
-from datetime import datetime
 from app import api
 
 user_post = api.model('User Post', {
