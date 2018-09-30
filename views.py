@@ -266,7 +266,7 @@ class ReadPost(Resource):
             post = Posts.query.filter_by(id=post_id).first()
             comments = Comments.query.filter_by(on_post=post_id).all()
             # Delete all post likes
-            delete_likes(post_id)
+            delete_likes('post', post_id)
             for comment in comments:
                 # Delete replies
                 delete_replies(comment.id)
@@ -498,7 +498,9 @@ class InteractComment(Resource):
             return {'message': 'Comment not found.'}, 404
             # Check if the Comment belongs to the User or the user is an Admin
         elif comment.commenter == current_user.username or is_admin(current_user):
-            # Delete the post if it exists using the given 'post_id'
+            # Delete likes on the comment
+            delete_likes('comment', comment_id)
+            # Delete the comment if it exists using the given 'comment_id'
             del_comment = Comments.query.filter_by(id=comment_id).first()
             db.session.delete(del_comment)
             # Commit those changes

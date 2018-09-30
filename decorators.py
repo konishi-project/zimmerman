@@ -38,7 +38,7 @@ def uniq(a_list):
 def delete_replies(commentid):
     comment = Comments.query.filter_by(id=commentid).first()
     # Check if there are replies
-    if comment.replies != None:
+    if comment.replies is not None:
         for reply in comment.replies:
             db.session.delete(reply)
         db.session.commit()
@@ -51,11 +51,17 @@ def delete_comments(postid):
             db.session.delete(comment)
         db.session.commit()
 
-def delete_likes(postid):
-    post = Posts.query.filter_by(id=postid).first()
-    # Check if there are comments
-    if post.likes != None:
-        for like in post.likes:
+def delete_likes(itemType, itemId):
+    if itemType == 'post':
+        post = Posts.query.filter_by(id=itemId).first()
+        item = post
+    elif itemType == 'comment':
+        comment = Comments.query.filter_by(id=itemId).first()
+        item = comment
+
+    # Check if there are likes
+    if item.likes is not None:
+        for like in item.likes:
             db.session.delete(like)
         db.session.commit()
 
