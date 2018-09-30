@@ -40,7 +40,7 @@ Arch Linux - ```https://wiki.archlinux.org/index.php/PostgreSQL```
 ``` $ python3 app.py ```
 
 ## Setting up the database
-You need to have PostgreSQL running and make sure you've set the configurations to math your local PSQL credentials.
+You need to have PostgreSQL running and make sure you've set the configurations to match your local PSQL credentials.
 Once you've setup the virtual environment and activated it, create an empty database using.
 
 ```bash
