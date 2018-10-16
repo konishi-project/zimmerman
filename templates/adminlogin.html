@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Admin Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css" />
+</head>
+<body>
+  <section class="hero is-gray is-fullheight">
+    <div class="hero-body">
+      <div class="container has-text-centered">
+        <div class="title">Admin Login Page</div>
+        <div class="subtitle">Please login to continue.</div>
+
+        <div class="columns">
+
+          <div class="column is-offset-4 is-4">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                  {% for message in messages %}
+                      <div class="notification is-danger">{{ message }}</div>
+                  {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% from "_formhelpers.html" import render_field %}
+            <form method="POST">
+              {{ form.csrf_token }}
+              {{ render_field(form.username, class="input") }}
+              {{ render_field(form.password, class="input") }}
+              <br>
+              <button class="button is-info">Login</button>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+</body>
+</html>
