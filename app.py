@@ -17,6 +17,7 @@ from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_login import LoginManager
 
 # Init Flask App
 app = Flask(__name__)
@@ -34,6 +35,8 @@ ma = Marshmallow(app)
 migrate = Migrate(app, db)
 # Init JWT
 jwt = JWTManager(app)
+# Init Login
+login = LoginManager(app)
 # Init Limiter
 limiter = Limiter(
     app,
