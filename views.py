@@ -13,7 +13,7 @@ with the API and Routes.
 Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
-from app import app, api, jwt
+from app import app, api, jwt, limiter
 from flask import jsonify, request, render_template, redirect
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_admin import Admin, AdminIndexView
@@ -719,6 +719,7 @@ class PostImage(Resource):
             return jsonify({'success': True, 'image_id': hashed_file})
 
 @app.route('/adminlogin', methods=['GET', 'POST'])
+@limiter.limit("5/day")
 def adminlogin():
     if current_user.is_authenticated:
         return redirect("/admin")
@@ -733,6 +734,7 @@ def adminlogin():
     return render_template('adminlogin.html', form=form)
 
 @app.route('/adminlogout')
+@limiter.limit("5/day")
 @login_required
 def adminlogout():
     logout_user()
