@@ -14,7 +14,8 @@ Flask-SQLAlchemy will be used as the ORM.
 Documentation - http://flask-sqlalchemy.pocoo.org/2.3/
 """
 from app import app, api, jwt
-from flask import jsonify, request
+from flask import jsonify, request, render_template, redirect
+from flask_login import current_user, login_user, logout_user, login_required
 from flask_admin import Admin, AdminIndexView
 from flask_restplus import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -716,6 +717,26 @@ class PostImage(Resource):
             file.save(os.path.join(POST_UPLOAD_PATH, hashed_file + extension))
             # Return hashed filename to the client
             return jsonify({'success': True, 'image_id': hashed_file})
+
+@app.route('/adminlogin', methods=['GET', 'POST'])
+def adminlogin():
+    if current_user.is_authenticated:
+        return redirect("/admin")
+    form = AdminLoginForm(request.form)
+    if request.method == "POST" and form.validate():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user is None:
+            flash("Invalid username or password")
+        elif check_password_hash(user.password, form.password.data):
+            login_user(user)
+            return redirect("/admin")
+    return render_template('adminlogin.html', form=form)
+
+@app.route('/adminlogout')
+@login_required
+def adminlogout():
+    logout_user()
+    return redirect("/adminlogin")
 
 """ 
 Add Admin Views,
