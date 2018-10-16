@@ -3,8 +3,10 @@ models.py
 ---
 Database models, Security models, and Model Schemas.
 """
-from app import app, ma, db
+from app import app, ma, db, login
+from flask import redirect, flash
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_login import UserMixin, login_required, current_user, logout_user
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_restplus import SchemaModel
@@ -27,7 +29,7 @@ class Role(db.Model):
     def __repr__(self):
         return '{} - {}'.format(self.name, self.id)
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ## User details
     email = db.Column(db.String(255), unique=True)
@@ -134,20 +136,32 @@ class PostLikeSchema(ma.ModelSchema):
 
 # Admin Index View is the Main Index, not the ModelView
 class MainAdminIndexView(AdminIndexView):
-    #@jwt_required
+    @login_required
     def is_accessible(self):
-        return True
-        #current_user = User.query.filter_by(username=get_jwt_identity()).first()
-        #return current_user.roles[0] == 1
+        # Check if the current user is an admin
+        user = User.query.filter_by(username=current_user.username).first()
+        if len(user.roles) > 0 and user.roles[0].name == 'admin':
+            return True
+        return False
     def inaccessible_callback(self, name, **kwargs):
-        return {'message': 'Forbidden!'}, 403
+        logout_user()
+        flash('Unathorized user!')
+        return redirect('/adminlogin')
 
 # This is exactly similar to above Model but for ModelViews not Admin Index View.
 class ProtectedModelView(ModelView):
-    #@jwt_required
+    @login_required
     def is_accessible(self):
-        return True
-        #current_user = load_user(get_jwt_identity())
-        #return current_user.status == 'admin'
+        # Check if the current user is an admin
+        user = User.query.filter_by(username=current_user.username).first()
+        if len(user.roles) > 0 and user.roles[0].name == 'admin':
+            return True
+        return False
     def inaccessible_callback(self, name, **kwargs):
-        return {'message': 'Forbidden!'}, 403
+        logout_user()
+        flash('Unathorized user!')
+        return redirect('/adminlogin')
+
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
