@@ -5,6 +5,7 @@ API Models
 """
 from flask_restplus import fields
 from app import api
+from wtforms import Form, StringField, PasswordField, validators
 
 user_post = api.model('User Post', {
     'content': fields.String(required=True, description='Post content'),
@@ -44,3 +45,7 @@ comment_id_array = api.model('CommentIdArray', {
 user_post_method = api.model('PostMethod', {
     "method": fields.String(required=True)
 })
+
+class AdminLoginForm(Form):
+    username = StringField('Username', [validators.Length(min=4, max=15), validators.DataRequired()])
+    password = PasswordField('Password', [validators.Length(max=255), validators.DataRequired()])
