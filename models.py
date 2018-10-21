@@ -37,6 +37,7 @@ class User(UserMixin, db.Model):
     first_name = db.Column(db.String(50), nullable=True)
     last_name = db.Column(db.String(50), nullable=True)
     bio = db.Column(db.Text, nullable=True)
+    profile_picture = db.Column(db.String(35), default='Default', nullable=True)
     password = db.Column(db.String(255))
     posts = db.relationship('Posts', backref='user')
     ## Likes 
