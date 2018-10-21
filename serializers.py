@@ -42,6 +42,10 @@ comment_id_array = api.model('CommentIdArray', {
     "comment_ids": fields.List(fields.Integer)
 })
 
+reply_id_array = api.model('ReplyIdArray', {
+"reply_ids": fields.List(fields.Integer)
+})
+
 user_post_method = api.model('PostMethod', {
     "method": fields.String(required=True)
 })
