@@ -69,11 +69,11 @@ class IdFeed(Resource):
     def post(self):
         data = request.get_json()
         id_array = data['post_ids']
+        post_schema = PostSchema()
         posts = []
         for post_id in id_array:
             # Get the post and schema
             post = Posts.query.filter_by(id=post_id).first()
-            post_schema = PostSchema() 
             # Dump the data and append it to the posts list
             post_info = post_schema.dump(post).data
             # Check if the current user has liked the post
@@ -95,10 +95,10 @@ class IdFeed(Resource):
             # Get latest 5 comments
             comments = []
             if post_info['comments']:
-                for comment_id in post_info['comments'][:5]:
+                comment_schema = CommentSchema()
+                for comment_id in sorted(post_info['comments'], reverse=True)[:5]:
                     # Get the comment info
                     comment = Comments.query.filter_by(id=comment_id).first()
-                    comment_schema = CommentSchema()
                     comment_info = comment_schema.dump(comment).data
                     # Check if comment is liked
                     user_likes = CommentLike.query.filter_by(on_comment=comment_id).order_by(CommentLike.liked_on.desc())
@@ -120,10 +120,10 @@ class PostComments(Resource):
         data = request.get_json()
         id_array = data['comment_ids']
         comments = []
+        comment_schema = CommentSchema() 
         for comment_id in sorted(id_array):
             # Get the post and schema
             comment = Comments.query.filter_by(id=comment_id).first()
-            comment_schema = CommentSchema() 
             # Dump the data and append it to the posts list
             comment_info = comment_schema.dump(comment).data
             # Check if the current user has liked the comment
@@ -134,11 +134,15 @@ class PostComments(Resource):
                 comment_info['liked'] = True
             else:
                 comment_info['liked'] = False
+            if comment_info['replies']:
+                latest_reply = Reply.query.filter_by(on_comment=comment_id).first()
+                reply_schema = ReplySchema()
+                reply_info = reply_schema.dump(latest_reply).data
             comments.append(comment_info)
-        return jsonify({"comments": comments})
+        return jsonify({'comments': comments, 'latest_reply': reply_info})
 
 @api.route('/posts')
-class NewsFeed(Resource):
+class CreatePost(Resource):
 
     @api.response(201, 'Post has successfully been created')
     @jwt_required
@@ -412,7 +416,7 @@ class PostComments(Resource):
                 } for c in comment_info]
             comment_ids = uniq(x["id"] for x in sorted(comment_from_latest_activity,
                                                 key=lambda x: x["created"], 
-                                                reverse=True))
+                                                reverse=False))
             return jsonify({'comment_ids': comment_ids})
 
     @api.expect(user_comment)
@@ -633,21 +637,32 @@ class UserLogin(Resource):
             return {'message': 'User not found!'}, 404
         elif user.username == username and check_password_hash(user.password, password):
             access_token = create_access_token(identity=username, expires_delta=False)
-            return {'access_token': access_token, 'success': True}, 200
+            user_schema = UserSchema()
+            user_info = user_schema.dump(user).data
+            del user_info['password']
+            return jsonify({'access_token': access_token, 'currentuser': user_info, 'success': True})
         else:
             return {'message': 'Invalid credentials!'}, 401
 
-@api.route('/currentuser')
-class CurrentUser(Resource):
+@api.route('/user')
+class UserInfo(Resource):
 
     @jwt_required
     def get(self):
-        current_user = User.query.filter_by(username=get_jwt_identity()).first()
+        user = request.args.get("username", default=get_jwt_identity())
+        options = request.args.get("showPosts", default=False)
+        current_user = User.query.filter_by(username=user).first()
         userSchema = UserSchema()
         userInfo = userSchema.dump(current_user).data
         # Delete password to avoid giving information unintendedly.
+        latest_posts = []
+        if options == True:
+            latest_posts_ids = sorted(userInfo['posts'], reverse=True)
+            for post_id in latest_posts_ids:
+                Posts.query.filter_by(id=post_id).first()
+
         del userInfo['password']
-        return jsonify(userInfo)
+        return jsonify({'user': userInfo})
 
 @api.route('/register')
 class UserRegister(Resource):
@@ -748,6 +763,7 @@ page, then we can CRUD these models and objects within it using Flask-Admin.
 admin.add_view(ProtectedModelView(User, db.session))
 admin.add_view(ProtectedModelView(Posts, db.session))
 admin.add_view(ProtectedModelView(Role, db.session))
+admin.add_view(ProtectedModelView(Reply, db.session))
 admin.add_view(ProtectedModelView(Comments, db.session))
 admin.add_view(ProtectedModelView(PostLike, db.session))
 admin.add_view(ProtectedModelView(CommentLike, db.session))
