@@ -24,7 +24,6 @@ def load_user(username):
     if not user:
         return {'message': 'User does not exist!'}, 404
     else:
-        del user['password']
         return user
 
 def uniq(a_list):
