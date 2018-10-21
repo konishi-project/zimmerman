@@ -120,11 +120,11 @@ class PostComments(Resource):
         data = request.get_json()
         id_array = data['comment_ids']
         comments = []
-        comment_schema = CommentSchema() 
+        comment_schema = CommentSchema(many=True)
         for comment_id in sorted(id_array):
-            # Get the post and schema
+            # Get the comment
             comment = Comments.query.filter_by(id=comment_id).first()
-            # Dump the data and append it to the posts list
+            # Dump the data and append it to the comments list
             comment_info = comment_schema.dump(comment).data
             # Check if the current user has liked the comment
             current_user = load_user(get_jwt_identity())
@@ -138,8 +138,36 @@ class PostComments(Resource):
                 latest_reply = Reply.query.filter_by(on_comment=comment_id).first()
                 reply_schema = ReplySchema()
                 reply_info = reply_schema.dump(latest_reply).data
+                comment_info['latest_reply'] = reply_info
+
             comments.append(comment_info)
-        return jsonify({'comments': comments, 'latest_reply': reply_info})
+        return jsonify({'comments': comments})
+
+@api.route('/commentreplies')
+class CommentReplies(Resource):
+    @jwt_required
+    @api.expect(reply_id_array)
+    def post(self):
+        data = request.get_json()
+        id_array = data['reply_ids']
+        replies = []
+        reply_schema = ReplySchema(many=True)
+        for reply_id in sorted(id_array):
+            # Get the reply
+            reply = Reply.query.filter_by(id=reply_id).first()
+            # Dump the data and append it to the replies list
+            reply_info = reply_schema.dump(reply).data
+            # Check if the current user has liked the comment
+            current_user = load_user(get_jwt_identity())
+            # Get the latest likes
+            user_likes = ReplyLike.query.filter_by(on_reply=reply_id).order_by(ReplyLike.liked_on.desc())
+            if check_like(user_likes, current_user):
+                reply_info['liked'] = True
+            else:
+                reply_info['liked'] = False
+
+            replies.append(reply_info)
+        return jsonify({'replies': replies})
 
 @api.route('/posts')
 class CreatePost(Resource):
@@ -542,6 +570,7 @@ class PostComments(Resource):
     @jwt_required
     def post(self, comment_id):
         """ Reply on a specific comment. """
+        comment = Comments.query.filter_by(id=comment_id).first()
         current_user = load_user(get_jwt_identity())
         data = request.get_json()
         # Pass the information to the variables
