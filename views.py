@@ -120,7 +120,7 @@ class PostComments(Resource):
         data = request.get_json()
         id_array = data['comment_ids']
         comments = []
-        comment_schema = CommentSchema(many=True)
+        comment_schema = CommentSchema()
         for comment_id in sorted(id_array):
             # Get the comment
             comment = Comments.query.filter_by(id=comment_id).first()
@@ -148,10 +148,11 @@ class CommentReplies(Resource):
     @jwt_required
     @api.expect(reply_id_array)
     def post(self):
+        # Work in progress, might be buggy.
         data = request.get_json()
         id_array = data['reply_ids']
         replies = []
-        reply_schema = ReplySchema(many=True)
+        reply_schema = ReplySchema()
         for reply_id in sorted(id_array):
             # Get the reply
             reply = Reply.query.filter_by(id=reply_id).first()
