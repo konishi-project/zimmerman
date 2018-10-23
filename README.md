@@ -7,6 +7,8 @@ This version uses PostgreSQL(10) although you can use SQLite if you wish to.
 
 When creating a Postgres Database, make sure to name it 'konishidb' or whatever you like and change the config name for the database in 'config.py'
 
+**Please don't forget to make the static directories for storing images**
+
 Zimmerman is written in Python 3 to install Python 3 simply use:
 
 ### Python Installation
