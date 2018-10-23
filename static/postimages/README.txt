@@ -1,0 +1,2 @@
+These are where the post images will be stored, you can remove this if you
+want.
