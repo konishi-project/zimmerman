@@ -40,19 +40,23 @@ admin = Admin(app, name='Admin Area', template_mode='bootstrap3', index_view=Mai
 # Get an array of post feeds
 @api.route('/feed')
 class IdFeed(Resource):
+
     @jwt_required
     def get(self):
         """  Get Post IDs from Database. """
         # Limit how many posts are being queried
         limit = request.args.get('limit', default=1000)
+
         # Post
         posts = Posts.query.with_entities(Posts.id, Posts.created).all()
         post_schema = PostSchema(many=True)
         post_info = post_schema.dump(posts).data
+
         # Comments
         comments = Comments.query.all()
         comment_schema = CommentSchema(many=True)
         comment_info = comment_schema.dump(comments).data
+
         # Get the activity based on the latest comments
         post_activity_from_comments = [
             {
@@ -67,10 +71,12 @@ class IdFeed(Resource):
     @jwt_required
     @api.expect(id_array)
     def post(self):
+        # Get the data (array of post IDs)
         data = request.get_json()
         id_array = data['post_ids']
         post_schema = PostSchema()
         posts = []
+
         for post_id in id_array:
             # Get the post and schema
             post = Posts.query.filter_by(id=post_id).first()
@@ -84,6 +90,7 @@ class IdFeed(Resource):
                 post_info['liked'] = True
             else:
                 post_info['liked'] = False
+
             # Check if it has an image
             if post_info['image_file']:
                 # Get the id
@@ -92,6 +99,7 @@ class IdFeed(Resource):
                 img_url = glob.glob(os.path.join(POST_UPLOAD_PATH, '{}.*'.format(img_id)))
                 # Attach it and jsonify the output
                 post_info['image_url'] = img_url[0]
+
             # Get latest 5 comments
             comments = []
             if post_info['comments']:
@@ -106,14 +114,34 @@ class IdFeed(Resource):
                         comment_info['liked'] = True
                     else:
                         comment_info['liked'] = False
+
+                    # Get the latest 2 replies if there are
+                    replies = []
+                    if comment_info['replies']:
+                        reply_schema = ReplySchema()
+                        for reply_id in sorted(comment_info['replies'])[:2]:
+                            reply = Reply.query.filter_by(id=reply_id).first()
+                            reply_info = reply_schema.dump(reply).data
+                            # Check if comment is liked
+                            user_likes = ReplyLike.query.filter_by(on_reply=reply_id).order_by(ReplyLike.liked_on.desc())
+                            if check_like(user_likes, current_user):
+                                reply_info['liked'] = True
+                            else:
+                                reply_info['liked'] = False
+                            # Add it
+                            replies.append(reply_info)
+
+                    comment_info['latest_replies'] = replies
                     comments.append(comment_info)
 
             post_info['initial_comments'] = comments
             posts.append(post_info)
+
         return jsonify({"posts": posts})
     
 @api.route('/postcomments')
 class PostComments(Resource):
+
     @jwt_required
     @api.expect(comment_id_array)
     def post(self):
@@ -124,7 +152,7 @@ class PostComments(Resource):
         for comment_id in sorted(id_array):
             # Get the comment
             comment = Comments.query.filter_by(id=comment_id).first()
-            # Dump the data and append it to the comments list
+            # Dump the data and grab the info
             comment_info = comment_schema.dump(comment).data
             # Check if the current user has liked the comment
             current_user = load_user(get_jwt_identity())
@@ -139,12 +167,13 @@ class PostComments(Resource):
                 reply_schema = ReplySchema()
                 reply_info = reply_schema.dump(latest_reply).data
                 comment_info['latest_reply'] = reply_info
-
             comments.append(comment_info)
+
         return jsonify({'comments': comments})
 
 @api.route('/commentreplies')
 class CommentReplies(Resource):
+
     @jwt_required
     @api.expect(reply_id_array)
     def post(self):
@@ -170,7 +199,7 @@ class CommentReplies(Resource):
             replies.append(reply_info)
         return jsonify({'replies': replies})
 
-@api.route('/posts')
+@api.route('/createpost')
 class CreatePost(Resource):
 
     @api.response(201, 'Post has successfully been created')
@@ -449,10 +478,6 @@ class PostComments(Resource):
             return jsonify({'comment_ids': comment_ids})
 
     @api.expect(user_comment)
-    @api.doc(responses={
-        201: 'Commented on the post.',
-        403: 'Post is locked'
-    })
     @jwt_required
     def post(self, post_id):
         """ Comment on a specific post. """
@@ -471,6 +496,7 @@ class PostComments(Resource):
             latest_comment = comment_schema.dump(new_comment).data
             db.session.commit()
             return jsonify({'message': 'Comment has successfully been created', 'success': True, 'new_comment': latest_comment})
+
         else:
             return {'message': 'Post is locked, unable to comment.'}, 403
 
@@ -565,9 +591,6 @@ class PostComments(Resource):
             return jsonify({'replies': output})
 
     @api.expect(user_reply)
-    @api.doc(responses={
-        201: 'Replied on the comment.'
-    })
     @jwt_required
     def post(self, comment_id):
         """ Reply on a specific comment. """
@@ -579,8 +602,11 @@ class PostComments(Resource):
         new_reply = Reply(on_comment=comment_id, replier=current_user.username, 
                           content=content)
         db.session.add(new_reply)
+        db.session.flush()
+        reply_schema = ReplySchema()
+        newest_reply = reply_schema.dump(new_reply).data
         db.session.commit()
-        return {'message': 'Replied on the comment.'}, 201
+        return jsonify({'message': 'Reply has successfully been created', 'success': True, 'new_reply': newest_reply})
 
 # Interact with specific replies, reply API routes.
 @api.route('/comment/reply/<int:reply_id>')
@@ -635,7 +661,7 @@ class InteractComment(Resource):
         reply = Reply.query.filter_by(id=reply_id).first()
         if not reply:
             return {'message': 'Reply not found'}, 404
-            # Check if the Reply belongs to the User or the user is an Admin
+        # Check if the Reply belongs to the User or the user is an Admin
         elif reply.replier == current_user.username or is_admin(current_user):
             # Delete the reply if it exists using the given 'post_id'
             del_reply = Reply.query.filter_by(id=reply_id).first()
@@ -645,7 +671,7 @@ class InteractComment(Resource):
             return {'result': 'Reply has successfully been deleted'}, 200
         # If the Post does not belong to the User, return 403.
         elif reply.replier != current_user.username:
-            # Raise 403 error if the current user doesn't match the Post owner id
+            # Return a 403 message if the reply doesn't belong to the user.
             return {'message': 'This reply does not belong to you'}, 403
         else:
             return {'message': 'Uh oh! Something went wrong.'}, 500
@@ -656,21 +682,29 @@ class UserLogin(Resource):
     @api.expect(user_login)
     def post(self):
         """ Login and get a token. """
+        # Grab the incoming data.
         data = request.get_json()
-        if not data or not data['username'] or not data['password']:
-            return {'message': 'No login data found!'}, 404
         username = data['username']
         password = data['password']
+
+        # Check if there are values
+        if not data or not username or not password:
+            return {'message': 'No login data found!', 'reason': 'invalidDate'}, 404
         # Query and check if the User is in the Database
         user = User.query.filter_by(username=username).first()
         if not user:
             return {'message': 'User not found!'}, 404
+
+        # Login and give access_token.
         elif user.username == username and check_password_hash(user.password, password):
+            # Generate token
             access_token = create_access_token(identity=username, expires_delta=False)
             user_schema = UserSchema()
             user_info = user_schema.dump(user).data
+            # Delete password to avoid accounts being stolen
             del user_info['password']
             return jsonify({'access_token': access_token, 'currentuser': user_info, 'success': True})
+
         else:
             return {'message': 'Invalid credentials!'}, 401
 
@@ -679,18 +713,30 @@ class UserInfo(Resource):
 
     @jwt_required
     def get(self):
-        user = request.args.get("username", default=get_jwt_identity())
+        current_identity = get_jwt_identity()
+        user = request.args.get("username", default=current_identity)
         options = request.args.get("showPosts", default=False)
+
         current_user = User.query.filter_by(username=user).first()
         userSchema = UserSchema()
         userInfo = userSchema.dump(current_user).data
-        # Delete password to avoid giving information unintendedly.
-        latest_posts = []
-        if options == True:
-            latest_posts_ids = sorted(userInfo['posts'], reverse=True)
-            for post_id in latest_posts_ids:
-                Posts.query.filter_by(id=post_id).first()
 
+        if current_identity == userInfo['username']:
+            userInfo['owner'] = True
+
+        if options == 'true':
+            latest_posts = []
+            latest_posts_ids = sorted(userInfo['posts'], reverse=True)[:5]
+            post_schema = PostSchema()
+            for post_id in latest_posts_ids:
+                post = Posts.query.filter_by(id=post_id).first()
+                post_info = post_schema.dump(post).data
+
+                latest_posts.append(post_info)
+            del userInfo['password']
+            return jsonify({'user': userInfo, 'latest_posts': latest_posts})
+
+        # Delete password to avoid giving information unintendedly.
         del userInfo['password']
         return jsonify({'user': userInfo})
 
@@ -704,6 +750,7 @@ class UserRegister(Resource):
         data = request.get_json()
         if not data:
             return {'message': 'No json data found'}, 404
+
         # Pass the data
         email = data['email']
         username = data['username']
@@ -712,28 +759,45 @@ class UserRegister(Resource):
         first_name = data['first_name']
         last_name = data['last_name']
         entry_key = data['entry_key']
+
         # Check if the email is used
         if User.query.filter_by(email=email).first() is not None:
-            return {'message': 'Email already taken!', 'reason': 'email'}, 403
+            return {'message': 'Email is being used in another account!', 'reason': 'email'}, 403
+
         # Check if the username exists
         if User.query.filter_by(username=username).first() is not None:
-            return {'message': 'Username already taken!', 'reason': 'username'}, 403
+            return {'message': 'Username has already been taken!', 'reason': 'username'}, 403
+        elif not 4 <= len(username) <= 15:
+            return {'message': 'Username length is invalid!', 'reason': 'usernameLength'}, 403
+        elif not username.isalnum():
+            return {'message': 'Username is not alpha numeric!', 'reason': 'usernameNotAlphaNumeric'}, 403
+        
+        # Validate the first and last names
+        if not first_name.isalpha() or not last_name.isalpha():
+            return {'message': 'Name is not alphabetical', 'reason': 'nonAlphaName'}, 403
+        elif not 2 <= len(first_name) or len(last_name) <= 50:
+            return {'message': 'Name length is invalid', 'readon': 'nameLength'}, 403
+
+        # Check if the passwords match
         if password != confirm_password:
-            return {'message': 'Passwords don\'t match!'}, 406
+            return {'message': 'Passwords don\'t match!', 'reason': 'password'}, 406
+
         # Check if entry key is right
         if entry_key != app.config['ENTRY_KEY']:
-            return {'message': 'Entry key not correct!', 'reason': 'key'}, 406
-        else:
-            pass
+            return {'message': 'Entry key is invalid!', 'reason': 'key'}, 403
+
+        # If it passes validation, register the user.
         hashed_password = generate_password_hash(password, method='sha512')
         new_user = User(email=email, username=username, password=hashed_password,
-                        first_name=first_name, last_name=last_name, joined_date=datetime.now())
+                        first_name=first_name, last_name=last_name, 
+                        joined_date=datetime.now())
+
         db.session.add(new_user)
         db.session.commit()
         return {'message': 'Successfully registered!', 'success': True}, 200
 
 # Uploading
-POST_UPLOAD_PATH = 'static/user_files/contentimg/'
+POST_UPLOAD_PATH = 'static/postimages/'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 def allowed_file(filename):
@@ -742,6 +806,7 @@ def allowed_file(filename):
 
 @api.route('/imageupload')
 class PostImage(Resource):
+
     @jwt_required
     def post(self):
         """ Upload an image. """
@@ -759,7 +824,10 @@ class PostImage(Resource):
             # Hash the file and limit to 32 chars
             hashed_file = hashlib.sha256(str(file.filename).encode('utf-8')).hexdigest()[:32]
             # Save it and attach the extension
-            file.save(os.path.join(POST_UPLOAD_PATH, hashed_file + extension))
+            try:
+                file.save(os.path.join(POST_UPLOAD_PATH, hashed_file + extension))
+            except:
+                return {'message': 'Something went wrong during the process!'}, 500
             # Return hashed filename to the client
             return jsonify({'success': True, 'image_id': hashed_file})
 
