@@ -441,6 +441,7 @@ class LikeReply(Resource):
             db.session.commit()
             return {'message': 'User has liked the reply.'}, 201
 
+    @jwt_required
     def delete(self, reply_id):
         """ Unlike a reply. """
         # Query the comment and find the like
@@ -798,6 +799,7 @@ class UserRegister(Resource):
 
 # Uploading
 POST_UPLOAD_PATH = 'static/postimages/'
+PROFILEIMG_UPLOAD_PATH = 'static/profileimages/'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 def allowed_file(filename):
