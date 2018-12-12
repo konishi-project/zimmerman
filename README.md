@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Zimmerman
 This is Konishi's Back-End written in Python.
 
@@ -57,3 +58,7 @@ $ python
 
 ## Extra Documentation
 You can find extra documentation related to the files and python modules for the application [here](https://github.com/konishi-project/zimmerman/tree/next/Documentation).
+=======
+# zimmermanv2
+Zimmerman heavily restructured, rewritten and reorganized.
+>>>>>>> Initial commit
