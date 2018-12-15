@@ -776,7 +776,9 @@ class UserRegister(Resource):
         # Validate the first and last names
         if not first_name.isalpha() or not last_name.isalpha():
             return {'message': 'Name is not alphabetical', 'reason': 'nonAlphaName'}, 403
-        elif not 2 <= len(first_name) or len(last_name) <= 50:
+        elif not 2 <= len(first_name) <= 50:
+            return {'message': 'Name length is invalid', 'reason': 'nameLength'}, 403
+        elif not 2 <= len(last_name) <= 50:
             return {'message': 'Name length is invalid', 'reason': 'nameLength'}, 403
 
         # Check if the passwords match
