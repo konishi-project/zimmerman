@@ -4,6 +4,8 @@ from datetime import datetime
 from zimmerman.main import db
 from zimmerman.main.model.user import User
 
+from flask_jwt_extended import create_access_token
+
 def save_changes(data):
     db.session.add(data)
     db.session.commit()
@@ -51,4 +53,24 @@ def register_new_user(data):
 
     save_changes(new_user)
     # Return success response
-    return {'message': 'Successfully registered', 'success': True}, 201
+    return create_token(new_user)
+
+def get_a_user(public_id):
+    return User.query.filter_by(public_id=public_id).first()
+
+def create_token(user):
+    try:
+        # Generate token
+        access_token = create_access_token(user.id)
+        response_object = {
+            'status': 'success',
+            'message': 'Successfully registered',
+            'Authorization': access_token
+        }
+        return response_object, 201
+    except Exception as e:
+        response_object = {
+            'status': 'fail',
+            'message': 'Some error occured. Please try again.'
+        }
+        return response_object, 401
