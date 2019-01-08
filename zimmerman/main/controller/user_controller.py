@@ -18,5 +18,5 @@ class UserRegister(Resource):
     })
     def post(self):
         """ Registers new user """
-        data = request.json
+        data = request.get_json()
         return register_new_user(data=data)

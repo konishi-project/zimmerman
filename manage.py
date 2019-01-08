@@ -7,7 +7,7 @@ from flask_script import Manager
 from zimmerman.main import create_app, db
 
 # Models
-from zimmerman.main.model import user, schemas
+from zimmerman.main.model import user
 
 # Import blueprint
 from zimmerman import blueprint

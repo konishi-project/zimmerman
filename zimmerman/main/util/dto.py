@@ -19,3 +19,26 @@ class AuthDto:
         'email': fields.String(required=True, description='Username'),
         'password': fields.String(required=True, description='User password')
     })
+
+class PostDto:
+    api = Namespace('post', description='Post related operations.')
+    post = api.model("post", {
+        "content": fields.String(required=True, description="Post content."),
+        "image_id": fields.String(description="Attached image"),
+        "post_ids": fields.List(fields.Integer, description="Array of Post IDs")
+    })
+
+class CommentDto:
+    api = Namespace('comment', description='Comment related operations.')
+    comment = api.model("comment", {
+        "content": fields.String(required=True, description="Comment content."),
+        "image_id": fields.String(description="Attached image"),
+        "comment_ids": fields.List(fields.Integer, description="Array of Comment IDs")
+    })
+
+class ReplyDto:
+    api = Namespace('reply', description='Reply related operations.')
+    comment = api.model("comment", {
+        "content": fields.String(required=True, description="Reply content."),
+        "reply_ids": fields.List(fields.Integer, description="Array of Reply IDs")
+    })

@@ -1,9 +1,7 @@
-import hashlib
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
-from .. import db, ma
+from .. import db, ma, bcrypt
 
 roles_users = db.Table('roles_users',
         db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
@@ -14,7 +12,7 @@ class User(UserMixin, db.Model):
 
   # Basic details
   id = db.Column(db.Integer, primary_key=True)
-  public_id = db.Column(db.String(50), unique=True)
+  public_id = db.Column(db.String(36), unique=True)
   email = db.Column(db.String(255), unique=True, nullable=False)
   username = db.Column(db.String(20), unique=True)
   first_name = db.Column(db.String(50), nullable=True)
@@ -44,10 +42,10 @@ class User(UserMixin, db.Model):
 
   @password.setter
   def password(self, password):
-    self.password_hash = generate_password_hash(password, method='sha512')
+    self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
   
   def check_password(self, password):
-    return check_password_hash(self.password_hash, password)
+    return bcrypt.check_password_hash(self.password_hash, password)
 
   def __repr__(self):
     return "<User '{}'>".format(self.username)
@@ -69,7 +67,7 @@ class Posts(db.Model):
     # Basic details
     id = db.Column(db.Integer, primary_key=True)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    creator_name = db.Column(db.String(20))
+    creator_public_id = db.Column(db.String(36))
 
     # Post content and details
     content = db.Column(db.Text)
@@ -156,3 +154,24 @@ class ReplyLike(db.Model):
 
     def __repr__(self):
       return "<ReplyLike on Reply '{}'>".format(self.on_comment)
+
+# Model Schemas
+class UserSchema(ma.ModelSchema):
+    class Meta:
+        model = User
+
+class PostSchema(ma.ModelSchema):
+    class Meta:
+        model = Posts
+
+class CommentSchema(ma.ModelSchema):
+    class Meta:
+        model = Comments
+
+class ReplySchema(ma.ModelSchema):
+    class Meta:
+        model = Reply
+
+class PostLikeSchema(ma.ModelSchema):
+    class Meta:
+        model = PostLike

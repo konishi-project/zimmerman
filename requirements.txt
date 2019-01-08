@@ -10,6 +10,7 @@ cryptography
 Flask
 Flask-Admin
 Flask-BabelEx
+Flask-Bcrypt
 Flask-Cors
 Flask-JWT-Extended
 Flask-Limiter

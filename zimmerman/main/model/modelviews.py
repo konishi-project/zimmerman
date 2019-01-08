@@ -37,6 +37,7 @@ class ProtectedModelView(ModelView):
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))# Admin Index View is the Main Index, not the ModelView
+
 class MainAdminIndexView(AdminIndexView):
     @login_required
     def is_accessible(self):
