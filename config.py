@@ -22,10 +22,10 @@ http://flask-sqlalchemy.pocoo.org/2.3/
 # token
 #SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgres://postgres:password@localhost:5432/konishidb')
 SQLALCHEMY_DATABASE_URI = 'sqlite://///var/www/zimmerman/konishi.db'
-HOST = '0.0.0.0'
-PORT = 4000
 
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 ENTRY_KEY = "KonishiTesting"
 MAX_CONTENT_LENGTH = 10 * 1024 * 1024
+
+SERVER_NAME = '127.0.0.1:4001'
