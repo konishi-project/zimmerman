@@ -25,7 +25,6 @@ class PostDto:
     post = api.model("post", {
         "content": fields.String(required=True, description="Post content."),
         "image_id": fields.String(description="Attached image"),
-        "post_ids": fields.List(fields.Integer, description="Array of Post IDs")
     })
 
 class CommentDto:
@@ -33,12 +32,16 @@ class CommentDto:
     comment = api.model("comment", {
         "content": fields.String(required=True, description="Comment content."),
         "image_id": fields.String(description="Attached image"),
-        "comment_ids": fields.List(fields.Integer, description="Array of Comment IDs")
     })
 
 class ReplyDto:
     api = Namespace('reply', description='Reply related operations.')
     comment = api.model("comment", {
         "content": fields.String(required=True, description="Reply content."),
-        "reply_ids": fields.List(fields.Integer, description="Array of Reply IDs")
+    })
+
+class FeedDto:
+    api = Namespace('feed', description='Feed related operations.')
+    feed = api.model('feed', {
+        'item_ids': fields.List(fields.Integer, description='Array of IDs')
     })
