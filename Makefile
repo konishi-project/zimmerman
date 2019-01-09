@@ -9,6 +9,7 @@ install:
 
 migrate:
 	python manage.py db migrate
+	python manage.py db upgrade
 
 tests:
 	python manage.py test
