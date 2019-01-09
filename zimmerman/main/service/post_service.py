@@ -6,11 +6,11 @@ from flask import request
 from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
-from zimmerman.main.model.user import Posts, Comments
+from zimmerman.main.model.user import Posts
 from .user_service import load_user
 
 # Import Schema
-from zimmerman.main.model.user import PostSchema, CommentSchema
+from zimmerman.main.model.user import PostSchema
 
 POST_UPLOAD_PATH = '../static/postimages/'
 
@@ -71,9 +71,9 @@ def create_new_post(data, user):
     }
     return response_object, 201
 
-def delete_new_post(post_id):
+def delete_post(post_id, user):
     # Get the current user
-    current_user = load_user(get_jwt_identity())
+    current_user = user
 
     # Query for the post
     post = Posts.query.filter_by(id=post_id).first()
