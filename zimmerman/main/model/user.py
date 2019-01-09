@@ -66,6 +66,7 @@ class Posts(db.Model):
     
     # Basic details
     id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(36))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator_public_id = db.Column(db.String(36))
 
