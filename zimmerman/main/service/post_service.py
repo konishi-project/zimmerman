@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import uuid4
 from glob import glob
 from os import path
 
@@ -46,6 +47,7 @@ def create_new_post(data, user):
         return {'message': 'Content exceeds limit', 'success': False}, 403
     
     new_post = Posts(
+        public_id = str(uuid4()),
         owner_id = current_user.id,
         creator_public_id = current_user.public_id,
         content = content,
@@ -71,12 +73,12 @@ def create_new_post(data, user):
     }
     return response_object, 201
 
-def delete_post(post_id, user):
+def delete_post(post_public_id, user):
     # Get the current user
     current_user = user
 
     # Query for the post
-    post = Posts.query.filter_by(id=post_id).first()
+    post = Posts.query.filter_by(public_id=post_public_id).first()
     if not post:
         response_object = {
             'success': False,
@@ -86,7 +88,7 @@ def delete_post(post_id, user):
 
     # Check post owner
     elif current_user.public_id == post.creator_public_id: # or is_admin(current_user)::
-        post = Posts.query.filter_by(id=post_id).first()
+        post = Posts.query.filter_by(public_id=post_public_id).first()
 
         # Get the likes for the post and delete them too
         # Get comments for the post and delete them
@@ -98,3 +100,47 @@ def delete_post(post_id, user):
             'message': 'Post has successfully been deleted'
         }
         return response_object, 200
+
+def update_post(post_public_id, data, user):
+    # Get the current user
+    current_user = user
+
+    # Query for the post
+    post = Posts.query.filter_by(public_id=post_public_id).first()
+    if not post:
+        response_object = {
+            'success': False,
+            'message': 'Post not found!'
+        }
+        return response_object, 404
+
+    # Check post owner
+    elif current_user.public_id == post.creator_public_id and post.status == 'normal': # or is_admin(current_user)
+        # Get the new data
+        if data['content'] is not None:
+            # Update the post
+            post.content = data['content']
+            post.edited = True
+            # Commit changes
+            db.session.commit()
+
+            response_object = {
+                'success': True,
+                'message': 'Post has successfully been updated.'
+            }
+            return response_object, 200
+    
+    elif post.status.lower() == 'locked':
+        response_object = {
+            'success': False,
+            'message': 'Post is locked!',
+            'reason': 'locked'
+        }
+        return response_object, 403
+    else:
+        response_object = {
+            'success': False,
+            'message': 'You do not own this post!',
+            'reason': 'permission'
+        }
+        return response_object, 403
