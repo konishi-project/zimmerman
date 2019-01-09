@@ -9,8 +9,8 @@ def register_user(self):
       data = json.dumps(dict (
           email = 'test@Email.com',
           username = 'testUser',
-          first_name = "test",
-          last_name = "user",
+          first_name = 'test',
+          last_name = 'user',
           password = '123456',
           entry_key = 'KonishiTesting'
       )),
@@ -27,10 +27,10 @@ def login_user(self):
       content_type = 'application/json'
     )
 
-class TestAuthBluprint(BaseTestCase):
+class TestAuthBlueprint(BaseTestCase):
 
     def test_registered_user_login(self):
-        """ Test for login of registered-user login """
+        ''' Test for login of registered-user login '''
 
         with self.client:
             # User registration
