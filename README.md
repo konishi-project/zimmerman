@@ -5,11 +5,9 @@ This is Konishi's Back-End written in Flask (Python 3).
 
 ## Requirements
 
-This version uses PostgreSQL(10) although you can use SQLite if you wish to.
+This version uses PostgreSQL although you can use SQLite if you wish to.
 
-When creating a Postgres Database, make sure to name it 'konishidb' or whatever you like and change the config name for the database in 'config.py'
-
-**Please don't forget to make the static directories for storing images**
+When creating a Postgres Database, make sure to name it 'konishidb' or whatever you like and change the config name for the database in `zimmerman/main/config.py`
 
 Zimmerman is written in Python 3 to install Python 3 simply use:
 
@@ -21,11 +19,12 @@ Zimmerman is written in Python 3 to install Python 3 simply use:
 | Arch Linux | ```sudo pacman -Syy python3``` |
 | Gentoo | ``` sudo emerge -av dev-lang/python ``` |
 
-To install the requirements from 'requirements.txt' in a virtualenv run the following:
-1. ``` pip install virtualenv ```
-2. ``` virtualenv konishienv ```
-3. ``` source konishienv/bin/activate ```
-4. ``` pip install -r requirements.txt ```
+To install the requirements from 'requirements.txt' in a virtualenv run the following in the same directory:
+
+1. ` Make sure you install virtualenv for your platform `
+2. ` virtualenv konishienv `
+3. ` source konishienv/bin/activate `
+4. ` make install `
 
 ### PostgreSQL Installation
 This can vary for many different distributions/operating systems.
@@ -41,7 +40,7 @@ Arch Linux - ```https://wiki.archlinux.org/index.php/PostgreSQL```
 **PostgreSQL Website** - ```https://www.postgresql.org/```
 
 ## Running the Application
-``` $ python3 app.py ```
+``` $ python manage.py run ```
 
 ## Setting up the database
 You need to have PostgreSQL running and make sure you've set the configurations to match your local PSQL credentials.
