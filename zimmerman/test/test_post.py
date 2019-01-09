@@ -16,13 +16,25 @@ def create_post(self, access_token):
       content_type = 'application/json'
     )
 
-def delete_post(self, access_token, post_id):
+def delete_post(self, access_token, public_id):
     return self.client.delete(
-      '/post/delete/%s' % post_id,
-      headers = {
-        'Authorization': 'Bearer %s' % access_token
-      },
-      content_type = 'application/json'
+        '/post/delete/%s' % public_id,
+        headers = {
+            'Authorization': 'Bearer %s' % access_token
+        },
+        content_type = 'application/json'
+    )
+
+def update_post(self, data, access_token, public_id):
+    return self.client.put(
+        '/post/update/%s' % public_id,
+        data = json.dumps(dict (
+            content = data['content']
+        )),
+        headers = {
+            'Authorization': 'Bearer %s' % access_token
+        },
+        content_type = 'application/json'
     )
 
 def register_user(self):
@@ -52,30 +64,59 @@ def login_user(self):
 class TestPostBlueprint(BaseTestCase):
 
     def test_create_post(self):
-      ''' Test for post creation and deletion '''
+        """ Test for post creation and deletion """
 
-      with self.client:
-        # Create a mock user and login
-        register_user(self)
-        login_response = login_user(self)
-        data = json.loads(login_response.data.decode())
-        access_token = data['Authorization']
+        with self.client:
+            # Create a mock user and login
+            register_user(self)
+            login_response = login_user(self)
+            data = json.loads(login_response.data.decode())
+            access_token = data['Authorization']
 
-        # Post creation
-        user_response = create_post(self, access_token)
-        response_data = json.loads(user_response.data.decode())
+            # Post creation
+            create_response = create_post(self, access_token)
+            create_response_data = json.loads(create_response.data.decode())
 
-        self.assertTrue(response_data['success'])
-        self.assertEqual(user_response.status_code, 201)
+            self.assertTrue(create_response_data['success'])
+            self.assertEqual(create_response.status_code, 201)
+        
+            # Delete the post
+            post_public_id = create_response_data['post']['public_id']
+
+            delete_response = delete_post(self, access_token, post_public_id)
+            delete_response_data = json.loads(delete_response.data.decode())
+
+            self.assertTrue(delete_response_data['success'])
+            self.assertEqual(delete_response.status_code, 200)
     
-        # Delete the post
-        post_id = response_data['post']['id']
+    def test_post_update(self):
+        """ Test for post updating """
 
-        delete_response = delete_post(self, access_token, post_id)
-        delete_response_data = json.loads(delete_response.data.decode())
+        with self.client:
+            # Create a mock post and update it.
+            register_user(self)
+            login_response = login_user(self)
+            data = json.loads(login_response.data.decode())
+            access_token = data['Authorization']
 
-        self.assertTrue(delete_response_data['success'])
-        self.assertEqual(delete_response.status_code, 200)
+            # Create a post
+            create_response = create_post(self, access_token)
+            create_response_data = json.loads(create_response.data.decode())
+
+            # Update the post
+            post_public_id = create_response_data['post']['public_id']
+            updated_content = {
+                'content': 'Updated content'
+            }
+            update_response = update_post(self, updated_content, access_token, post_public_id)
+            update_response_data = json.loads(update_response.data.decode())
+
+            # Compare data
+            original_content = create_response_data['post']['content']
+
+            self.assertNotEqual(original_content, updated_content)
+            self.assertEqual(update_response.status_code, 200)
+            self.assertTrue(update_response_data['success'])
 
 if __name__ == '__main__':
     unittest.main()
