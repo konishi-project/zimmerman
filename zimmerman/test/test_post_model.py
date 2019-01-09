@@ -9,7 +9,7 @@ from zimmerman.test.base import BaseTestCase
 class TestPostModel(BaseTestCase):
 
       def test_create_post(self):
-          # Create mock user
+          # Create test user
           user = User(
             public_id = str(uuid4()),
             email = 'email@test.com',
