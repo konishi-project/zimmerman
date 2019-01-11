@@ -4,7 +4,8 @@ import unittest
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 
-from zimmerman.main import create_app, db
+from zimmerman.main import create_app
+from zimmerman.main.extensions import db
 
 # Models
 from zimmerman.main.model import user
