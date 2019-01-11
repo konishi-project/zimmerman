@@ -3,7 +3,7 @@ from uuid import uuid4
 from glob import glob
 from os import path
 
-from flask import request
+from flask import request, jsonify
 from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
@@ -144,3 +144,38 @@ def update_post(post_public_id, data, user):
             'reason': 'permission'
         }
         return response_object, 403
+
+def get_post(post_public_id):
+    # Get the specific post using its public id
+    post = Posts.query.filter_by(public_id=post_public_id).first()
+    if not post:
+        response_object = {
+            'success': False,
+            'message': 'Post not found!'
+        }
+        return response_object, 404
+
+    post_schema = PostSchema()
+    post_info = post_schema.dump(post).data
+
+    # Check for an image file and add it if it has any.
+    if post.image_file:
+        # Get the image id
+        image_id = post.image_file
+        # Search for the image in the static/postimages directory
+        image_url = glob(path.join(POST_UPLOAD_PATH), '%s' % image_id)
+        # Attach it to the post and jsonify.
+        post_info['image_url'] = image_url[0]
+        response_object = {
+            'success': True,
+            'message': 'Post info successfully been sent.',
+            'post': post_info
+        }
+        return jsonify(response_object)
+
+    response_object = {
+        'success': True,
+        'message': 'Post info successfully been sent.',
+        'post': post_info
+    }
+    return jsonify(response_object)

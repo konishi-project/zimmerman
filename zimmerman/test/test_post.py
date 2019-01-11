@@ -3,6 +3,15 @@ import json
 
 from zimmerman.test.base import BaseTestCase
 
+def get_post(self, access_token, public_id):
+    return self.client.get(
+        '/post/get/%s' % public_id,
+        headers = {
+            'Authorization': 'Bearer %s' % access_token
+        },
+        content_type = 'application/json'
+    )
+
 def create_post(self, access_token):
     return self.client.post(
       '/post/create',
@@ -117,6 +126,33 @@ class TestPostBlueprint(BaseTestCase):
             self.assertNotEqual(original_content, updated_content)
             self.assertEqual(update_response.status_code, 200)
             self.assertTrue(update_response_data['success'])
+    
+    def test_post_get(self):
+        """ Test for getting specific posts """
+
+        with self.client:
+            # Create a temporary user
+            register_user(self)
+            login_response = login_user(self)
+            data = json.loads(login_response.data.decode())
+            access_token = data['Authorization']
+
+            # Create a post
+            create_post_response = create_post(self, access_token)
+            create_post_response_data = json.loads(create_post_response.data.decode())
+
+            # Get that post
+            post_public_id = create_post_response_data['post']['public_id']
+            get_post_response = get_post(self, access_token, post_public_id)
+            get_post_response_data = json.loads(get_post_response.data.decode())
+
+            # Get content for comparison
+            original_content = create_post_response_data['post']['content']
+            received_content = get_post_response_data['post']['content']
+
+            self.assertEqual(get_post_response.status_code, 200)
+            self.assertTrue(get_post_response_data['success'])
+            self.assertEqual(original_content, received_content)
 
 if __name__ == '__main__':
     unittest.main()

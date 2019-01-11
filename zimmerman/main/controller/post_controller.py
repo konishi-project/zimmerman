@@ -3,12 +3,25 @@ from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from ..util.dto import PostDto
-from ..service.post_service import create_new_post, delete_post, update_post
+from ..service.post_service import get_post, create_new_post, delete_post, update_post
 from ..service.user_service import load_user
 
 
 api = PostDto.api
 _post = PostDto.post
+
+@api.route('/get/<string:post_public_id>')
+class PostGet(Resource):
+    
+    @api.doc('Get a specific post.',
+        responses = {
+            200: 'Post info has successfully been sent.',
+            404: 'Post not found!'
+        }
+    )
+    @jwt_required
+    def get(self, post_public_id):
+        return get_post(post_public_id)
 
 @api.route('/create')
 class PostCreate(Resource):
@@ -16,8 +29,8 @@ class PostCreate(Resource):
     @api.expect(_post, validate=True)
     @api.doc('Create a new post.', 
       responses = {
-        201: 'Post created',
-        401: 'Something went wrong during the process'
+            201: 'Post created',
+            401: 'Something went wrong during the process'
       }
     )
     @jwt_required
