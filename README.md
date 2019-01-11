@@ -46,12 +46,7 @@ Arch Linux - ```https://wiki.archlinux.org/index.php/PostgreSQL```
 You need to have PostgreSQL running and make sure you've set the configurations to match your local PSQL credentials.
 Once you've setup the virtual environment and activated it, create an empty database using.
 
-```bash
-$ python
 ```
-
-```python 
->>> from app import db # Import the database object from app.py
->>> db.create_all() # Create the database cluster
->>> quit() # Exit out of python
+python manage.py db init
+make migrate
 ```
