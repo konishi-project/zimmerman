@@ -37,7 +37,7 @@ class User(UserMixin, db.Model):
     first_name = db.Column(db.String(50), nullable=True)
     last_name = db.Column(db.String(50), nullable=True)
     bio = db.Column(db.Text, nullable=True)
-    profile_picture = db.Column(db.String(35), default='Default', nullable=True)
+    profile_picture = db.Column(db.String(35), nullable=True)
     password = db.Column(db.String(255))
     posts = db.relationship('Posts', backref='user')
     ## Likes 
@@ -61,9 +61,9 @@ class Posts(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator_name = db.Column(db.String(20))
     content = db.Column(db.Text)
-    image_file = db.Column(db.String(35), default=None, nullable=True)
+    image_file = db.Column(db.String(35), nullable=True)
     status = db.Column(db.String(10))
-    created = db.Column(db.DateTime, default=datetime.now())
+    created = db.Column(db.DateTime, server_default=text('CURRENT_TIMESTAMP'))
     edited = db.Column(db.Boolean, default=False)
     likes = db.relationship('PostLike', backref='posts')
     comments = db.relationship('Comments', backref='posts')
@@ -75,7 +75,7 @@ class Comments(db.Model):
     on_post = db.Column(db.Integer, db.ForeignKey('posts.id'))
     commenter = db.Column(db.String(20))
     content = db.Column(db.Text)
-    created = db.Column(db.DateTime, default=datetime.now())
+    created = db.Column(db.DateTime, server_default=text('CURRENT_TIMESTAMP'))
     edited = db.Column(db.Boolean, default=False)
     likes = db.relationship('CommentLike', backref='comments')
     replies = db.relationship('Reply', backref='comments')
@@ -88,8 +88,7 @@ class Reply(db.Model):
     on_comment = db.Column(db.Integer, db.ForeignKey('comments.id'))
     replier = db.Column(db.String(20))
     content = db.Column(db.Text)
-    created = db.Column(db.DateTime,default=datetime.now())
-    modified = db.Column(db.DateTime, default=datetime.now())
+    created = db.Column(db.DateTime, server_default=text('CURRENT_TIMESTAMP'))
     likes = db.relationship('ReplyLike', backref='reply')
     def __repr__(self):
         return 'Reply ID - {}'.format(self.id)
@@ -98,7 +97,7 @@ class PostLike(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     on_post = db.Column(db.Integer, db.ForeignKey('posts.id'))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    liked_on = db.Column(db.DateTime, default=datetime.now())
+    liked_on = db.Column(db.DateTime, server_default=text('CURRENT_TIMESTAMP'))
     def __repr__(self):
         return '{}'.format(self.on_post)
 
@@ -106,13 +105,13 @@ class CommentLike(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     on_comment = db.Column(db.Integer, db.ForeignKey('comments.id'))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    liked_on = db.Column(db.DateTime, default=datetime.now())
+    liked_on = db.Column(db.DateTime, server_default=text('CURRENT_TIMESTAMP'))
 
 class ReplyLike(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     on_reply = db.Column(db.Integer, db.ForeignKey('reply.id'))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    liked_on = db.Column(db.DateTime, default=datetime.now())
+    liked_on = db.Column(db.DateTime, server_default=text('CURRENT_TIMESTAMP'))
 
 ## Model Schemas
 class UserSchema(ma.ModelSchema):
