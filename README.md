@@ -18,12 +18,20 @@ Zimmerman is written in Python 3 to install Python 3 simply use:
 | Ubuntu 16.10+ | ```sudo apt install python3``` |
 | Arch Linux | ```sudo pacman -Syy python3``` |
 | Gentoo | ``` sudo emerge -av dev-lang/python ``` |
+| Windows | ``` Download and install from https://www.python.org/downloads/windows/ ``` |
 
-To install the requirements from 'requirements.txt' in a virtualenv run the following:
+To install the requirements from 'requirements.txt' in a virtualenv run the following in the project root directory:
 1. ``` pip install virtualenv ```
 2. ``` virtualenv konishienv ```
 3. ``` source konishienv/bin/activate ```
 4. ``` pip install -r requirements.txt ```
+
+Or alternatively on Windows:
+1. ``` python -m pip install virtualenv ```
+2. ``` python3 -m venv konishienv ```
+3. ``` konishienv\Scripts\activate ```
+4. ``` pip install -r requirements.txt ```
+
 
 ### PostgreSQL Installation
 This can vary for many different distributions/operating systems.

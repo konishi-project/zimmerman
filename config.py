@@ -19,7 +19,6 @@ Check out documentation for Flask-SQLAlchemy Here
 http://flask-sqlalchemy.pocoo.org/2.3/
 """
 
-# token
 #SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgres://postgres:password@localhost:5432/konishidb')
 SQLALCHEMY_DATABASE_URI = 'sqlite://///var/www/zimmerman/konishi.db'
 
