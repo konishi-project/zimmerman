@@ -87,7 +87,7 @@ def delete_post(post_public_id, user):
         return response_object, 404
 
     # Check post owner
-    elif current_user.public_id == post.creator_public_id: # or is_admin(current_user)::
+    elif current_user.public_id == post.creator_public_id: # or is_admin(current_user)
         post = Posts.query.filter_by(public_id=post_public_id).first()
 
         # Get the likes for the post and delete them too
