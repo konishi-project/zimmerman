@@ -31,12 +31,12 @@ class CommentDto:
     api = Namespace('comment', description='Comment related operations.')
     comment = api.model("comment", {
         "content": fields.String(required=True, description="Comment content."),
-        "image_id": fields.String(description="Attached image"),
+        # "image_id": fields.String(description="Attached image"),
     })
 
 class ReplyDto:
     api = Namespace('reply', description='Reply related operations.')
-    comment = api.model("comment", {
+    reply = api.model("reply", {
         "content": fields.String(required=True, description="Reply content."),
     })
 
