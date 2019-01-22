@@ -3,26 +3,30 @@ from datetime import datetime
 
 from .. import db, ma, bcrypt
 
-roles_users = db.Table('roles_users',
-        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
-        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+# Alias common SQLAlchemy names
+Column = db.Column
+Model = db.Model
 
-class User(UserMixin, db.Model):
+roles_users = db.Table('roles_users',
+        Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+        Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+
+class User(UserMixin, Model):
   """ User Model for storing user related details """
 
   # Basic details
-  id = db.Column(db.Integer, primary_key=True)
-  public_id = db.Column(db.String(36), unique=True)
-  email = db.Column(db.String(255), unique=True, nullable=False)
-  username = db.Column(db.String(20), unique=True)
-  first_name = db.Column(db.String(50), nullable=True)
-  last_name = db.Column(db.String(50), nullable=True)
+  id = Column(db.Integer, primary_key=True)
+  public_id = Column(db.String(36), unique=True)
+  email = Column(db.String(255), unique=True, nullable=False)
+  username = Column(db.String(20), unique=True)
+  first_name = Column(db.String(50), nullable=True)
+  last_name = Column(db.String(50), nullable=True)
 
-  password_hash = db.Column(db.String(255))
+  password_hash = Column(db.String(255))
 
   # Extra details
-  bio = db.Column(db.Text, nullable=True)
-  profile_picture = db.Column(db.String(35), nullable=True)
+  bio = Column(db.Text, nullable=True)
+  profile_picture = Column(db.String(35), nullable=True)
 
   # Post related
   post = db.relationship('Posts', backref='user')
@@ -32,7 +36,7 @@ class User(UserMixin, db.Model):
   reply_like = db.relationship('ReplyLike', backref='user')
 
   # Status
-  joined_date = db.Column(db.DateTime)
+  joined_date = Column(db.DateTime)
   roles = db.relationship('Role', secondary=roles_users,
                           backref=db.backref('users'), lazy='dynamic')
 
@@ -50,33 +54,33 @@ class User(UserMixin, db.Model):
   def __repr__(self):
     return "<User '{}'>".format(self.username)
 
-class Role(db.Model):
+class Role(Model):
     """ Role Model for storing role related details """
     __tablename__ = "role"
 
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(20), unique=True)
-    description = db.Column(db.String(50))
+    id = Column(db.Integer(), primary_key=True)
+    name = Column(db.String(20), unique=True)
+    description = Column(db.String(50))
 
     def __repr__(self):
         return '{} - {}'.format(self.name, self.id)
 
-class Posts(db.Model):
+class Posts(Model):
     """ Post Model for storing post related details """
     
     # Basic details
-    id = db.Column(db.Integer, primary_key=True)
-    public_id = db.Column(db.String(36))
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    creator_public_id = db.Column(db.String(36))
+    id = Column(db.Integer, primary_key=True)
+    public_id = Column(db.String(36))
+    owner_id = Column(db.Integer, db.ForeignKey('user.id'))
+    creator_public_id = Column(db.String(36))
 
     # Post content and details
-    content = db.Column(db.Text)
-    image_file = db.Column(db.String(35), default=None, nullable=True)
-    status = db.Column(db.String(10))
+    content = Column(db.Text)
+    image_file = Column(db.String(35), default=None, nullable=True)
+    status = Column(db.String(10))
 
-    created = db.Column(db.DateTime, default=datetime.now())
-    edited = db.Column(db.Boolean, default=False)
+    created = Column(db.DateTime, default=datetime.utcnow)
+    edited = Column(db.Boolean, default=False)
 
     likes = db.relationship('PostLike', backref='posts')
     comments = db.relationship('Comments', backref='posts')
@@ -84,74 +88,74 @@ class Posts(db.Model):
     def __repr__(self):
       return "<Post '{}'>".format(self.id)
 
-class Comments(db.Model):
+class Comments(Model):
     """ Comment Model for storing comment related details """
 
     # Basic details
-    id = db.Column(db.Integer, primary_key=True)
-    on_post = db.Column(db.Integer, db.ForeignKey('posts.id'))
-    commenter = db.Column(db.String(20))
+    id = Column(db.Integer, primary_key=True)
+    creator_public_id = Column(db.String(36))
+    on_post = Column(db.Integer, db.ForeignKey('posts.id'))
 
     # Comment content and details
-    content = db.Column(db.Text)
-    created = db.Column(db.DateTime, default=datetime.now())
-    edited = db.Column(db.Boolean, default=False)
+    content = Column(db.Text)
+    created = Column(db.DateTime, default=datetime.utcnow)
+    edited = Column(db.Boolean, default=False)
 
     likes = db.relationship('CommentLike', backref='comments')
 
     def __repr__(self):
       return "<Comment '{}'>".format(self.id)
 
-class Reply(db.Model):
+class Reply(Model):
     """ Reply Model for storing reply related details """
 
     # Basic details
-    id = db.Column(db.Integer, primary_key=True)
-    on_comment = db.Column(db.Integer, db.ForeignKey('comments.id'))
-    replier = db.Column(db.String(20))
+    id = Column(db.Integer, primary_key=True)
+    on_comment = Column(db.Integer, db.ForeignKey('comments.id'))
+    replier = Column(db.String(20))
 
     # Reply content and details
-    content = db.Column(db.Text)
-    created = db.Column(db.DateTime, default=datetime.now())
-    edited = db.Column(db.Boolean, default=False)
+    content = Column(db.Text)
+    created = Column(db.DateTime, default=datetime.utcnow)
+    edited = Column(db.Boolean, default=False)
 
     likes = db.relationship('ReplyLike', backref='reply')
 
     def __repr__(self):
       return "<Reply '{}'>".format(self.id)
 
-class PostLike(db.Model):
+class PostLike(Model):
     """ PostLike Model for storing post like related details """
 
     # Details
-    id = db.Column(db.Integer, primary_key=True)
-    on_post = db.Column(db.Integer, db.ForeignKey('posts.id'))
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    liked_on = db.Column(db.DateTime, default=datetime.now())
+    id = Column(db.Integer, primary_key=True)
+    on_post = Column(db.Integer, db.ForeignKey('posts.id'))
+    owner_id = Column(db.Integer, db.ForeignKey('user.id'))
+    liked_on = Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
       return "<PostLike on Post '{}'>".format(self.on_post)
 
-class CommentLike(db.Model):
+class CommentLike(Model):
     """ CommentLike Model for storing comment like related details """
 
     # Details
-    id = db.Column(db.Integer, primary_key=True)
-    on_comment = db.Column(db.Integer, db.ForeignKey('comments.id'))
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    liked_on = db.Column(db.DateTime, default=datetime.now())
+    id = Column(db.Integer, primary_key=True)
+    on_comment = Column(db.Integer, db.ForeignKey('comments.id'))
+    owner_id = Column(db.Integer, db.ForeignKey('user.id'))
+    liked_on = Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
       return "<CommentLike on Comment '{}'>".format(self.on_comment)
 
-class ReplyLike(db.Model):
+class ReplyLike(Model):
     """ ReplyLike Model for storing reply like related details """
 
     # Details
-    id = db.Column(db.Integer, primary_key=True)
-    on_reply = db.Column(db.Integer, db.ForeignKey('reply.id'))
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    liked_on = db.Column(db.DateTime, default=datetime.now())
+    id = Column(db.Integer, primary_key=True)
+    on_reply = Column(db.Integer, db.ForeignKey('reply.id'))
+    owner_id = Column(db.Integer, db.ForeignKey('user.id'))
+    liked_on = Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
       return "<ReplyLike on Reply '{}'>".format(self.on_comment)
