@@ -17,7 +17,7 @@ class TestPostModel(BaseTestCase):
             first_name = 'Test',
             last_name = 'User',
             password = 'test1234',
-            joined_date = datetime.now()
+            joined_date = datetime.utcnow()
           )
 
           db.session.add(user)
