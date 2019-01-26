@@ -47,7 +47,7 @@ def create_new_post(data, user):
         return {'message': 'Content exceeds limit', 'success': False}, 403
     
     new_post = Posts(
-        public_id = str(uuid4()),
+        public_id = str(uuid4().int)[:15],
         owner_id = current_user.id,
         creator_public_id = current_user.public_id,
         content = content,
