@@ -11,7 +11,7 @@ class TestUserModel(BaseTestCase):
 
       def test_create_access_token(self):
           user = User(
-              public_id = str(uuid4()),
+              public_id = str(uuid4().int)[:15],
               email = 'email@test.com',
               username = 'testUser',
               first_name = 'Test',
@@ -25,7 +25,7 @@ class TestUserModel(BaseTestCase):
 
           access_token = create_access_token(user.public_id)
           self.assertTrue(isinstance(access_token, str))
-          self.assertEqual(len(user.public_id), 36)
+          self.assertEqual(len(user.public_id), 15)
 
 if __name__ == '__main__':
     unittest.main()
