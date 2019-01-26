@@ -16,7 +16,7 @@ class User(UserMixin, Model):
 
   # Basic details
   id = Column(db.Integer, primary_key=True)
-  public_id = Column(db.String(36), unique=True)
+  public_id = Column(db.String(15), unique=True)
   email = Column(db.String(255), unique=True, nullable=False)
   username = Column(db.String(20), unique=True)
   first_name = Column(db.String(50), nullable=True)
@@ -70,9 +70,9 @@ class Posts(Model):
     
     # Basic details
     id = Column(db.Integer, primary_key=True)
-    public_id = Column(db.String(36))
+    public_id = Column(db.String(15))
     owner_id = Column(db.Integer, db.ForeignKey('user.id'))
-    creator_public_id = Column(db.String(36))
+    creator_public_id = Column(db.String(15))
 
     # Post content and details
     content = Column(db.Text)
@@ -93,7 +93,7 @@ class Comments(Model):
 
     # Basic details
     id = Column(db.Integer, primary_key=True)
-    creator_public_id = Column(db.String(36))
+    creator_public_id = Column(db.String(15))
     on_post = Column(db.Integer, db.ForeignKey('posts.id'))
 
     # Comment content and details
