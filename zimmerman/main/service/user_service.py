@@ -15,8 +15,6 @@ def register_new_user(data):
     email = data['email']
     username = data['username']
     password = data['password']
-    first_name = data['first_name']
-    last_name = data['last_name']
     entry_key = data['entry_key']
 
     # Check if the email is used
@@ -31,10 +29,30 @@ def register_new_user(data):
     elif not username.isalnum():
         return {'message': 'Username is not alpha numeric!', 'reason': 'usernameNotAlphaNumeric'}, 403
 
-    if not first_name.isalpha() or not last_name.isalpha():
-        return {'message': 'Name is not alphabetical', 'reason': 'nonAlphaName'}, 403
-    elif not 2 <= len(first_name) <= 50 or not 2 <= len(last_name) <= 50:
-        return {'message': 'Name length is invalid', 'reason': 'nameLength'}, 403
+    # Check if there are first name or last name and verify if they exist
+    # Verify first name
+    if 'first_name' in data:
+        first_name = data['first_name']
+
+        if not first_name.isalpha():
+            return {'message': 'Name is not alphabetical', 'reason': 'nonAlphaFirstName'}, 403
+
+        if not 2 <= len(first_name) <= 50:
+            return {'message': 'Name length is invalid', 'reason': 'firstNameLength'}, 403
+    else:
+        first_name = ''
+
+    # Verify last name
+    if 'last_name' in data:
+        last_name = data['last_name']
+
+        if not last_name.isalpha():
+            return {'message': 'Name is not alphabetical', 'reason': 'nonAlphaName'}, 403
+
+        if not 2 <= len(last_name) <= 50:
+            return {'message': 'Name length is invalid', 'reason': 'nameLength'}, 403
+    else:
+        last_name = ''
 
     # Check if entry key is right
     # Change during production
@@ -42,7 +60,7 @@ def register_new_user(data):
         return {'message': 'Entry key is invalid!', 'reason': 'key'}, 403
 
     new_user = User(
-        public_id = str(uuid4()),
+        public_id = str(uuid4().int)[:15],
         email = email,
         username = username,
         first_name = first_name,
