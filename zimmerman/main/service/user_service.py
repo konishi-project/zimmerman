@@ -1,10 +1,11 @@
 from uuid import uuid4
 from datetime import datetime
 
+from flask import jsonify
 from flask_jwt_extended import create_access_token
 
 from zimmerman.main import db
-from zimmerman.main.model.user import User
+from zimmerman.main.model.user import User, UserSchema
 
 def save_changes(data):
     db.session.add(data)
@@ -98,3 +99,27 @@ def create_token(user):
             'message': 'Some error occured. Please try again.'
         }
         return response_object, 401
+
+def get_user_info(user_public_id):
+
+    user = get_a_user(user_public_id)
+    if not user:
+        response_object = {
+            'success': False,
+            'message': 'User not found!'
+        }
+        return response_object, 404
+    
+    # Get the user's information
+    user_schema = UserSchema()
+    user_info = user_schema.dump(user).data
+    # Remove hashed password
+    del user_info['password_hash']
+
+    response_object = {
+        'success': True,
+        'message': 'User info sent',
+        'user': user_info
+    }
+    print(user_info)
+    return response_object, 200
