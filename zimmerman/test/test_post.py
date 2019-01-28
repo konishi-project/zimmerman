@@ -72,7 +72,7 @@ def login_user(self):
 
 class TestPostBlueprint(BaseTestCase):
 
-    def test_create_post(self):
+    def test_create_delete_post(self):
         """ Test for post creation and deletion """
 
         with self.client:
