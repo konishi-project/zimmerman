@@ -137,6 +137,7 @@ def update_post(post_public_id, data, user):
             'reason': 'locked'
         }
         return response_object, 403
+
     else:
         response_object = {
             'success': False,
