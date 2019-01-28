@@ -10,7 +10,7 @@ blueprint = Blueprint('api', __name__)
 
 api = Api(blueprint, 
           title='Zimmerman API',
-          version='0.6',
+          version='0.69',
           description="Zimmerman, backend API for Konishi"
       )
 
