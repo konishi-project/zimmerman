@@ -91,3 +91,73 @@ def delete_comment(comment_id, user):
         'message': 'Uh oh! Something went wrong during the process'
     }
     return response_object, 500
+
+def update_comment(comment_id, data, user):
+    # Get the current user
+    current_user = user
+
+    # Query for the comment
+    comment = Comments.query.filter_by(id=comment_id).first()
+    if not comment:
+        response_object = {
+            'success': False,
+            'message': 'Comment not found!',
+            'reason': 'noComment'
+        }
+        return response_object, 404
+    
+    # Check post owner
+    elif current_user.public_id == comment.creator_public_id:
+        # Get the new data
+        if not data['content']:
+            response_object = {
+                'success': False,
+                'message': 'Content data not found!',
+                'reason': 'noData'
+            }
+            return response_object, 404
+
+        # Update the comment
+        comment.content = data['content']
+        comment.edited = True
+        # Commit changes
+        db.session.commit()
+
+        response_object = {
+            'success': True,
+            'message': 'Comment has successfully been updated'
+        }
+        return response_object, 200
+
+    elif current_user.public_id != comment.creator_public_id:
+        response_object = {
+            'success': False,
+            'message': 'You do not own this comment',
+            'reason': 'permission'
+        }
+        return response_object, 403
+
+    response_object = {
+        'success': False,
+        'message': 'Something went wrong during the process!'
+    }
+    return response_object, 500
+
+def get_comment(comment_id):
+    # Get the specific comment using its id
+    comment = Comments.query.filter_by(id=comment_id).first()
+    if not comment:
+        response_object = {
+            'success': False,
+            'message': 'Comment not found!'
+        }
+        return response_object, 404
+    
+    comment_schema = CommentSchema()
+    comment_info = comment_schema.dump(comment).data
+
+    response_object = {
+        'success': True,
+        'comment': comment_info
+    }
+    return response_object, 200
