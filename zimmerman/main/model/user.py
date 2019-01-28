@@ -29,11 +29,11 @@ class User(UserMixin, Model):
   profile_picture = Column(db.String(35), nullable=True)
 
   # Post related
-  post = db.relationship('Posts', backref='user')
+  posts = db.relationship('Posts', backref='user')
 
   post_likes = db.relationship('PostLike', backref='user')
   comment_likes = db.relationship('CommentLike', backref='user')
-  reply_like = db.relationship('ReplyLike', backref='user')
+  reply_likes = db.relationship('ReplyLike', backref='user')
 
   # Status
   joined_date = Column(db.DateTime)
