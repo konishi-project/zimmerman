@@ -48,10 +48,10 @@ def register_new_user(data):
         last_name = data['last_name']
 
         if not last_name.isalpha():
-            return {'message': 'Name is not alphabetical', 'reason': 'nonAlphaName'}, 403
+            return {'message': 'Name is not alphabetical', 'reason': 'nonAlphaLastName'}, 403
 
         if not 2 <= len(last_name) <= 50:
-            return {'message': 'Name length is invalid', 'reason': 'nameLength'}, 403
+            return {'message': 'Name length is invalid', 'reason': 'lastNameLength'}, 403
     else:
         last_name = ''
 
@@ -121,5 +121,4 @@ def get_user_info(user_public_id):
         'message': 'User info sent',
         'user': user_info
     }
-    print(user_info)
     return response_object, 200
