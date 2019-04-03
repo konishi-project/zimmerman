@@ -111,8 +111,8 @@ class Reply(Model):
 
     # Basic details
     id = Column(db.Integer, primary_key=True)
+    creator_public_id = Column(db.String(15))
     on_comment = Column(db.Integer, db.ForeignKey('comments.id'))
-    replier = Column(db.String(20))
 
     # Reply content and details
     content = Column(db.Text)
