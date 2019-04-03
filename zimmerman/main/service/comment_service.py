@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from flask import request, jsonify
-
 from zimmerman.main import db
 from zimmerman.main.model.user import Comments, Posts
 
@@ -29,7 +27,7 @@ def create_new_comment(post_public_id, data, user):
 
     # Validations
     limit = 1500
-    if len(content) >= limit:
+    if len(content) > limit:
         response_object = {
           'success': False,
           'message': 'Comment content exceeds limit (%s)' % limit
@@ -45,9 +43,9 @@ def create_new_comment(post_public_id, data, user):
     latest_comment = add_comment_and_flush(new_comment)
 
     response_object = {
-      'success': True,
-      'message': 'Successfully commented on the post',
-      'comment': latest_comment
+        'success': True,
+        'message': 'Successfully commented on the post',
+        'comment': latest_comment
     }
     return response_object, 201
 
