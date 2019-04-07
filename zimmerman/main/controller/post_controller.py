@@ -6,7 +6,6 @@ from ..util.dto import PostDto
 from ..service.post_service import get_post, create_new_post, delete_post, update_post
 from ..service.user_service import load_user
 
-
 api = PostDto.api
 _post = PostDto.post
 
