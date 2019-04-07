@@ -43,8 +43,13 @@ def create_new_post(data, user):
 
     # Check if the content doesn't exceed limit
     # This limit can be changed, but for testing - it is set to 2000
-    if len(content) >= 2000:
-        return {'message': 'Content exceeds limit', 'success': False}, 403
+    limit = 2000
+    if len(content) >= limit:
+        response_object = {
+            'success': False,
+            'message': 'Content exceeds limit (%s)' % limit
+        }
+        return response_object, 403
     
     new_post = Posts(
         public_id = str(uuid4().int)[:15],
