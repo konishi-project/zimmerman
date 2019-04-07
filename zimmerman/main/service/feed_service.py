@@ -1,8 +1,9 @@
 from zimmerman.main import db
-from zimmerman.main.model import Posts, Comments
+from zimmerman.main.model.user import Posts, Comments, Reply, PostLike, CommentLike, ReplyLike
+from zimmerman.main.service.like_service import check_like
 
 # Import Schema
-from zimmerman.main.model import PostSchema, CommentSchema
+from zimmerman.main.model.user import PostSchema, CommentSchema, ReplySchema
 
 def uniq(a_list):
     encountered = set()
@@ -35,9 +36,14 @@ def get_post_ids():
     feed = uniq(x['id'] for x in sorted(post_activity_from_comments + post_info,
                                         key=lambda x: x['created'],
                                         reverse=True))
-    return feed
+    response_object = {
+        'success': True,
+        'message': 'Post IDs sent to client',
+        'post_ids': feed
+    }
+    return response_object, 200
 
-def get_posts_info(id_array):
+def get_posts_info(id_array, current_user):
     # Get the data in the array of post IDs
     post_schema = PostSchema()
     posts = []
@@ -49,7 +55,62 @@ def get_posts_info(id_array):
         post_info = post_schema.dump(post).data
         
         # Check if the current user has liked the post.
+        user_likes = PostLike.query.filter_by(on_post=post_id).order_by(PostLike.liked_on.desc())
+        if check_like(user_likes, current_user.id):
+            post_info['liked'] = True
+        else:
+            post_info['liked'] = False
         # Check if it has an image
         # Get the latest 5 comments
+        if post_info['comments']:
+            post_info['initial_comments'] = get_comments(post_info, current_user.id)
 
         posts.append(post_info)
+    
+    response_object = {
+        'success': True,
+        'message': 'Post IDs successfully delivered.',
+        'posts': posts
+    }
+    return response_object, 200
+
+def get_comments(post_info, current_user_id):
+    comments = []
+    comment_schema = CommentSchema()
+    # Get the first five comments
+    for comment_id in sorted(post_info['comments'], reverse=True)[:5]:
+        # Get the coment info
+        comments = Comments.query.filter_by(id=comment_id).first()
+        comment_info = comment_schema.dump(comment).data
+
+        # Check if the comment is liked
+        user_likes = CommentLike.query.filter_by(on_comment=comment_id).order_by(CommentLike.liked_on.desc())
+        if check_like(user_likes, current_user_id):
+            comment_info['liked'] = True
+        else:
+            comment_info['liked'] = False
+
+        if comment_info['replies']:
+            comment_info['latest_replies'] = get_replies(comment_info, current_user_id)
+
+        comments.append(comment_info)
+
+    return comments
+
+def get_replies(comment_info, current_user_id):
+    replies = []
+    reply_schema = ReplySchema()
+    # Get the latest 2 replies if they are existent
+    for reply_id in sorted(comment_info['replies'])[:2]:
+        reply = Reply.query.filter_by(id=reply_id).first()
+        reply_info = reply_schema.dump(reply).data
+        # Check if the reply is liked
+        user_likes = ReplyLike.query.filter_by(on_reply=reply_id).order_by(ReplyLike.liked_on.desc())
+        if check_like(user_likes, current_user_id):
+            reply_info['liked'] = True
+        else:
+            reply_info['liked'] = False
+        
+        replies.append(reply_info)
+
+    return replies
