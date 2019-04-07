@@ -43,5 +43,11 @@ class ReplyDto:
 class FeedDto:
     api = Namespace('feed', description='Feed related operations.')
     feed = api.model('feed', {
-        'item_ids': fields.List(fields.Integer, description='Array of IDs')
+        'post_ids': fields.List(fields.Integer, description='Array of IDs')
+    })
+
+class LikeDto:
+    api = Namespace('like', description='Like related operations.')
+    like = api.model('like', {
+        'object_id': fields.String(required=True, description='The ID of the object being liked.')
     })
