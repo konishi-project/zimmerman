@@ -6,7 +6,6 @@ from ..util.dto import PostDto
 from ..service.post_service import get_post, create_new_post, delete_post, update_post
 from ..service.user_service import load_user
 
-
 api = PostDto.api
 _post = PostDto.post
 
@@ -21,6 +20,7 @@ class PostGet(Resource):
     )
     @jwt_required
     def get(self, post_public_id):
+        """ Get a specific post using its public id """
         return get_post(post_public_id)
 
 @api.route('/create')
@@ -28,10 +28,10 @@ class PostCreate(Resource):
 
     @api.expect(_post, validate=True)
     @api.doc('Create a new post.', 
-      responses = {
-            201: 'Post created',
-            401: 'Something went wrong during the process'
-      }
+        responses = {
+                201: 'Post created',
+                401: 'Something went wrong during the process'
+        }
     )
     @jwt_required
     def post(self):

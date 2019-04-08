@@ -11,13 +11,13 @@ class TestPostModel(BaseTestCase):
       def test_create_post(self):
           # Create test user
           user = User(
-            public_id = str(uuid4()),
+            public_id = str(uuid4().int)[:15],
             email = 'email@test.com',
             username = 'testUser',
             first_name = 'Test',
             last_name = 'User',
             password = 'test1234',
-            joined_date = datetime.now()
+            joined_date = datetime.utcnow()
           )
 
           db.session.add(user)

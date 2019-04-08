@@ -1,8 +1,9 @@
 from flask import request
 from flask_restplus import Resource
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from ..util.dto import UserDto
-from ..service.user_service import register_new_user
+from ..service.user_service import register_new_user, get_user_info, load_user
 
 api = UserDto.api
 _user = UserDto.user
@@ -20,3 +21,22 @@ class UserRegister(Resource):
         """ Registers new user """
         data = request.get_json()
         return register_new_user(data=data)
+
+@api.route('/get')
+class UserGet(Resource):
+
+    @api.doc('Get a specific user', 
+        responses = {
+            200: 'User data has been sent',
+            404: 'User not found!'
+        }
+    )
+    @jwt_required
+    def get(self):
+        """ Get a specific user using its public id """
+        # Check for arguments
+        current_user = load_user(get_jwt_identity())
+        current_public_id = current_user.public_id
+
+        user_public_id = request.args.get("user_public_id", default=current_public_id)
+        return get_user_info(user_public_id)

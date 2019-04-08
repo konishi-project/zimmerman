@@ -34,20 +34,23 @@ def check_image(post):
         # Attach it to the latest post
         post['image_url'] = image_url[0]
 
-def create_new_post(data, user):
-    # Get the current user
-    current_user = user
+def create_new_post(data, current_user):
     # Assign the variables
     content = data['content']
     image_id = data['image_id']
 
     # Check if the content doesn't exceed limit
     # This limit can be changed, but for testing - it is set to 2000
-    if len(content) >= 2000:
-        return {'message': 'Content exceeds limit', 'success': False}, 403
+    limit = 2000
+    if len(content) >= limit:
+        response_object = {
+            'success': False,
+            'message': 'Content exceeds limit (%s)' % limit
+        }
+        return response_object, 403
     
     new_post = Posts(
-        public_id = str(uuid4()),
+        public_id = str(uuid4().int)[:15],
         owner_id = current_user.id,
         creator_public_id = current_user.public_id,
         content = content,
@@ -73,10 +76,7 @@ def create_new_post(data, user):
     }
     return response_object, 201
 
-def delete_post(post_public_id, user):
-    # Get the current user
-    current_user = user
-
+def delete_post(post_public_id, current_user):
     # Query for the post
     post = Posts.query.filter_by(public_id=post_public_id).first()
     if not post:
@@ -87,7 +87,7 @@ def delete_post(post_public_id, user):
         return response_object, 404
 
     # Check post owner
-    elif current_user.public_id == post.creator_public_id: # or is_admin(current_user)::
+    elif current_user.public_id == post.creator_public_id: # or is_admin(current_user)
         post = Posts.query.filter_by(public_id=post_public_id).first()
 
         # Get the likes for the post and delete them too
@@ -101,10 +101,7 @@ def delete_post(post_public_id, user):
         }
         return response_object, 200
 
-def update_post(post_public_id, data, user):
-    # Get the current user
-    current_user = user
-
+def update_post(post_public_id, data, current_user):
     # Query for the post
     post = Posts.query.filter_by(public_id=post_public_id).first()
     if not post:
@@ -134,14 +131,15 @@ def update_post(post_public_id, data, user):
         response_object = {
             'success': False,
             'message': 'Post is locked!',
-            'reason': 'locked'
+            'error_reason': 'locked'
         }
         return response_object, 403
+
     else:
         response_object = {
             'success': False,
             'message': 'You do not own this post!',
-            'reason': 'permission'
+            'error_reason': 'permission'
         }
         return response_object, 403
 

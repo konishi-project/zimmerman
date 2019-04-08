@@ -14,6 +14,7 @@ class UserLogin(Resource):
   @api.doc('User login route')
   @api.expect(user_auth, validate=True)
   def post(self):
+    """ Login user using email and password and receive an access_token """
     # Grab the post data
-    login_data = request.json
+    login_data = request.get_json()
     return Auth.login_user(data=login_data)
