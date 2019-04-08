@@ -34,9 +34,7 @@ def check_image(post):
         # Attach it to the latest post
         post['image_url'] = image_url[0]
 
-def create_new_post(data, user):
-    # Get the current user
-    current_user = user
+def create_new_post(data, current_user):
     # Assign the variables
     content = data['content']
     image_id = data['image_id']
@@ -78,10 +76,7 @@ def create_new_post(data, user):
     }
     return response_object, 201
 
-def delete_post(post_public_id, user):
-    # Get the current user
-    current_user = user
-
+def delete_post(post_public_id, current_user):
     # Query for the post
     post = Posts.query.filter_by(public_id=post_public_id).first()
     if not post:
@@ -106,10 +101,7 @@ def delete_post(post_public_id, user):
         }
         return response_object, 200
 
-def update_post(post_public_id, data, user):
-    # Get the current user
-    current_user = user
-
+def update_post(post_public_id, data, current_user):
     # Query for the post
     post = Posts.query.filter_by(public_id=post_public_id).first()
     if not post:
@@ -139,7 +131,7 @@ def update_post(post_public_id, data, user):
         response_object = {
             'success': False,
             'message': 'Post is locked!',
-            'reason': 'locked'
+            'error_reason': 'locked'
         }
         return response_object, 403
 
@@ -147,7 +139,7 @@ def update_post(post_public_id, data, user):
         response_object = {
             'success': False,
             'message': 'You do not own this post!',
-            'reason': 'permission'
+            'error_reason': 'permission'
         }
         return response_object, 403
 
