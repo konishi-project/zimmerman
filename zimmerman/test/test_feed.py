@@ -1,8 +1,6 @@
 import unittest
 import json
 
-from zimmerman.main import db
-from zimmerman.main.model.user import Posts, User
 from zimmerman.test.base import BaseTestCase
 
 def register_user(self):
