@@ -26,7 +26,7 @@ class CommentGet(Resource):
 @api.route('/create/<string:post_public_id>')
 class CommentCreate(Resource):
 
-    @api.doc('Comment on a specific post',
+    @api.doc('Comment on a post',
         responses = {
             201: 'Successfully commented on the post',
             403: 'Comment content exceeds limit',
@@ -36,7 +36,7 @@ class CommentCreate(Resource):
     @jwt_required
     def post(self, post_public_id):
         """ Create a new comment on a post """
-        # Get the post's id
+        # Get the comment's content
         data = request.get_json()
         # Get the current user
         current_user = load_user(get_jwt_identity())
@@ -48,14 +48,14 @@ class CommentUpdate(Resource):
     @api.expect(_comment, validate=True)
     @api.doc('Update a comment',
         responses = {
-            200: 'Comment has been updated',
-            403: 'User does not have permissions',
-            404: 'Comment or comment data not found'
+            200: 'Comment has been updated.',
+            403: 'User does not have permissions.',
+            404: 'Comment or comment data not found.'
         }
     )
     @jwt_required
     def put(self, comment_id):
-        """ Updates a comment using its public id and new content """
+        """ Updates a comment using its id and new content """
         current_user = load_user(get_jwt_identity())
         data = request.get_json()
         return update_comment(comment_id, data, current_user)
