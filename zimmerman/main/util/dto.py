@@ -51,3 +51,6 @@ class LikeDto:
     like = api.model('like', {
         'object_id': fields.String(required=True, description='The ID of the object being liked.')
     })
+
+class UploadDto:
+    api = Namespace('upload', description='Upload related operations')
