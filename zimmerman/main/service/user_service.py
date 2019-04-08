@@ -20,45 +20,104 @@ def register_new_user(data):
 
     # Check if the email is used
     if User.query.filter_by(email=email).first() is not None:
-        return {'message': 'Email is being used in another account!', 'reason': 'email'}, 403
+        response_object = {
+            'success': False,
+            'message': 'Email is being used in another account!',
+            'error_reason': 'email_taken'
+        }
+        return response_object, 403
 
     # Check if the username exists
     if User.query.filter_by(username=username).first() is not None:
-        return {'message': 'Username has already been taken!', 'reason': 'username'}, 403
+        response_object = {
+            'success': False,
+            'message': 'Username has already been taken!',
+            'error_reason': 'username_taken'
+        }
+        return response_object, 403
+
+    # Check if the username is equal to or between 4 and 15
     elif not 4 <= len(username) <= 15:
-        return {'message': 'Username length is invalid!', 'reason': 'usernameLength'}, 403
+        response_object = {
+            'success': False,
+            'message': 'Username length is invalid!',
+            'error_reason': 'username_length'
+        }
+        return response_object, 403
+
+    # Check if the username is alpha numeric
     elif not username.isalnum():
-        return {'message': 'Username is not alpha numeric!', 'reason': 'usernameNotAlphaNumeric'}, 403
+        response_object = {
+            'success': False,
+            'message': 'Username is not alpha numeric!',
+            'error_reason': 'username_not_alpha_numeric'
+        }
+        return response_object, 403
 
     # Check if there are first name or last name and verify if they exist
     # Verify first name
-    if 'first_name' in data:
-        first_name = data['first_name']
-
-        if not first_name.isalpha():
-            return {'message': 'Name is not alphabetical', 'reason': 'nonAlphaFirstName'}, 403
-
-        if not 2 <= len(first_name) <= 50:
-            return {'message': 'Name length is invalid', 'reason': 'firstNameLength'}, 403
-    else:
+    if not data['first_name']:
         first_name = ''
 
+    elif 'first_name' in data:
+        first_name = data['first_name']
+
+        # Check if the first name is alphabetical
+        if not first_name.isalpha():
+            response_object = {
+                'success': False,
+                'message': 'First name is not alphabetical',
+                'error_reason': 'first_name_nonalpha'
+            }
+            return response_object, 403
+
+        if not 2 <= len(first_name) <= 50:
+            response_object = {
+                'success': False,
+                'message': 'First name length is invalid',
+                'error_reason': 'first_name_length'
+            }
+            return response_object, 403
+    else:
+        response_object = {
+            'success': False,
+            'message': 'Something went wrong while verifying the first name'
+        }
+        return response_object, 500
+
     # Verify last name
-    if 'last_name' in data:
+    if not data['last_name']:
+        last_name = ''
+
+    elif 'last_name' in data:
         last_name = data['last_name']
 
         if not last_name.isalpha():
-            return {'message': 'Name is not alphabetical', 'reason': 'nonAlphaLastName'}, 403
+            response_object = {
+                'success': False,
+                'message': 'Last name is not alphabetical',
+                'error_reason': 'name_not_alphabetical'
+            }
+            return response_object, 403
 
         if not 2 <= len(last_name) <= 50:
-            return {'message': 'Name length is invalid', 'reason': 'lastNameLength'}, 403
+            response_object = {
+                'success': False,
+                'message': 'Last name length is invalid',
+                'error_reason': 'last_name_length'
+            }
+            return response_object, 403
     else:
-        last_name = ''
+        response_object = {
+            'success': False,
+            'message': 'Something went wrong while verifying the last name'
+        }
+        return response_object, 500
 
     # Check if entry key is right
     # Change during production
     if entry_key != "KonishiTesting":
-        return {'message': 'Entry key is invalid!', 'reason': 'key'}, 403
+        return {'message': 'Entry key is invalid!', 'error_reason': 'key'}, 403
 
     new_user = User(
         public_id = str(uuid4().int)[:15],
