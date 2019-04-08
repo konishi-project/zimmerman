@@ -17,9 +17,7 @@ def add_comment_and_flush(data):
 
     return latest_comment
 
-def create_new_comment(post_public_id, data, user):
-    # Get the current user
-    current_user = user
+def create_new_comment(post_public_id, data, current_user):
     # Get the post
     post = Posts.query.filter_by(public_id=post_public_id).first()
     # Assign the variables
@@ -49,16 +47,13 @@ def create_new_comment(post_public_id, data, user):
     }
     return response_object, 201
 
-def delete_comment(comment_id, user):
-    # Get the current user
-    current_user = user
-
+def delete_comment(comment_id, current_user):
     # Query for the comment
     comment = Comments.query.filter_by(id=comment_id).first()
     if not comment:
         response_object = {
-          'success': False,
-          'message': 'Comment not found!'
+            'success': False,
+            'message': 'Comment not found!'
         }
         return response_object, 404
     
@@ -90,17 +85,14 @@ def delete_comment(comment_id, user):
     }
     return response_object, 500
 
-def update_comment(comment_id, data, user):
-    # Get the current user
-    current_user = user
-
+def update_comment(comment_id, data, current_user):
     # Query for the comment
     comment = Comments.query.filter_by(id=comment_id).first()
     if not comment:
         response_object = {
             'success': False,
             'message': 'Comment not found!',
-            'reason': 'noComment'
+            'error_reason': 'noComment'
         }
         return response_object, 404
     
@@ -111,7 +103,7 @@ def update_comment(comment_id, data, user):
             response_object = {
                 'success': False,
                 'message': 'Content data not found!',
-                'reason': 'noData'
+                'error_reason': 'noData'
             }
             return response_object, 404
 
@@ -131,7 +123,7 @@ def update_comment(comment_id, data, user):
         response_object = {
             'success': False,
             'message': 'You do not own this comment',
-            'reason': 'permission'
+            'error_reason': 'permission'
         }
         return response_object, 403
 
