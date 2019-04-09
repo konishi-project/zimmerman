@@ -10,6 +10,7 @@ from zimmerman.test.base import BaseTestCase
 class TestUserModel(BaseTestCase):
 
       def test_create_access_token(self):
+          """ Test for user model """
           user = User(
               public_id = str(uuid4().int)[:15],
               email = 'email@test.com',

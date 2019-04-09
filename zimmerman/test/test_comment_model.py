@@ -9,6 +9,7 @@ from zimmerman.test.base import BaseTestCase
 class TestCommentModel(BaseTestCase):
     
     def test_create_comment(self):
+        """ Test for comment model """
         # Create test user
         user = User(
           public_id = str(uuid4().int)[:15],

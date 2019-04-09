@@ -9,6 +9,8 @@ from zimmerman.test.base import BaseTestCase
 class TestPostModel(BaseTestCase):
 
       def test_create_post(self):
+          """ Test for post model """
+
           # Create test user
           user = User(
             public_id = str(uuid4().int)[:15],
