@@ -3,17 +3,18 @@ import os
 from flask import request
 from hashlib import sha256
 from werkzeug.utils import secure_filename
+from PIL import Image
 
 from ..config import basedir
 
 STATIC_FOLDER_PATH = basedir + '/static/'
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+# ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
-def allowed_file(filename):
+def allowed_file(filename, allowed_extensions):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+           filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
-def upload_file(files, foldername):
+def upload_file(files, foldername, extensions):
     if 'image' not in files:
         response_object = {
           success: False,
@@ -33,7 +34,8 @@ def upload_file(files, foldername):
         return response_object, 403
 
     # Process if it passes validation
-    if file and allowed_file(file.filename):
+    allowed_extensions = set(extensions)
+    if file and allowed_file(file.filename, allowed_extensions):
         # Get the filename
         filename = file.filename
         extension = '.' + filename.split('.')[1]
