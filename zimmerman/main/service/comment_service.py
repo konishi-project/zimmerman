@@ -35,7 +35,8 @@ def create_new_comment(post_public_id, data, current_user):
     new_comment = Comments(
         creator_public_id = current_user.public_id,
         on_post = post.id,
-        content = content
+        content = content,
+        created = datetime.utcnow()
     )
 
     latest_comment = add_comment_and_flush(new_comment)

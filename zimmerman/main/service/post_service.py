@@ -55,7 +55,8 @@ def create_new_post(data, current_user):
         creator_public_id = current_user.public_id,
         content = content,
         image_file = image_id,
-        status = "normal"
+        status = "normal",
+        created = datetime.utcnow()
     )
 
     add_post_and_flush(new_post)

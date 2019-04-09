@@ -1,5 +1,6 @@
 import unittest
 import json
+from datetime import datetime
 
 from zimmerman.test.base import BaseTestCase
 
@@ -90,3 +91,6 @@ class TestLikeBlueprint(BaseTestCase):
 
             self.assertEqual(unlike_response.status_code, 200)
             self.assertTrue(unlike_response_data['success'])
+
+if __name__ == '__main__':
+    unittest.main()

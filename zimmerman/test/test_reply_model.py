@@ -2,14 +2,15 @@ import unittest
 from uuid import uuid4
 from datetime import datetime
 
+
 from zimmerman.main import db
-from zimmerman.main.model.user import Comments, User, Posts
+from zimmerman.main.model.user import Reply, Comments, User, Posts
 from zimmerman.test.base import BaseTestCase
 
-class TestCommentModel(BaseTestCase):
-    
-    def test_create_comment(self):
-        """ Test for comment model """
+class TestReplyModel(BaseTestCase):
+
+    def test_create_reply(self):
+        """ Test for reply model """
         # Create test user
         user = User(
           public_id = str(uuid4().int)[:15],
@@ -46,7 +47,17 @@ class TestCommentModel(BaseTestCase):
         db.session.add(comment)
         db.session.commit()
 
-        self.assertTrue(isinstance(comment, Comments))
+        # Create reply
+        reply = Reply(
+          creator_public_id = user.public_id,
+          on_comment = comment.id,
+          content = 'Test reply'
+        )
+
+        db.session.add(reply)
+        db.session.commit()
+
+        self.assertTrue(isinstance(reply, Reply))
 
 if __name__ == '__main__':
     unittest.main()
