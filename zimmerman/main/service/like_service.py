@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from zimmerman.main import db
 from zimmerman.main.model.user import Posts, PostLike, Comments, CommentLike, Reply, ReplyLike
 
@@ -30,7 +32,8 @@ def like_post(post_public_id, current_user):
     # Create a new like object
     like_post = PostLike(
         on_post = post.id,
-        owner_id = current_user.id
+        owner_id = current_user.id,
+        liked_on = datetime.utcnow()
     )
 
     # Commit the changes
@@ -73,7 +76,8 @@ def like_comment(comment_id, current_user):
     # Create a new like object
     like_comment = CommentLike(
         on_comment = comment_id,
-        owner_id = current_user.id
+        owner_id = current_user.id,
+        liked_on = datetime.utcnow()
     )
 
     # Commit the changes
@@ -116,7 +120,8 @@ def like_reply(reply_id, current_user):
     # Create a new like object
     like_reply = ReplyLike(
         on_reply = reply_id,
-        owner_id = current_user.id
+        owner_id = current_user.id,
+        liked_on = datetime.utcnow()
     )
 
     # Commit the changes

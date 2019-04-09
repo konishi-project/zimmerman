@@ -35,7 +35,8 @@ def create_new_reply(comment_id, data, current_user):
     new_reply = Reply(
       creator_public_id = current_user.public_id,
       on_comment = comment.id
-      content = content
+      content = content,
+      created = datetime.utcnow()
     )
 
     latest_reply = add_reply_and_flush(new_reply)
