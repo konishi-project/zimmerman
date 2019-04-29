@@ -1,6 +1,6 @@
 # Zimmerman
 
-# This repository and old API is no longer being maintained or developed and has since been DEPRECATED the Konishi team will continue working on the new rewritten API that can be found currently on X1Zeth2X's repo. [Here](https://github.com/X1Zeth2X/zimmermanv2), It will be put up in the main Konishi repo once most of the functionalities needed are working and properly tested.
+# This repository is an old API which is no longer being maintained or developed and has since been DEPRECATED, the Konishi team will continue working on the newly rewritten API that can be found currently on X1Zeth2X's repo. [Found here](https://github.com/X1Zeth2X/zimmermanv2), It will be put up in the main Konishi repo once most of the functionalities needed are working and properly tested.
 
 This is Konishi's Back-End written in Python.
 
