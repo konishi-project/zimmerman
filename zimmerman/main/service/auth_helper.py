@@ -32,7 +32,7 @@ class Auth:
                     'Authorization': access_token
                   }, 200
               # Return Incorrect pass if the others fail
-              else:
+            else:
                 return {
                   'message': 'Failed to log in, password may be incorrect.',
                   'success': False,
