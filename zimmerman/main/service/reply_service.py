@@ -34,7 +34,7 @@ def create_new_reply(comment_id, data, current_user):
 
     new_reply = Reply(
       creator_public_id = current_user.public_id,
-      on_comment = comment.id
+      on_comment = comment.id,
       content = content,
       created = datetime.utcnow()
     )
@@ -62,14 +62,14 @@ def delete_reply(reply_id, current_user):
     elif current_user.public_id == reply.creator_public_id: # or is admin(current_user)
         reply = Reply.query.filter_by(id=reply_id).first()
 
-        # Get the likes for the replies and delet ethem
+        # Get the likes for the replies and delete them
 
         db.session.delete(reply)
         db.session.commit()
         response_object = {
             'success': True,
             'message': 'Reply has been deleted'
-        },
+        }
         return response_object, 200
 
     elif current_user.public_id != reply.creator_public_id:
