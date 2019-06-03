@@ -7,11 +7,11 @@ from flask import request, jsonify
 from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
-from zimmerman.main.model.user import Posts
-from .user_service import load_user
+from zimmerman.main.model.user import Posts, PostLike
+from .user_service import get_a_user
 
 # Import Schema
-from zimmerman.main.model.user import PostSchema
+from zimmerman.main.model.user import PostSchema, UserSchema
 
 POST_UPLOAD_PATH = '../static/postimages/'
 
@@ -34,6 +34,26 @@ def check_image(post):
         # Attach it to the latest post
         post['image_url'] = image_url[0]
 
+def load_author(creator_public_id):
+    # Add the author's essential details.
+    user_schema = UserSchema()
+    user = get_a_user(creator_public_id)
+    author = user_schema.dump(user).data
+
+    # Remove sensitive information
+    unnecessary_info = (
+        'password_hash',
+        'id',
+        'post_likes',
+        'comment_likes',
+        'reply_likes',
+        'posts'
+    )
+    for info in unnecessary_info:
+        del author[info]
+
+    return author
+
 def create_new_post(data, current_user):
     # Assign the variables
     content = data['content']
@@ -47,6 +67,13 @@ def create_new_post(data, current_user):
             'success': False,
             'message': 'Content exceeds limit (%s)' % limit
         }
+        return response_object, 403
+
+    if len(content) == 0:
+        response_object = {
+            'success': False,
+            'message': 'Content cannot be empty!'
+        },
         return response_object, 403
     
     new_post = Posts(
@@ -70,6 +97,10 @@ def create_new_post(data, current_user):
     # Check if the latest posts has an image
     check_image(latest_post)
     # Return success response
+
+    # Add the author's information
+    latest_post['author'] = load_author(latest_post['creator_public_id'])
+
     response_object = {
         'success': True,
         'message': 'Post has successfully been created',
@@ -92,7 +123,10 @@ def delete_post(post_public_id, current_user):
         post = Posts.query.filter_by(public_id=post_public_id).first()
 
         # Get the likes for the post and delete them too
-        # Get comments for the post and delete them
+        likes = PostLike.query.filter_by(on_post=post.id).all()
+        for like in likes:
+            db.session.delete(like)
+        # # Get comments for the post and delete them
 
         db.session.delete(post)
         db.session.commit()
@@ -157,7 +191,9 @@ def get_post(post_public_id):
     post_schema = PostSchema()
     post_info = post_schema.dump(post).data
 
-    # Check for an image file and add it if it has any.
+    post_info['author'] = load_author(post_info['creator_public_id'])
+
+    # Check for an image file and add it.
     if post.image_file:
         # Get the image id
         image_id = post.image_file
