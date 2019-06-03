@@ -32,10 +32,11 @@ class Auth:
                     'Authorization': access_token
                   }, 200
               # Return Incorrect pass if the others fail
-              return {
-                'message': 'Failed to log in, password may be incorrect.',
-                'success': False,
-              }, 403
+              else:
+                return {
+                  'message': 'Failed to log in, password may be incorrect.',
+                  'success': False,
+                }, 403
 
         except Exception as e:
           print(e)
