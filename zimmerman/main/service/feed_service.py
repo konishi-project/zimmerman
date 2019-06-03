@@ -1,6 +1,7 @@
 from zimmerman.main import db
 from zimmerman.main.model.user import Posts, Comments, Reply, PostLike, CommentLike, ReplyLike
 from zimmerman.main.service.like_service import check_like
+from zimmerman.main.service.post_service import load_author
 
 # Import Schema
 from zimmerman.main.model.user import PostSchema, CommentSchema, ReplySchema
@@ -53,6 +54,9 @@ def get_posts_info(id_array, current_user):
         post = Posts.query.filter_by(id=post_id).first()
         # Dump the data and append it to the posts list
         post_info = post_schema.dump(post).data
+
+        # Add the author
+        post_info['author'] = load_author(post_info['creator_public_id'])
         
         # Check if the current user has liked the post.
         user_likes = PostLike.query.filter_by(on_post=post_id).order_by(PostLike.liked_on.desc())
