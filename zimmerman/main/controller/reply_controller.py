@@ -53,7 +53,7 @@ class ReplyUpdate(Resource):
         }
     )
     @jwt_required
-    def put(self, reply_id)
+    def put(self, reply_id):
         """ Updates a reply using its id and new content """
         # Get the new content
         data = request.get_json()
@@ -61,7 +61,7 @@ class ReplyUpdate(Resource):
         current_user = load_user(get_jwt_identity())
         return update_reply(reply_id, data, current_user)
 
-@api.route('/reply/<int:reply_id>')
+@api.route('/delete/<int:reply_id>')
 class ReplyDelete(Resource):
 
     @api.doc('Delete a reply',
