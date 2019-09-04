@@ -5,7 +5,7 @@ from .extensions import db, ma, jwt, bcrypt, cors
 from .config import config_by_name
 
 def create_app(config_name):
-    app = Flask(__name__)
+    app = Flask(__name__, static_url_path='/static')
     app.config.from_object(config_by_name[config_name])
 
     register_extensions(app)

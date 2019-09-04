@@ -8,7 +8,6 @@ from PIL import Image
 from ..config import basedir
 
 STATIC_FOLDER_PATH = basedir + '/static/'
-# ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
 def allowed_file(filename, allowed_extensions):
     return '.' in filename and \
@@ -41,16 +40,16 @@ def upload_file(files, foldername, extensions):
         extension = '.' + filename.split('.')[1]
 
         # Hash the file and limit to 32chars
-        hashed_file = sha256(str(file.filename).encode('utf-8')).hexidigest()[:32]
+        hashed_file = sha256(str(file.filename).encode('utf-8')).hexdigest()[:32]
 
         # Save it and attach the extension
         try:
-            file.save(os.path.join(STATIC_FOLDER_PATH + foldername, hashed_file, extension))
+            file.save(os.path.join(STATIC_FOLDER_PATH + foldername + '/', hashed_file + extension))
             response_object = {
                 'success': True,
                 'message': 'Image successfully uploaded',
-                'image_id': hashed_file
-            },
+                'image_id': hashed_file + extension
+            }
             return response_object, 201
         except:
             # Return an error message if it fails to upload

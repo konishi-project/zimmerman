@@ -181,3 +181,15 @@ def get_user_info(user_public_id):
         'user': user_info
     }
     return response_object, 200
+
+def update_user(user_public_id, data, current_user):
+    # Query the user
+    user = get_user_info(user_public_id)
+    if not user:
+        response_object = {
+            'success': False,
+            'message': 'User not found!'
+        }
+        return response_object, 404
+
+    # WIP, add more stuff here.

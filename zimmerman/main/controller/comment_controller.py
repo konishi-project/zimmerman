@@ -26,6 +26,7 @@ class CommentGet(Resource):
 @api.route('/create/<string:post_public_id>')
 class CommentCreate(Resource):
 
+    @api.expect(_comment, validate=True)
     @api.doc('Comment on a post',
         responses = {
             201: 'Successfully commented on the post',

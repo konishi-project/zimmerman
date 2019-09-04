@@ -11,6 +11,7 @@ _like = LikeDto.like
 @api.route('/post/<string:post_public_id>')
 class LikePost(Resource):
 
+    @api.expect(_like, validate=True)
     @api.doc('Like a post.',
         responses = {
             201: 'Successfully liked the post.',

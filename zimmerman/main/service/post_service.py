@@ -1,9 +1,9 @@
+import os
 from datetime import datetime
 from uuid import uuid4
 from glob import glob
-from os import path
 
-from flask import request, jsonify
+from flask import request, jsonify, url_for
 from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
@@ -13,7 +13,8 @@ from .user_service import get_a_user
 # Import Schema
 from zimmerman.main.model.user import PostSchema, UserSchema
 
-POST_UPLOAD_PATH = '../static/postimages/'
+from ..config import basedir
+POST_UPLOAD_PATH = basedir + 'static/postimages/'
 
 def add_post_and_flush(data):
     db.session.add(data)
@@ -24,15 +25,14 @@ def add_post_and_flush(data):
 
     check_image(latest_post)
 
-
 def check_image(post):
     if post['image_file']:
         # Get the image_id
         image_id = post['image_file']
         # Search for the image in the static file
-        image_url = glob(path.join(POST_UPLOAD_PATH, '{}.*'.format(image_id)))
+        image_url = url_for('static', filename='postimages/' + image_id)
         # Attach it to the latest post
-        post['image_url'] = image_url[0]
+        post['image_url'] = image_url
 
 def load_author(creator_public_id):
     # Add the author's essential details.
@@ -123,9 +123,8 @@ def delete_post(post_public_id, current_user):
         post = Posts.query.filter_by(public_id=post_public_id).first()
 
         # Get the likes for the post and delete them too
-        likes = PostLike.query.filter_by(on_post=post.id).all()
-        for like in likes:
-            db.session.delete(like)
+        delete_likes = PostLike.__table__.delete().where(PostLike.on_post == post.id)
+        db.session.execute(delete_likes)
         # # Get comments for the post and delete them
 
         db.session.delete(post)
@@ -135,6 +134,14 @@ def delete_post(post_public_id, current_user):
             'message': 'Post has successfully been deleted'
         }
         return response_object, 200
+
+    # Return a 403 response if the current user is not the owner or the admin.
+    response_object = {
+        'success': False,
+        'message': 'Insufficient permission!'
+    }
+    return response_object, 403
+
 
 def update_post(post_public_id, data, current_user):
     # Query for the post
@@ -201,6 +208,7 @@ def get_post(post_public_id):
         image_url = glob(path.join(POST_UPLOAD_PATH), '%s' % image_id)
         # Attach it to the post and jsonify.
         post_info['image_url'] = image_url[0]
+
         response_object = {
             'success': True,
             'message': 'Post info successfully been sent.',
