@@ -92,7 +92,6 @@ class TestCommentBlueprint(BaseTestCase):
             # Create a mock user and login
             register_user(self)
             login_response = login_user(self)
-            print(login_response)
             data = json.loads(login_response.data.decode())
             access_token = data['Authorization']
 

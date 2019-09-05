@@ -8,13 +8,22 @@ class Auth:
         email = data['email']
         password = data['password']
         try:
+            # Check if email or password was provided
+            if not email or not password:
+              response_object = {
+                'success': False,
+                'message': 'Credentials not fully provided!'
+              }
+              return response_object, 403
+
             # Fetch the user data
             user = User.query.filter_by(email=email).first()
             if not user:
-              return {
-                'message': 'The email you have entered does not match any account.',
+              response_object = {
                 'success': False,
-              }, 404
+                'message': 'The email you have entered does not match any account.',
+              }
+              return response_object, 404
             elif user and user.check_password(password):
                 user_schema = UserSchema()
                 user_info = user_schema.dump(user)
@@ -41,6 +50,8 @@ class Auth:
         except Exception as error:
           response_object = {
             'success': False,
-            'message': 'Something went wrong during the process! (500)\nPlease report this issue and the output!\nOutput: %s' % error
+            'message': 'Something went wrong during the process! (500) \
+            \nPlease report this issue and the output! \
+            \nOutput: %s' % error
           }
           return response_object, 500
