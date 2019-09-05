@@ -11,7 +11,7 @@ def add_reply_and_flush(data):
     db.session.flush()
 
     reply_schema = ReplySchema()
-    latest_reply = reply_schema.dump(data).data
+    latest_reply = reply_schema.dump(data)
 
     db.session.commit()
 
@@ -131,7 +131,7 @@ def get_reply(reply_id):
         return response_object, 404
     
     reply_schema = ReplySchema()
-    reply_info = reply_schema.dump(reply).data
+    reply_info = reply_schema.dump(reply)
 
     response_object = {
         'success': True,

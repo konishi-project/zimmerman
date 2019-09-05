@@ -26,12 +26,12 @@ def get_post_ids():
     # Get Posts info
     posts = Posts.query.with_entities(Posts.id, Posts.created).all()
     post_schema = PostSchema(many=True)
-    post_info = post_schema.dump(posts).data
+    post_info = post_schema.dump(posts)
 
     # Comments
     comments = Comments.query.all()
     comment_schema = CommentSchema(many=True)
-    comment_info = comment_schema.dump(comments).data
+    comment_info = comment_schema.dump(comments)
 
     # Get the activity based on the latest comments
     post_activity_from_comments = [
@@ -60,7 +60,7 @@ def get_posts_info(id_array, current_user):
         # Get the post and schema
         post = Posts.query.filter_by(id=post_id).first()
         # Dump the data and append it to the posts list
-        post_info = post_schema.dump(post).data
+        post_info = post_schema.dump(post)
 
         # Add the author
         post_info['author'] = load_author(post_info['creator_public_id'])
@@ -101,7 +101,7 @@ def get_comments(post_info, current_user_id):
     for comment_id in sorted(post_info['comments'], reverse=True)[:5]:
         # Get the coment info
         comment = Comments.query.filter_by(id=comment_id).first()
-        comment_info = comment_schema.dump(comment).data
+        comment_info = comment_schema.dump(comment)
 
         # Check if the comment is liked
         user_likes = CommentLike.query.filter_by(on_comment=comment_id).order_by(CommentLike.liked_on.desc())
@@ -125,7 +125,7 @@ def get_replies(comment_info, current_user_id):
     # Get the latest 2 replies if they are existent
     for reply_id in sorted(comment_info['replies'])[:2]:
         reply = Reply.query.filter_by(id=reply_id).first()
-        reply_info = reply_schema.dump(reply).data
+        reply_info = reply_schema.dump(reply)
         # Check if the reply is liked
         user_likes = ReplyLike.query.filter_by(on_reply=reply_id).order_by(ReplyLike.liked_on.desc())
         if check_like(user_likes, current_user_id):

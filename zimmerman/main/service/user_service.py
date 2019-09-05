@@ -171,7 +171,7 @@ def get_user_info(user_public_id):
     
     # Get the user's information
     user_schema = UserSchema()
-    user_info = user_schema.dump(user).data
+    user_info = user_schema.dump(user)
     # Remove hashed password
     del user_info['password_hash']
 

@@ -21,7 +21,7 @@ def add_post_and_flush(data):
     db.session.flush()
 
     post_schema = PostSchema()
-    latest_post = post_schema.dump(data).data
+    latest_post = post_schema.dump(data)
 
     check_image(latest_post)
 
@@ -38,7 +38,7 @@ def load_author(creator_public_id):
     # Add the author's essential details.
     user_schema = UserSchema()
     user = get_a_user(creator_public_id)
-    author = user_schema.dump(user).data
+    author = user_schema.dump(user)
 
     # Remove sensitive information
     unnecessary_info = (
@@ -90,7 +90,7 @@ def create_new_post(data, current_user):
 
     # Collect the data of the flushed post.
     post_schema = PostSchema()
-    latest_post = post_schema.dump(new_post).data
+    latest_post = post_schema.dump(new_post)
 
     db.session.commit()
 
@@ -196,7 +196,7 @@ def get_post(post_public_id):
         return response_object, 404
 
     post_schema = PostSchema()
-    post_info = post_schema.dump(post).data
+    post_info = post_schema.dump(post)
 
     post_info['author'] = load_author(post_info['creator_public_id'])
 

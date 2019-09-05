@@ -17,7 +17,7 @@ class Auth:
               }, 404
             elif user and user.check_password(password):
                 user_schema = UserSchema()
-                user_info = user_schema.dump(user).data
+                user_info = user_schema.dump(user)
 
                 # Remove sensitive information
                 del user_info['password_hash']
@@ -38,9 +38,9 @@ class Auth:
                   'success': False,
                 }, 403
 
-        except Exception as e:
-          print(e)
-          return {
-            'message': 'Something went wrong during the process! (500)',
-            'success': False
-          }, 500
+        except Exception as error:
+          response_object = {
+            'success': False,
+            'message': 'Something went wrong during the process! (500)\nPlease report this issue and the output!\nOutput: %s' % error
+          }
+          return response_object, 500

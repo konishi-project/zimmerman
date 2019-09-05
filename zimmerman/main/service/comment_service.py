@@ -11,7 +11,7 @@ def add_comment_and_flush(data):
     db.session.flush()
 
     comment_schema = CommentSchema()
-    latest_comment = comment_schema.dump(data).data
+    latest_comment = comment_schema.dump(data)
 
     db.session.commit()
 
@@ -145,7 +145,7 @@ def get_comment(comment_id):
         return response_object, 404
     
     comment_schema = CommentSchema()
-    comment_info = comment_schema.dump(comment).data
+    comment_info = comment_schema.dump(comment)
 
     response_object = {
         'success': True,
