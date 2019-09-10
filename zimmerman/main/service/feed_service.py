@@ -103,6 +103,8 @@ def get_comments(post_info, current_user_id):
         comment = Comments.query.filter_by(id=comment_id).first()
         comment_info = comment_schema.dump(comment)
 
+        comment_info['author'] = load_author(comment_info['creator_public_id'])
+
         # Check if the comment is liked
         user_likes = CommentLike.query.filter_by(on_comment=comment_id).order_by(CommentLike.liked_on.desc())
         if check_like(user_likes, current_user_id):
@@ -112,8 +114,6 @@ def get_comments(post_info, current_user_id):
 
         # if comment_info['replies']:
         #     comment_info['latest_replies'] = get_replies(comment_info, current_user_id)
-
-        print(comment_info)
 
         comments.append(comment_info)
 

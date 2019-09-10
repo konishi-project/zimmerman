@@ -50,8 +50,8 @@ class Auth:
         except Exception as error:
           response_object = {
             'success': False,
-            'message': 'Something went wrong during the process! (500) \
+            'message': 'Something went wrong during the process! \
             \nPlease report this issue and the output! \
-            \nOutput: %s' % error
+            \nOutput: "%s"' % error
           }
           return response_object, 500

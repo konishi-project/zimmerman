@@ -11,6 +11,26 @@ def save_changes(data):
     db.session.add(data)
     db.session.commit()
 
+def load_author(user_public_id):
+    # Add the author's essential details.
+    user_schema = UserSchema()
+    user = get_a_user(user_public_id)
+    author = user_schema.dump(user)
+
+    # Remove sensitive information
+    unnecessary_info = (
+        'password_hash',
+        'id',
+        'post_likes',
+        'comment_likes',
+        'reply_likes',
+        'posts'
+    )
+    for info in unnecessary_info:
+        del author[info]
+
+    return author
+
 def register_new_user(data):
     # Assign the variables
     email = data['email']

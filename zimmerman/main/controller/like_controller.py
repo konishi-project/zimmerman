@@ -2,7 +2,7 @@ from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from ..util.dto import LikeDto
-from ..service.like_service import like_post, unlike_post, like_comment, unlike_comment, like_reply, unlike_reply
+from ..service.like_service import Like, Unlike
 from ..service.user_service import load_user
 
 api = LikeDto.api
@@ -11,7 +11,6 @@ _like = LikeDto.like
 @api.route('/post/<string:post_public_id>')
 class LikePost(Resource):
 
-    @api.expect(_like, validate=True)
     @api.doc('Like a post.',
         responses = {
             201: 'Successfully liked the post.',
@@ -25,7 +24,7 @@ class LikePost(Resource):
         """ Like a post using its specific id """
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return like_post(post_public_id, current_user)
+        return Like.post(post_public_id, current_user)
 
     @api.doc('Unlike a post.',
         responses = {
@@ -38,7 +37,7 @@ class LikePost(Resource):
         """ Unlike a specific post using its specific id """
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return unlike_post(post_public_id, current_user)
+        return Unlike.post(post_public_id, current_user)
 
 @api.route('/comment/<int:comment_id>')
 class LikeComment(Resource):
@@ -56,7 +55,7 @@ class LikeComment(Resource):
         """ Like a comment using its specific id """
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return like_comment(comment_id, current_user)
+        return Like.comment(comment_id, current_user)
 
     @api.doc('Unlike a comment.',
         responses = {
@@ -68,7 +67,7 @@ class LikeComment(Resource):
     def delete(self, comment_id):
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return unlike_comment(comment_id, current_user)
+        return Unlike.comment(comment_id, current_user)
 
 @api.route('/reply/<int:reply_id>')
 class LikeComment(Resource):
@@ -86,7 +85,7 @@ class LikeComment(Resource):
         """ Like a reply using its specific id """
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return like_reply(reply_id, current_user)
+        return Like.reply(reply_id, current_user)
 
     @api.doc('Unlike a reply.',
         responses = {
@@ -98,4 +97,4 @@ class LikeComment(Resource):
     def delete(self, reply_id):
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return unlike_reply(reply_id, current_user)
+        return Unlike.reply(reply_id, current_user)
