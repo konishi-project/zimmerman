@@ -78,10 +78,6 @@ class ReplyFn:
             reply = Reply.query.filter_by(id=reply_id).first()
 
             try:
-                # Get the likes for the reply and delete them
-                delete_likes = ReplyLike.__table__.delete().where(ReplyLike.on_reply == reply.id)
-                db.session.execute(delete_likes)
-
                 # Delete the reply and commit
                 db.session.delete(reply)
                 db.session.commit()

@@ -1,3 +1,7 @@
+<p align="center">
+    <img src="https://raw.githubusercontent.com/x1zeth2x/zimmermanv2/next/logo.png">
+</p>
+
 # Zimmerman (v2)
 Zimmerman heavily restructured, rewritten and reorganized.
 

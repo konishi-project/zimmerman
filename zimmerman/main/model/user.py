@@ -83,8 +83,10 @@ class Posts(Model):
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
 
-    likes = db.relationship('PostLike', backref='posts')
-    comments = db.relationship('Comments', backref='posts')
+    likes = db.relationship('PostLike', backref='posts', 
+                            cascade="all, delete-orphan")
+    comments = db.relationship('Comments', backref='posts', 
+                               cascade="all, delete-orphan")
 
     def __repr__(self):
       return "<Post '{}'>".format(self.id)
@@ -102,7 +104,10 @@ class Comments(Model):
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
 
-    likes = db.relationship('CommentLike', backref='comments')
+    likes = db.relationship('CommentLike', backref='comments',
+                            cascade="all, delete-orphan")
+    replies = db.relationship('Reply', backref="comments",
+                              cascade="all, delete-orphan")
 
     def __repr__(self):
       return "<Comment '{}'>".format(self.id)
@@ -120,7 +125,8 @@ class Reply(Model):
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
 
-    likes = db.relationship('ReplyLike', backref='reply')
+    likes = db.relationship('ReplyLike', backref='reply',
+                            cascade="all, delete-orphan")
 
     def __repr__(self):
       return "<Reply '{}'>".format(self.id)

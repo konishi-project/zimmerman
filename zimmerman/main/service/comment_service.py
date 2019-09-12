@@ -78,12 +78,6 @@ class Comment:
             comment = Comments.query.filter_by(id=comment_id).first()
 
             try:
-                # Get the likes for the comment and delete them
-                delete_likes = CommentLike.__table__.delete().where(CommentLike.on_comment == comment.id)
-                db.session.execute(delete_likes)
-
-                # Get replies for the comment and delete them
-
                 db.session.delete(comment)
                 db.session.commit()
                 response_object = {

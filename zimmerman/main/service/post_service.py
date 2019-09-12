@@ -101,12 +101,6 @@ class Post:
             post = Posts.query.filter_by(public_id=post_public_id).first()
 
             try:
-                # Get the likes for the post and delete them
-                delete_likes = PostLike.__table__.delete().where(PostLike.on_post == post.id)
-                db.session.execute(delete_likes)
-
-                ## Get the comments for the post and delete them too
-                
                 db.session.delete(post)
                 db.session.commit()
                 response_object = {
