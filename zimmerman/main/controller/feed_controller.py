@@ -3,7 +3,7 @@ from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from ..util.dto import FeedDto
-from ..service.feed_service import get_post_ids, get_posts_info
+from ..service.feed_service import Feed
 from ..service.user_service import load_user
 
 api = FeedDto.api
@@ -20,7 +20,7 @@ class FeedGet(Resource):
     @jwt_required
     def get(self):
         """ Get the posts IDs from the Database. """
-        return get_post_ids()
+        return Feed.get_post_ids()
 
     @api.expect(_feed, validate=True)
     @api.doc('Get the posts data',
@@ -36,4 +36,4 @@ class FeedGet(Resource):
         id_array = data['post_ids']
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return get_posts_info(id_array, current_user)
+        return Feed.get_posts_info(id_array, current_user)

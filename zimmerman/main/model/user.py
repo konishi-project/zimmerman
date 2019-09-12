@@ -12,47 +12,48 @@ roles_users = db.Table('roles_users',
         Column('role_id', db.Integer(), db.ForeignKey('role.id')))
 
 class User(UserMixin, Model):
-  """ User Model for storing user related details """
+    """ User Model for storing user related details """
 
-  # Basic details
-  id = Column(db.Integer, primary_key=True)
-  public_id = Column(db.String(15), unique=True)
-  email = Column(db.String(255), unique=True, nullable=False)
-  username = Column(db.String(20), unique=True)
-  first_name = Column(db.String(50), nullable=True)
-  last_name = Column(db.String(50), nullable=True)
+    # Basic details
+    id = Column(db.Integer, primary_key=True)
+    public_id = Column(db.String(15), unique=True)
+    email = Column(db.String(255), unique=True, nullable=False)
+    username = Column(db.String(20), unique=True)
+    first_name = Column(db.String(50), nullable=True)
+    last_name = Column(db.String(50), nullable=True)
 
-  password_hash = Column(db.String(255))
+    password_hash = Column(db.String(255))
 
-  # Extra details
-  bio = Column(db.Text, nullable=True)
-  profile_picture = Column(db.String(35), nullable=True)
+    # Extra details
+    bio = Column(db.Text, nullable=True)
+    profile_picture = Column(db.String(40), nullable=True)
 
-  # Post related
-  posts = db.relationship('Posts', backref='user')
+    # Add Favorites (post)
+    # Post related
+    posts = db.relationship('Posts', backref='user')
 
-  post_likes = db.relationship('PostLike', backref='user')
-  comment_likes = db.relationship('CommentLike', backref='user')
-  reply_likes = db.relationship('ReplyLike', backref='user')
+    post_likes = db.relationship('PostLike', backref='user')
+    comment_likes = db.relationship('CommentLike', backref='user')
+    reply_likes = db.relationship('ReplyLike', backref='user')
 
-  # Status
-  joined_date = Column(db.DateTime)
-  roles = db.relationship('Role', secondary=roles_users,
-                          backref=db.backref('users'), lazy='dynamic')
+    # Status
+    joined_date = Column(db.DateTime)
+    roles = db.relationship('Role', secondary=roles_users,
+                            backref=db.backref('users'), lazy='dynamic')
 
-  @property
-  def password(self):
-    raise AttributeError('Password: Write-Only field')
+    @property
+    def password(self):
+      raise AttributeError('Password: Write-Only field')
 
-  @password.setter
-  def password(self, password):
-    self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-  
-  def check_password(self, password):
-    return bcrypt.check_password_hash(self.password_hash, password)
+    @password.setter
+    def password(self, password):
+      self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+    
+    def check_password(self, password):
+      return bcrypt.check_password_hash(self.password_hash, password)
 
-  def __repr__(self):
-    return "<User '{}'>".format(self.username)
+    def __repr__(self):
+      return "<User '{}'>".format(self.username)
 
 class Role(Model):
     """ Role Model for storing role related details """
@@ -76,14 +77,16 @@ class Posts(Model):
 
     # Post content and details
     content = Column(db.Text)
-    image_file = Column(db.String(35), default=None, nullable=True)
+    image_file = Column(db.String(40), default=None, nullable=True)
     status = Column(db.String(10))
 
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
 
-    likes = db.relationship('PostLike', backref='posts')
-    comments = db.relationship('Comments', backref='posts')
+    likes = db.relationship('PostLike', backref='posts', 
+                            cascade="all, delete-orphan")
+    comments = db.relationship('Comments', backref='posts', 
+                               cascade="all, delete-orphan")
 
     def __repr__(self):
       return "<Post '{}'>".format(self.id)
@@ -101,7 +104,10 @@ class Comments(Model):
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
 
-    likes = db.relationship('CommentLike', backref='comments')
+    likes = db.relationship('CommentLike', backref='comments',
+                            cascade="all, delete-orphan")
+    replies = db.relationship('Reply', backref="comments",
+                              cascade="all, delete-orphan")
 
     def __repr__(self):
       return "<Comment '{}'>".format(self.id)
@@ -119,7 +125,8 @@ class Reply(Model):
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
 
-    likes = db.relationship('ReplyLike', backref='reply')
+    likes = db.relationship('ReplyLike', backref='reply',
+                            cascade="all, delete-orphan")
 
     def __repr__(self):
       return "<Reply '{}'>".format(self.id)
