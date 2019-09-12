@@ -14,8 +14,8 @@ Zimmerman heavily restructured, rewritten and reorganized.
 
 This is Konishi's Back-End written in Flask (Python 3). Zimmerman is a free and open source RESTFul API that aims to have the core features of Facebook groups with the added bonus of transparency, flexibility, and FOSS goodness.
 
-## Requirements
----
+# Requirements
+
 This version uses PostgreSQL although you can use SQLite if you wish to.
 
 When creating a Postgres Database, make sure to name it 'konishidb' or whatever you like and change the config name for the database in `zimmerman/main/config.py`
@@ -33,8 +33,7 @@ Gentoo - `https://wiki.gentoo.org/wiki/PostgreSQL/QuickStart`
 Arch Linux (and derivatives) - `https://wiki.archlinux.org/index.php/PostgreSQL`
 
 
-## Install and Setting up
----
+# Install and Setting up
 
 **Clone the repo**
 ```bash
