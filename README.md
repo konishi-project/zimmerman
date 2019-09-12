@@ -1,6 +1,8 @@
 <p align="center">
     <img src="./logo.png" width="180">
-</p>
+    <p align="center" style="font-size: 25px;">
+     <strong>Zimmerman</strong>
+    </p>
 
 <p align="center">
   <a href="https://github.com/X1Zeth2X/zimmermanv2/commits/master">
@@ -20,7 +22,7 @@
   </a>
 </p>
 
-Zimmerman's repository, which is Konishi's backend written in Python 3+. Zimmerman is a free and open source REST API that aims to have the core features of Facebook groups with the added bonus of transparency, flexibility, and other FOSS goodness.
+Konishi's backend written in Python 3+. Zimmerman is a free and open source REST API that aims to have the core features of Facebook groups with the added bonus of transparency, flexibility, and other FOSS goodness.
 
 Official frontend repo can be found [here](https://github.com/x1zeth2x/kagawasan). (Please note that the frontend is currently broken due to library updates, and upgrades to other components, fixes and updates coming soon.)
 
@@ -54,7 +56,7 @@ Resourceful Links for the commonly used distros ;)
 
 The Konishi project is a community project which includes Zimmerman. We are welcoming contributors who would like to make an impact in the project and eventually the social networking industry.
 
-Current guidelines for contributing is currently work in progress but here are currently the ways you can help.
+Current guidelines for contributing is currently work in progress but here are some the ways you can help.
 
 Feel free to contact the lead developer [X1Zeth2X](https://github.com/X1Zeth2X) for further or other inquiries.
 
@@ -67,7 +69,7 @@ Feel free to contact the lead developer [X1Zeth2X](https://github.com/X1Zeth2X) 
 
 **Clone the repo**
 ```bash
-$ git clone https://github.com/X1Zeth2X/zimmermanv2.git
+$ git clone https://github.com/konishi-project/zimmerman.git
 $ cd zimmermanv2
 ```
 
@@ -84,7 +86,7 @@ $ pip install -r requirements.txt
 
 **Setting up the database** 
 
-After metting the requirements and installing PostGreSQL, make sure you've set the configurations to match your local PSQL credentials. Afterwards initialize the database to work with the app using:
+After meeting the requirements and installing PostGreSQL, make sure you've set the configurations to match your local PSQL credentials. Afterwards initialize the database to work with the app using:
 
 ```bash
 $ python manage.py db init
@@ -94,4 +96,8 @@ $ make migrate
 **Running the application**
 ```bash
 $ python manage.py run
+
+or
+
+$ make run
 ```
