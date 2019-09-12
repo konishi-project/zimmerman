@@ -2,6 +2,9 @@
     <img src="./logo.png" width="180">
 </p>
 
+[![Zimmerman vAlpha](https://img.shields.io/badge/Zimmerman-alpha-yellow)](#)
+[![Python 3.6+](https://img.shields.io/badge/python-3.6%2B-blue)](#)
+[![Contributions](https://img.shields.io/badge/contributions-welcome-brightgreen)](#)
 [![License GPLv3](https://img.shields.io/github/license/x1zeth2x/zimmermanv2)](LICENSE.md)
 
 
