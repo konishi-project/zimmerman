@@ -84,7 +84,7 @@ $ pip install -r requirements.txt
 
 **Setting up the database** 
 
-After metting the requirements and installing PostGreSQL, make sure you've set the configurations to match your local PSQL credentials. Afterwards initialize the database to work with the app using:
+After meeting the requirements and installing PostGreSQL, make sure you've set the configurations to match your local PSQL credentials. Afterwards initialize the database to work with the app using:
 
 ```bash
 $ python manage.py db init
@@ -94,4 +94,8 @@ $ make migrate
 **Running the application**
 ```bash
 $ python manage.py run
+
+or
+
+$ make run
 ```
