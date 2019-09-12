@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/x1zeth2x/zimmermanv2/next/logo.png">
+    <img src="./logo.png" width="180">
 </p>
 
 # Zimmerman (v2)
