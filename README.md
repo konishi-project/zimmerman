@@ -1,6 +1,8 @@
 <p align="center">
     <img src="./logo.png" width="180">
-</p>
+    <p align="center" style="font-size: 25px;">
+     <strong>Zimmerman</strong>
+    </p>
 
 <p align="center">
   <a href="https://github.com/X1Zeth2X/zimmermanv2/commits/master">
@@ -20,7 +22,7 @@
   </a>
 </p>
 
-Zimmerman's repository, which is Konishi's backend written in Python 3+. Zimmerman is a free and open source REST API that aims to have the core features of Facebook groups with the added bonus of transparency, flexibility, and other FOSS goodness.
+Konishi's backend written in Python 3+. Zimmerman is a free and open source REST API that aims to have the core features of Facebook groups with the added bonus of transparency, flexibility, and other FOSS goodness.
 
 Official frontend repo can be found [here](https://github.com/x1zeth2x/kagawasan). (Please note that the frontend is currently broken due to library updates, and upgrades to other components, fixes and updates coming soon.)
 
