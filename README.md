@@ -2,6 +2,9 @@
     <img src="./logo.png" width="180">
 </p>
 
+[![License GPLv3](https://img.shields.io/github/license/x1zeth2x/zimmermanv2)](LICENSE.md)
+
+
 # Zimmerman (v2)
 Zimmerman heavily restructured, rewritten and reorganized.
 
