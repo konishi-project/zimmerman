@@ -56,7 +56,7 @@ Resourceful Links for the commonly used distros ;)
 
 The Konishi project is a community project which includes Zimmerman. We are welcoming contributors who would like to make an impact in the project and eventually the social networking industry.
 
-Current guidelines for contributing is currently work in progress but here are currently the ways you can help.
+Current guidelines for contributing is currently work in progress but here are some the ways you can help.
 
 Feel free to contact the lead developer [X1Zeth2X](https://github.com/X1Zeth2X) for further or other inquiries.
 
@@ -69,7 +69,7 @@ Feel free to contact the lead developer [X1Zeth2X](https://github.com/X1Zeth2X) 
 
 **Clone the repo**
 ```bash
-$ git clone https://github.com/X1Zeth2X/zimmermanv2.git
+$ git clone https://github.com/konishi-project/zimmerman.git
 $ cd zimmermanv2
 ```
 
