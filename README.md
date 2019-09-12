@@ -25,13 +25,19 @@ When creating a Postgres Database, make sure to name it 'konishidb' or whatever 
 This can vary for many different distributions/operating systems.
 You can find many guides for that through your distribution's guide/community. (https://www.postgresql.org)
 
-Ubuntu - 
-`https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04`
 
-Gentoo - `https://wiki.gentoo.org/wiki/PostgreSQL/QuickStart`
+This may also work for their derivatives but make sure to double check as well, it isn't going to harm anybody.. except maybe your distro...
 
-Arch Linux (and derivatives) - `https://wiki.archlinux.org/index.php/PostgreSQL`
+Resourceful Links for the commonly used distros ;)
 
+* Debian - (https://wiki.debian.org/PostgreSql)
+
+* Ubuntu - 
+(https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04)
+
+* Arch Linux - (https://wiki.archlinux.org/index.php/PostgreSQL)
+
+* Gentoo - (https://wiki.gentoo.org/wiki/PostgreSQL/QuickStart)
 
 # Install and Setting up
 
