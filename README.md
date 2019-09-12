@@ -2,12 +2,23 @@
     <img src="./logo.png" width="180">
 </p>
 
-[![](https://img.shields.io/github/last-commit/X1Zeth2X/zimmermanv2)](https://github.com/X1Zeth2X/zimmermanv2/commits/master)
-[![Release](https://img.shields.io/github/v/release/X1Zeth2X/zimmermanv2?include_prereleases)](#)
-[![Python 3.6+](https://img.shields.io/badge/python-3.6%2B-blue)](#)
-[![Contributions](https://img.shields.io/badge/contributions-welcome-brightgreen)](#)
-[![License GPLv3](https://img.shields.io/github/license/x1zeth2x/zimmermanv2)](LICENSE.md)
-
+<p align="center">
+  <a href="https://github.com/X1Zeth2X/zimmermanv2/commits/master">
+    <img src="https://img.shields.io/github/last-commit/X1Zeth2X/zimmermanv2" alt="last-commit">
+  </a>
+  <a>
+    <img src="https://img.shields.io/github/v/release/X1Zeth2X/zimmermanv2?include_prereleases" alt="release">
+  </a>
+  <a>
+    <img src="https://img.shields.io/badge/python-3.6%2B-blue" alt="python">
+  </a>
+  <a>
+    <img src="https://img.shields.io/badge/contributions-welcome-brightgreen" alt="contributions">
+  </a>
+  <a href="./LICENSE.md">
+    <img src="https://img.shields.io/github/license/x1zeth2x/zimmermanv2" alt="license">
+  </a>
+</p>
 
 # Zimmerman (v2)
 Zimmerman heavily restructured, rewritten and reorganized.
