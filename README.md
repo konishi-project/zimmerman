@@ -12,52 +12,57 @@
 # Zimmerman (v2)
 Zimmerman heavily restructured, rewritten and reorganized.
 
-This is Konishi's Back-End written in Flask (Python 3).
+This is Konishi's Back-End written in Flask (Python 3). Zimmerman is a free and open source RESTFul API that aims to have the core features of Facebook groups with the added bonus of transparency, flexibility, and FOSS goodness.
 
 ## Requirements
-
+---
 This version uses PostgreSQL although you can use SQLite if you wish to.
 
 When creating a Postgres Database, make sure to name it 'konishidb' or whatever you like and change the config name for the database in `zimmerman/main/config.py`
 
-Zimmerman is written in Python 3 to install Python 3 simply use:
+**PostgreSQL Installation**
 
-### Python Installation
-| OS/Distro |  Command  |
-|-----------|:---------:|
-| Ubuntu 16.04 and Older | ```You will need to install using the PPA or a 3rd party Python distribution (i.e. Anaconda)``` |
-| Ubuntu 16.10+ | ```sudo apt install python3``` |
-| Arch Linux | ```sudo pacman -Syy python3``` |
-| Gentoo | ``` sudo emerge -av dev-lang/python ``` |
-
-To install the requirements from 'requirements.txt' in a virtualenv run the following in the same directory:
-
-1. ` Make sure you install virtualenv for your platform `
-2. ` virtualenv konishienv `
-3. ` source konishienv/bin/activate `
-4. ` make install `
-
-### PostgreSQL Installation
 This can vary for many different distributions/operating systems.
-You can find many guides for that.
+You can find many guides for that through your distribution's guide/community. (https://www.postgresql.org)
 
 Ubuntu - 
-``` https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04 ```
+`https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04`
 
-Gentoo - ```https://wiki.gentoo.org/wiki/PostgreSQL/QuickStart```
+Gentoo - `https://wiki.gentoo.org/wiki/PostgreSQL/QuickStart`
 
-Arch Linux - ```https://wiki.archlinux.org/index.php/PostgreSQL```
+Arch Linux (and derivatives) - `https://wiki.archlinux.org/index.php/PostgreSQL`
 
-**PostgreSQL Website** - ```https://www.postgresql.org/```
 
-## Running the Application
-``` $ python manage.py run ```
+## Install and Setting up
+---
 
-## Setting up the database
-You need to have PostgreSQL running and make sure you've set the configurations to match your local PSQL credentials.
-Once you've setup the virtual environment and activated it, create an empty database using.
-
+**Clone the repo**
+```bash
+$ git clone https://github.com/X1Zeth2X/zimmermanv2.git
+$ cd zimmermanv2
 ```
-python manage.py db init
-make migrate
+
+**Create the virtualenv and activate**
+```bash
+$ virtualenv konishienv
+$ source konishienv/bin/activate
+```
+
+**Install dependencies**
+```bash
+$ pip install -r requirements.txt
+```
+
+**Setting up the database** 
+
+After metting the requirements and installing PostGreSQL, make sure you've set the configurations to match your local PSQL credentials. Afterwards initialize the database to work with the app using:
+
+```bash
+$ python manage.py db init
+$ make migrate
+```
+
+**Running the application**
+```bash
+$ python manage.py run
 ```
