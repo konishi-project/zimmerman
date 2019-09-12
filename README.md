@@ -20,12 +20,12 @@
   </a>
 </p>
 
-# Zimmerman (v2)
-Zimmerman heavily restructured, rewritten and reorganized.
+Zimmerman's repository, which is Konishi's backend written in Python 3+. Zimmerman is a free and open source REST API that aims to have the core features of Facebook groups with the added bonus of transparency, flexibility, and other FOSS goodness.
 
-This is Konishi's Back-End written in Flask (Python 3). Zimmerman is a free and open source RESTFul API that aims to have the core features of Facebook groups with the added bonus of transparency, flexibility, and FOSS goodness.
+Official frontend repo can be found [here](https://github.com/x1zeth2x/kagawasan). (Please note that the frontend is currently broken due to library updates, and upgrades to other components, fixes and updates coming soon.)
 
-# Requirements
+
+## Requirements
 
 This version uses PostgreSQL although you can use SQLite if you wish to.
 
@@ -50,7 +50,20 @@ Resourceful Links for the commonly used distros ;)
 
 * Gentoo - (https://wiki.gentoo.org/wiki/PostgreSQL/QuickStart)
 
-# Install and Setting up
+## Contributing
+
+The Konishi project is a community project which includes Zimmerman. We are welcoming contributors who would like to make an impact in the project and eventually the social networking industry.
+
+Current guidelines for contributing is currently work in progress but here are currently the ways you can help.
+
+Feel free to contact the lead developer [X1Zeth2X](https://github.com/X1Zeth2X) for further or other inquiries.
+
+* Contributing to the source code.
+* Contributing to the documentation of the APIs.
+* Financial support/contribution.
+* Suggesting improvements, features.
+
+## Install and Setting up
 
 **Clone the repo**
 ```bash
