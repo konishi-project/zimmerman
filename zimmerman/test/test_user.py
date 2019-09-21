@@ -1,6 +1,7 @@
 import unittest
 import json
 
+from flask import current_app
 from zimmerman.test.base import BaseTestCase
 
 def register_user(self):
@@ -12,7 +13,7 @@ def register_user(self):
           first_name = 'test',
           last_name = 'user',
           password = '123456',
-          entry_key = 'KonishiTesting'
+          entry_key = current_app.config['ENTRY_KEY']
       )),
       content_type = 'application/json'
     )
@@ -46,7 +47,6 @@ class TestAuthBlueprint(BaseTestCase):
             user_response = register_user(self)
             response_data = json.loads(user_response.data.decode())
 
-            self.assertTrue(response_data['Authorization'])
             self.assertEqual(user_response.status_code, 201)
 
             # Registered user login
@@ -68,9 +68,7 @@ class TestAuthBlueprint(BaseTestCase):
 
             # Get the user data
             get_response = get_user(self, access_token)
-            get_response_data = json.loads(get_response.data.decode())
 
-            self.assertTrue(get_response_data['success'])
             self.assertEqual(get_response.status_code, 200)
 
 if __name__ == '__main__':

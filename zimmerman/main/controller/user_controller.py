@@ -3,7 +3,7 @@ from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from ..util.dto import UserDto
-from ..service.user_service import UserFn
+from ..service.user_service import UserService, load_user
 
 api = UserDto.api
 _user = UserDto.user
@@ -20,7 +20,7 @@ class UserRegister(Resource):
     def post(self):
         """ Registers new user """
         data = request.get_json()
-        return UserFn.register(data)
+        return UserService.register(data)
 
 @api.route('/get')
 class UserGet(Resource):
@@ -39,4 +39,4 @@ class UserGet(Resource):
         current_public_id = current_user.public_id
 
         user_public_id = request.args.get("user_public_id", default=current_public_id)
-        return UserFn.get_by_public_id(user_public_id)
+        return UserService.get_user_info(user_public_id)

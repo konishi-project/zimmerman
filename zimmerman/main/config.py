@@ -9,6 +9,8 @@ class Config:
     # Set token to never expire.
     JWT_ACCESS_TOKEN_EXPIRES = False
     DEBUG = False
+    # Change the entry key in production
+    ENTRY_KEY = os.getenv('ENTRY_KEY', 'KonishiTesting')
 
 class DevelopmentConfig(Config):
     DEBUG = True

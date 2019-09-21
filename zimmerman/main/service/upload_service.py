@@ -3,7 +3,6 @@ import os
 from flask import request
 from hashlib import sha256
 from werkzeug.utils import secure_filename
-from PIL import Image
 
 from ..config import basedir
 
@@ -51,10 +50,11 @@ def upload_file(files, foldername, extensions):
                 'image_id': hashed_file + extension
             }
             return response_object, 201
-        except:
+
+        except Exception as error:
             # Return an error message if it fails to upload
             response_object = {
                 'success': False,
-                'message': 'Something went wrong during the process!'
+                'message': 'Something went wrong during the process!\nOutput: %s' % error
             }
             return response_object, 500

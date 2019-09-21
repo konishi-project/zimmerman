@@ -3,7 +3,7 @@ from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from ..util.dto import ReplyDto
-from ..service.reply_service import ReplyFn
+from ..service.reply_service import ReplyService
 from ..service.user_service import load_user
 
 api = ReplyDto.api
@@ -21,7 +21,7 @@ class ReplyGet(Resource):
     @jwt_required
     def get(self, reply_id):
         """ Get a specific reply using its id """
-        return ReplyFn.get(reply_id)
+        return ReplyService.get(reply_id)
 
 @api.route('/create/<int:comment_id>')
 class ReplyCreate(Resource):
@@ -39,7 +39,7 @@ class ReplyCreate(Resource):
         data = request.get_json()
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return ReplyFn.create(comment_id, data, current_user)
+        return ReplyService.create(comment_id, data, current_user)
 
 @api.route('/update/<int:reply_id>')
 class ReplyUpdate(Resource):
@@ -59,7 +59,7 @@ class ReplyUpdate(Resource):
         data = request.get_json()
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return ReplyFn.update(reply_id, data, current_user)
+        return ReplyService.update(reply_id, data, current_user)
 
 @api.route('/delete/<int:reply_id>')
 class ReplyDelete(Resource):
@@ -75,4 +75,4 @@ class ReplyDelete(Resource):
     def delete(self, reply_id):
         """ Deletes a reply using its id """
         current_user = load_user(get_jwt_identity())
-        return ReplyFn.delete(reply_id, current_user)
+        return ReplyService.delete(reply_id, current_user)

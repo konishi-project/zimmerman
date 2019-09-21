@@ -9,7 +9,7 @@ from flask_jwt_extended import get_jwt_identity
 from zimmerman.main import db
 from zimmerman.main.model.user import Posts, PostLike
 
-from .user_service import load_author, UserFn
+from .user_service import load_author, UserService
 
 # Import Schema
 from zimmerman.main.model.user import PostSchema, UserSchema

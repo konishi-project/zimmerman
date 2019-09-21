@@ -70,7 +70,15 @@ def get_replies(comment_info, current_user_id):
     return replies
 
 class Feed:
-    def get_post_ids():
+    def get_chronological():
+        # Get Posts IDs by latest creation (chronological order)
+        # Get Posts info
+        posts = Posts.query.with_entities(Posts.id, Posts.created).order_by(Posts.created.desc())
+        # WIP
+        print(posts)
+
+    def get_activity():
+        # Get Posts IDs by latest activity (latest comment on post)
         # Get Posts info
         posts = Posts.query.with_entities(Posts.id, Posts.created).all()
         post_schema = PostSchema(many=True)
@@ -135,7 +143,7 @@ class Feed:
             posts.append(post_info)
 
         response_object = {
-            'success': False,
+            'success': True,
             'message': 'Post data successfully delivered.',
             'posts': posts
         }
