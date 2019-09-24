@@ -1,12 +1,17 @@
 import os
 
-from flask import request
+from flask import request, url_for
 from hashlib import sha256
 from werkzeug.utils import secure_filename
 
 from ..config import basedir
 
 STATIC_FOLDER_PATH = basedir + '/static/'
+
+def get_image(image, foldername):
+    image_url = url_for('static', filename = '{}/{}'.format(foldername,image))
+
+    return image_url
 
 def allowed_file(filename, allowed_extensions):
     return '.' in filename and \
@@ -47,6 +52,7 @@ def upload_file(files, foldername, extensions):
             response_object = {
                 'success': True,
                 'message': 'Image successfully uploaded',
+                # Add the extension to the image id for now, will use glob later on
                 'image_id': hashed_file + extension
             }
             return response_object, 201
