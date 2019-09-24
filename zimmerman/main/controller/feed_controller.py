@@ -19,8 +19,8 @@ class FeedGet(Resource):
     )
     @jwt_required
     def get(self):
-        """ Get the posts IDs from the Database. """
-        return Feed.get_post_ids()
+        """ Return posts IDs from the Database. """
+        return Feed.get_activity()
 
     @api.expect(_feed, validate=True)
     @api.doc('Get the posts data',

@@ -1,4 +1,3 @@
-from flask_login import UserMixin
 from datetime import datetime
 
 from .. import db, ma, bcrypt
@@ -11,7 +10,7 @@ roles_users = db.Table('roles_users',
         Column('user_id', db.Integer(), db.ForeignKey('user.id')),
         Column('role_id', db.Integer(), db.ForeignKey('role.id')))
 
-class User(UserMixin, Model):
+class User(Model):
     """ User Model for storing user related details """
 
     # Basic details
@@ -25,7 +24,7 @@ class User(UserMixin, Model):
     password_hash = Column(db.String(255))
 
     # Extra details
-    bio = Column(db.Text, nullable=True)
+    bio = Column(db.String(150), nullable=True)
     profile_picture = Column(db.String(40), nullable=True)
 
     # Add Favorites (post)
@@ -59,7 +58,7 @@ class Role(Model):
     """ Role Model for storing role related details """
     __tablename__ = "role"
 
-    id = Column(db.Integer(), primary_key=True)
+    id = Column(db.Integer, primary_key=True)
     name = Column(db.String(20), unique=True)
     description = Column(db.String(50))
 

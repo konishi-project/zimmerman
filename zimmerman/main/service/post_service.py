@@ -9,13 +9,11 @@ from flask_jwt_extended import get_jwt_identity
 from zimmerman.main import db
 from zimmerman.main.model.user import Posts, PostLike
 
-from .user_service import load_author, UserFn
+from .user_service import load_author
+from .upload_service import get_image
 
 # Import Schema
 from zimmerman.main.model.user import PostSchema, UserSchema
-
-from ..config import basedir
-POST_UPLOAD_PATH = basedir + 'static/postimages/'
 
 def add_post_and_flush(data):
     db.session.add(data)
@@ -73,8 +71,7 @@ class Post:
 
         # Check if the latest post has an image
         if latest_post['image_file']:
-            url = get_image(latest_post['image_file'])
-            latest_post['image_url'] = url
+            latest_post['image_url'] = get_image(latest_post['image_file'], 'postimages')
 
         # Add the author's info
         latest_post['author'] = load_author(latest_post['creator_public_id'])
@@ -196,8 +193,7 @@ class Post:
 
         # Check for an image file and add it.
         if post_info['image_file']:
-            url = get_image(post['image_file'])
-            post_info['image_url'] = url
+            post_info['image_url'] = get_image(post['image_file'], 'postimages')
 
         response_object = {
             'success': True,

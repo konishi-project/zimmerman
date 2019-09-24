@@ -29,7 +29,7 @@ class UploadPostImage(Resource):
         extensions = DEFAULT_EXTENSIONS + ['gif']
         return upload_file(files, upload_folder, extensions)
 
-@api.route('/profilepic')
+@api.route('/avatar')
 class UploadProfilePic(Resource):
     
     """ Upload image for profile pictures """
@@ -44,6 +44,6 @@ class UploadProfilePic(Resource):
     def post(self):
         """ Uploads user profile picture """
         files = request.files
-        upload_folder = 'profilepics'
+        upload_folder = 'avatars'
         # Profile pictures will use the default extensions.
         return upload_file(files, upload_folder, DEFAULT_EXTENSIONS)

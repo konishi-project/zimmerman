@@ -3,7 +3,7 @@ from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from ..util.dto import UserDto
-from ..service.user_service import UserFn
+from ..service.user_service import UserService, load_user
 
 api = UserDto.api
 _user = UserDto.user
@@ -20,7 +20,7 @@ class UserRegister(Resource):
     def post(self):
         """ Registers new user """
         data = request.get_json()
-        return UserFn.register(data)
+        return UserService.register(data)
 
 @api.route('/get')
 class UserGet(Resource):
@@ -39,4 +39,21 @@ class UserGet(Resource):
         current_public_id = current_user.public_id
 
         user_public_id = request.args.get("user_public_id", default=current_public_id)
-        return UserFn.get_by_public_id(user_public_id)
+        return UserService.get_user_info(user_public_id)
+
+@api.route('/update')
+class UserUpdate(Resource):
+    
+    @api.doc('Update a user\' information', 
+        responses = {
+            200: 'User data has been updated.',
+            404: 'User not found!'
+        }
+    )
+    @jwt_required
+    def post(self):
+        """ Update a user's data """
+        current_user = load_user(get_jwt_identity())
+        data = request.get_json()
+
+        return UserService.update(data, current_user)

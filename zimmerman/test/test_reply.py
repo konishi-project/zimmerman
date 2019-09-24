@@ -1,6 +1,7 @@
 import unittest
 import json
 
+from flask import current_app
 from zimmerman.test.base import BaseTestCase
 
 def get_reply(self, reply_id, access_token):
@@ -79,7 +80,7 @@ def register_user(self):
           first_name = 'test',
           last_name = 'user',
           password = '123456',
-          entry_key = 'KonishiTesting'
+          entry_key = current_app.config['ENTRY_KEY']
       )),
       content_type = 'application/json'
     )

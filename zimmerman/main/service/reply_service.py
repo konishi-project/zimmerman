@@ -18,7 +18,7 @@ def add_reply_and_flush(data):
 
     return latest_reply
 
-class ReplyFn:
+class ReplyService:
     def create(comment_id, data, current_user):
         # Get the comment
         comment = Comments.query.filter_by(id=comment_id).first()

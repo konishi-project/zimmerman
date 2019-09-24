@@ -1,6 +1,7 @@
 import unittest
 import json
 
+from flask import current_app
 from zimmerman.test.base import BaseTestCase
 
 def register_user(self):
@@ -12,7 +13,7 @@ def register_user(self):
           first_name = 'test',
           last_name = 'user',
           password = '123456',
-          entry_key = 'KonishiTesting'
+          entry_key = current_app.config['ENTRY_KEY']
       )),
       content_type = 'application/json'
     )
@@ -20,6 +21,19 @@ def register_user(self):
 def get_user(self, access_token):
     return self.client.get(
         '/user/get',
+        headers = {
+            'Authorization': 'Bearer %s' % access_token
+        },
+        content_type = 'application/json'
+    )
+
+def update_user(self, data, access_token):
+    return self.client.post(
+        '/user/update',
+        data = json.dumps(dict (
+            bio = data['bio'],
+            avatar = data['avatar']
+        )),
         headers = {
             'Authorization': 'Bearer %s' % access_token
         },
@@ -46,7 +60,6 @@ class TestAuthBlueprint(BaseTestCase):
             user_response = register_user(self)
             response_data = json.loads(user_response.data.decode())
 
-            self.assertTrue(response_data['Authorization'])
             self.assertEqual(user_response.status_code, 201)
 
             # Registered user login
@@ -57,7 +70,7 @@ class TestAuthBlueprint(BaseTestCase):
             self.assertEqual(login_response.status_code, 200)
 
     def test_get_user(self):
-        ''' Get a specific user using its public id '''
+        """ Get a specific user using its public id """
 
         with self.client:
             # User registration
@@ -70,8 +83,27 @@ class TestAuthBlueprint(BaseTestCase):
             get_response = get_user(self, access_token)
             get_response_data = json.loads(get_response.data.decode())
 
-            self.assertTrue(get_response_data['success'])
             self.assertEqual(get_response.status_code, 200)
+
+    def test_update_user(self):
+        """ Test for updating the user """
+
+        with self.client:
+            # User registration
+            register_user(self)
+            login_response = login_user(self)
+            login_response_data = json.loads(login_response.data.decode())
+            access_token = login_response_data['Authorization']
+
+            # Update the user data
+            updated_user = {
+                'bio': 'reEeeeEEEEEeEeeeee',
+                'avatar': 'test.png'
+            }
+            update_response = update_user(self, updated_user, access_token)
+            update_response_data = json.loads(update_response.data.decode())
+
+            self.assertTrue(update_response_data['success'])
 
 if __name__ == '__main__':
     unittest.main()
