@@ -27,6 +27,19 @@ def get_user(self, access_token):
         content_type = 'application/json'
     )
 
+def update_user(self, data, access_token):
+    return self.client.post(
+        '/user/update',
+        data = json.dumps(dict (
+            bio = data['bio'],
+            avatar = data['avatar']
+        )),
+        headers = {
+            'Authorization': 'Bearer %s' % access_token
+        },
+        content_type = 'application/json'
+    )
+
 def login_user(self):
     return self.client.post(
       '/auth/login',
@@ -57,7 +70,7 @@ class TestAuthBlueprint(BaseTestCase):
             self.assertEqual(login_response.status_code, 200)
 
     def test_get_user(self):
-        ''' Get a specific user using its public id '''
+        """ Get a specific user using its public id """
 
         with self.client:
             # User registration
@@ -68,8 +81,32 @@ class TestAuthBlueprint(BaseTestCase):
 
             # Get the user data
             get_response = get_user(self, access_token)
+            get_response_data = json.loads(get_response.data.decode())
+            print(get_response_data)
 
             self.assertEqual(get_response.status_code, 200)
+
+    def test_update_user(self):
+        """ Test for updating the user """
+
+        with self.client:
+            # User registration
+            register_user(self)
+            login_response = login_user(self)
+            login_response_data = json.loads(login_response.data.decode())
+            access_token = login_response_data['Authorization']
+
+            # Update the user data
+            updated_user = {
+                'bio': 'reEeeeEEEEEeEeeeee',
+                'avatar': 'test.png'
+            }
+            update_response = update_user(self, updated_user, access_token)
+            update_response_data = json.loads(update_response.data.decode())
+
+            print(update_response_data)
+
+            self.assertTrue(update_response_data['success'])
 
 if __name__ == '__main__':
     unittest.main()
