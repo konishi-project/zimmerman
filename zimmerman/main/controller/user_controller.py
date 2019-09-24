@@ -44,6 +44,16 @@ class UserGet(Resource):
 @api.route('/update')
 class UserUpdate(Resource):
     
-    @api.doc('Update a user\' information', {
+    @api.doc('Update a user\' information', 
+        responses = {
+            200: 'User data has been updated.',
+            404: 'User not found!'
+        }
+    )
+    @jwt_required
+    def post(self):
+        """ Update a user's data """
+        current_user = load_user(get_jwt_identity())
+        data = request.get_json()
 
-    })
+        return UserService.update(data, current_user)
