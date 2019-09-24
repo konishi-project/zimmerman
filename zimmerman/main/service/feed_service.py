@@ -11,7 +11,7 @@ from zimmerman.main.service.post_service import load_author
 from zimmerman.main.model.user import PostSchema, CommentSchema, ReplySchema
 
 # Import upload path
-from .post_service import POST_UPLOAD_PATH, get_image
+from .upload_service import get_image
 
 def uniq(a_list):
     encountered = set()
@@ -133,8 +133,7 @@ class Feed:
             # Check if it has an image
             if post_info['image_file']:
                 # Get the image_url
-                url = get_image(post_info['image_file'])
-                post_info['image_url'] = url
+                post_info['image_url'] = get_image(post_info['image_file'], 'postimages')
 
             # Get the latest 5 comments
             if post_info['comments']:
