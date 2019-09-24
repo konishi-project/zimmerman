@@ -182,7 +182,6 @@ class UserService:
         # Assign the vars
         bio = data['bio']
         avatar = data['avatar']
-
         # Get the user
         user = User.query.filter_by(id=user_public_id).first()
 
@@ -192,6 +191,32 @@ class UserService:
                 'message': 'User not found!'
             }
             return response_object, 404
+
+        # Check if the current user is the same as the one being updated.
+        elif not current_user.public_id == user.publid_id:
+            try:
+                # Update the user's data
+                user.bio = bio
+                user.profile_picture = avatar
+                # Commit the changes
+                db.session.commit()
+
+                response_object = {
+                    'success': False,
+                    'message': 'User data has successfully been updated.'
+                }
+                return response_object, 200
+            except Exception as error:
+                response_object = {
+                    'success': False,
+                }
+            # Commit the changes
+            db.session.commit()
+            response_object = {
+                'success': True,
+                'message': 'User data successfully updated'
+            }
+            return response_object, 200
         
         response_object = {
             'success': True,

@@ -40,3 +40,10 @@ class UserGet(Resource):
 
         user_public_id = request.args.get("user_public_id", default=current_public_id)
         return UserService.get_user_info(user_public_id)
+
+@api.route('/update')
+class UserUpdate(Resource):
+    
+    @api.doc('Update a user\' information', {
+
+    })
