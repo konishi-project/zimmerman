@@ -7,6 +7,8 @@ from flask_jwt_extended import create_access_token
 from zimmerman.main import db
 from zimmerman.main.model.user import User, UserSchema
 
+from .upload_service import get_image
+
 def load_author(user_public_id):
     # Add the author's essential details.
     user_schema = UserSchema()
@@ -24,6 +26,10 @@ def load_author(user_public_id):
     )
     for info in unnecessary_info:
         del author[info]
+
+    # Add avatar if there are any
+    if author['profile_picture']:
+        author['avatar'] = get_image(author['profile_picture'], 'avatars')
 
     return author
 
@@ -174,16 +180,14 @@ class UserService:
 
         response_object = {
             'success': True,
-            'message': 'User data sent.'
+            'message': 'User data sent.',
+            'user': user_info
         }
         return response_object, 200
     
-    def update(user_public_id, data, current_user):
-        # Assign the vars
-        bio = data['bio']
-        avatar = data['avatar']
+    def update(data, current_user):
         # Get the user
-        user = User.query.filter_by(id=user_public_id).first()
+        user = User.query.filter_by(id=current_user.id).first()
 
         if not user:
             response_object = {
@@ -193,33 +197,32 @@ class UserService:
             return response_object, 404
 
         # Check if the current user is the same as the one being updated.
-        elif not current_user.public_id == user.publid_id:
-            try:
-                # Update the user's data
-                user.bio = bio
-                user.profile_picture = avatar
-                # Commit the changes
-                db.session.commit()
+        try:
+            # Update the user's data
+            # Check if the bio does not exceed limits
+            if 1 <= len(data['bio']) <= 150:
+                user.bio = data['bio']
+            else:
+                response_object = {
+                    'success': False,
+                    'message': 'Bio content is invalid!'
+                }
+                return response_object, 403
 
-                response_object = {
-                    'success': False,
-                    'message': 'User data has successfully been updated.'
-                }
-                return response_object, 200
-            except Exception as error:
-                response_object = {
-                    'success': False,
-                }
+            if data['avatar'] is not None:
+                user.profile_picture = data['avatar']
+
             # Commit the changes
             db.session.commit()
             response_object = {
                 'success': True,
-                'message': 'User data successfully updated'
+                'message': 'User data has successfully been updated.'
             }
             return response_object, 200
-        
-        response_object = {
-            'success': True,
-            'message': 'Currently work in progress.'
-        }
-        return response_object, 200
+
+        except Exception as error:
+            response_object = {
+                'success': False,
+                'message': 'Something went wrong during the process!\nOutput: %s' % error
+            }
+            return response_object, 500
