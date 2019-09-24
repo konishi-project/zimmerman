@@ -24,7 +24,7 @@ class User(Model):
     password_hash = Column(db.String(255))
 
     # Extra details
-    bio = Column(db.Text, nullable=True)
+    bio = Column(db.String(150), nullable=True)
     profile_picture = Column(db.String(40), nullable=True)
 
     # Add Favorites (post)
