@@ -82,7 +82,6 @@ class TestAuthBlueprint(BaseTestCase):
             # Get the user data
             get_response = get_user(self, access_token)
             get_response_data = json.loads(get_response.data.decode())
-            print(get_response_data)
 
             self.assertEqual(get_response.status_code, 200)
 
@@ -103,8 +102,6 @@ class TestAuthBlueprint(BaseTestCase):
             }
             update_response = update_user(self, updated_user, access_token)
             update_response_data = json.loads(update_response.data.decode())
-
-            print(update_response_data)
 
             self.assertTrue(update_response_data['success'])
 
