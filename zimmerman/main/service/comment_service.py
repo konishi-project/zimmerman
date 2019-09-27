@@ -28,7 +28,14 @@ class Comment:
 
         # Validations
         limit = 1500
-        if len(content) > limit:
+        if not content:
+            response_object = {
+                'success': False,
+                'message': 'Comment content not found!'
+            }
+            return response_object, 404
+
+        elif len(content) > limit:
             response_object = {
                 'success': False,
                 'message': 'Comment content exceeds limit (%s)' % limit

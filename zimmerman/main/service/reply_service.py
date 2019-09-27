@@ -28,10 +28,17 @@ class ReplyService:
 
         # Validations
         limit = 1500
-        if len(content) > limit:
-            respnse_onject = {
-            'success': False,
-            'message': 'Reply content exceeds limit (%s)' % limit
+        if not content:
+            response_object = {
+                'success': False,
+                'message': 'Reply content not found!'
+            }
+            return response_object, 404
+        
+        elif len(content) > limit:
+            response_object = {
+                'success': False,
+                'message': 'Reply content exceeds limit (%s)' % limit
             }
             return response_object, 403
 
