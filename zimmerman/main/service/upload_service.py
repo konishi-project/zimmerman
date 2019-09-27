@@ -17,6 +17,7 @@ def allowed_file(filename, allowed_extensions):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
+# Use PIL to compress images later on.
 def upload_file(files, foldername, extensions):
     if 'image' not in files:
         response_object = {
