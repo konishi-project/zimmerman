@@ -26,13 +26,6 @@ def add_post_and_flush(data):
 
     return latest_post
 
-def get_image(image_file):
-    # Attach the image
-    image_url = url_for('static', filename='postimages/' + image_file)
-
-    # Return image_url
-    return image_url
-
 class Post:
     def create(data, current_user):
         # Assign the vars
