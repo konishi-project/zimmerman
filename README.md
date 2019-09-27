@@ -5,11 +5,11 @@
     </p>
 
 <p align="center">
-  <a href="https://github.com/X1Zeth2X/zimmermanv2/commits/master">
-    <img src="https://img.shields.io/github/last-commit/X1Zeth2X/zimmermanv2" alt="last-commit">
+  <a href="https://github.com/konishi-project/zimmerman/commits/master">
+    <img src="https://img.shields.io/github/last-commit/konishi-project/zimmerman" alt="last-commit">
   </a>
   <a>
-    <img src="https://img.shields.io/github/v/release/X1Zeth2X/zimmermanv2?include_prereleases" alt="release">
+    <img src="https://img.shields.io/github/v/release/konishi-project/zimmerman?include_prereleases" alt="release">
   </a>
   <a>
     <img src="https://img.shields.io/badge/python-3.6%2B-blue" alt="python">
@@ -18,7 +18,7 @@
     <img src="https://img.shields.io/badge/contributions-welcome-brightgreen" alt="contributions">
   </a>
   <a href="./LICENSE.md">
-    <img src="https://img.shields.io/github/license/x1zeth2x/zimmermanv2" alt="license">
+    <img src="https://img.shields.io/github/license/konishi-project/zimmerman" alt="license">
   </a>
 </p>
 
