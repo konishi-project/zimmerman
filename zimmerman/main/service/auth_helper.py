@@ -50,10 +50,11 @@ class Auth:
                   return response_object, 200
               # Return Incorrect pass if the others fail
             else:
-                return {
-                  'message': 'Failed to log in, password may be incorrect.',
+                response_object = {
                   'success': False,
-                }, 403
+                  'message': 'Failed to log in, password may be incorrect.',
+                }
+                return response_object, 403
 
         except Exception as error:
           response_object = {
