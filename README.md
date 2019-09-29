@@ -24,9 +24,7 @@
 
 Konishi's backend written in Python 3+. Zimmerman is a free and open source REST API that aims to have the core features of Facebook groups with the added bonus of transparency, flexibility, and other FOSS goodness.
 
-Official frontend repo can be found [here](https://github.com/x1zeth2x/kagawasan). (Please note that the frontend is currently broken due to library updates, and upgrades to other components, fixes and updates coming soon.)
-
-
+Official frontend repo can be found [here.](https://github.com/x1zeth2x/kagawasan)
 ## Requirements
 
 This version uses PostgreSQL although you can use SQLite if you wish to.
