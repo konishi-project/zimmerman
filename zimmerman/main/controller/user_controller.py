@@ -22,7 +22,7 @@ class UserRegister(Resource):
         data = request.get_json()
         return UserService.register(data)
 
-@api.route('/get')
+@api.route('/get/<string:username>')
 class UserGet(Resource):
 
     @api.doc('Get a specific user', 
@@ -33,13 +33,13 @@ class UserGet(Resource):
     )
     @jwt_required
     def get(self):
-        """ Get a specific user using its public id """
+        """ Get a specific user by their username """
         # Check for arguments
         current_user = load_user(get_jwt_identity())
-        current_public_id = current_user.public_id
+        current_username = current_user.username
 
-        user_public_id = request.args.get("user_public_id", default=current_public_id)
-        return UserService.get_user_info(user_public_id)
+        username = request.args.get("username", default=current_username)
+        return UserService.get_user_info(username)
 
 @api.route('/update')
 class UserUpdate(Resource):

@@ -41,18 +41,20 @@ class Auth:
 
                 access_token = create_access_token(identity=user.id)
                 if access_token:
-                  return {
-                    'message': 'Successfully logged in',
+                  response_object = {
                     'success': True,
+                    'message': 'Successfully logged in.',
                     'user': user_info,
                     'Authorization': access_token
-                  }, 200
+                  }
+                  return response_object, 200
               # Return Incorrect pass if the others fail
             else:
-                return {
-                  'message': 'Failed to log in, password may be incorrect.',
+                response_object = {
                   'success': False,
-                }, 403
+                  'message': 'Failed to log in, password may be incorrect.',
+                }
+                return response_object, 403
 
         except Exception as error:
           response_object = {
