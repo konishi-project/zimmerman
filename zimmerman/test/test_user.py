@@ -18,9 +18,9 @@ def register_user(self):
       content_type = 'application/json'
     )
 
-def get_user(self, access_token):
+def get_user(self, access_token, username):
     return self.client.get(
-        '/user/get',
+        '/user/get/%s' % username,
         headers = {
             'Authorization': 'Bearer %s' % access_token
         },
@@ -80,7 +80,8 @@ class TestAuthBlueprint(BaseTestCase):
             access_token = login_response_data['Authorization']
 
             # Get the user data
-            get_response = get_user(self, access_token)
+            username = login_response_data['user']['username']
+            get_response = get_user(self, access_token, username)
             get_response_data = json.loads(get_response.data.decode())
 
             self.assertEqual(get_response.status_code, 200)
