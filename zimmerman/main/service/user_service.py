@@ -155,9 +155,9 @@ class UserService:
             }
             return response_object, 500
 
-    # Query user INFO by its public id
-    def get_user_info(user_public_id):
-        user = User.query.filter_by(public_id=user_public_id).first()
+    # Get user INFO by its username
+    def get_user_info(username):
+        user = User.query.filter_by(username=username).first()
         if not user:
             response_object = {
                 'success': False,
