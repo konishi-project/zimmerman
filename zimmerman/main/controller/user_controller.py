@@ -32,13 +32,8 @@ class UserGet(Resource):
         }
     )
     @jwt_required
-    def get(self):
+    def get(self, username):
         """ Get a specific user by their username """
-        # Check for arguments
-        current_user = load_user(get_jwt_identity())
-        current_username = current_user.username
-
-        username = request.args.get("username", default=current_username)
         return UserService.get_user_info(username)
 
 @api.route('/update')
