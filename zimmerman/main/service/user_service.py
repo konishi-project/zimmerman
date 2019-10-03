@@ -178,6 +178,10 @@ class UserService:
         for info in unnecessary_info:
             del user_info[info]
 
+        # Add avatar if there are any
+        if user_info['profile_picture']:
+            user_info['avatar'] = get_image(user_info['profile_picture'], 'avatars')
+
         response_object = {
             'success': True,
             'message': 'User data sent.',
