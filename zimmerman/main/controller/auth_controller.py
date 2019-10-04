@@ -1,8 +1,8 @@
 from flask import request
 from flask_restplus import Resource
 
-from zimmerman.main.service.auth_helper import Auth
 from zimmerman.main import limiter
+from ..service.auth_helper import Auth
 from  ..util.dto import AuthDto
 
 api = AuthDto.api
@@ -15,8 +15,7 @@ class UserLogin(Resource):
   decorators = [
       limiter.limit(
           '5/minute', 
-          error_message='You have exceeded login attempts (5/minute).'
-      )
+          error_message='You have exceeded login attempts (5/minute).')
   ]
   @api.doc('User login route')
   @api.expect(user_auth, validate=True)

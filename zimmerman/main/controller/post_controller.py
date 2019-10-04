@@ -27,6 +27,12 @@ class PostGet(Resource):
 @api.route('/create')
 class PostCreate(Resource):
 
+    decorators = [
+        limiter.limit(
+            '5/minute',
+            error_message='5 posts per minute exceeded.'
+        )
+    ]
     @api.expect(_post, validate=True)
     @api.doc('Create a new post.', 
         responses = {
