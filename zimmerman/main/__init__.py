@@ -1,7 +1,8 @@
 from flask import Flask
+
 # Import extensions
-from .extensions import db, ma, jwt, bcrypt, cors
-# Import configurations
+from .extensions import db, ma, jwt, bcrypt, cors, limiter
+# Import configuration
 from .config import config_by_name
 
 def create_app(config_name):
@@ -19,3 +20,4 @@ def register_extensions(app):
     jwt.init_app(app)
     bcrypt.init_app(app)
     cors.init_app(app)
+    limiter.init_app(app)
