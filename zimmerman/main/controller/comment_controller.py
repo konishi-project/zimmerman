@@ -2,6 +2,7 @@ from flask import request
 from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from zimmerman.main import limiter
 from ..util.dto import CommentDto
 # from ..service.comment_service import create_new_comment, delete_comment, update_comment, get_comment
 from ..service.comment_service import Comment

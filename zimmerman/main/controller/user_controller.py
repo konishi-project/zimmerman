@@ -8,6 +8,7 @@ from ..service.user_service import UserService, load_user
 api = UserDto.api
 _user = UserDto.user
 
+from zimmerman.main import limiter
 @api.route('/register')
 class UserRegister(Resource):
 

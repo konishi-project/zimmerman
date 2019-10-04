@@ -2,6 +2,7 @@ from flask import request
 from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from zimmerman.main import limiter
 from ..util.dto import PostDto
 from ..service.post_service import Post
 from ..service.user_service import load_user

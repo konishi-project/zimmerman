@@ -1,6 +1,7 @@
 from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from zimmerman.main import limiter
 from ..util.dto import LikeDto
 from ..service.like_service import Like, Unlike
 from ..service.user_service import load_user
