@@ -100,6 +100,7 @@ class Comments(Model):
 
     # Comment content and details
     content = Column(db.Text)
+    image_file = Column(db.String(40), default=None, nullable=True)
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
 
@@ -121,6 +122,7 @@ class Reply(Model):
 
     # Reply content and details
     content = Column(db.Text)
+    image_file = Column(db.String(40), default=None, nullable=True)
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
 
