@@ -65,6 +65,8 @@ Feel free to contact the lead developer [X1Zeth2X](https://github.com/X1Zeth2X) 
 
 ## Install and Setting up
 
+NOTE: If you are going to follow Heroku deployment guides or run this app with gunicorn, `gunicorn zimmerman:main` will not work and raise `Application not callable` error. Instead use `gunicorn manage:app` to run it using the manage.py module.
+
 **Clone the repo**
 ```bash
 $ git clone https://github.com/konishi-project/zimmerman.git
