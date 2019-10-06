@@ -7,6 +7,9 @@ clean:
 install:
 	pip install -r requirements.txt
 
+init_db:
+	python manage.py db init
+
 migrate:
 	python manage.py db migrate
 	python manage.py db upgrade

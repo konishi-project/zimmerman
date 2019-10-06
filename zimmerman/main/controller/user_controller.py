@@ -2,6 +2,7 @@ from flask import request
 from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from zimmerman.main import limiter
 from ..util.dto import UserDto
 from ..service.user_service import UserService, load_user
 
@@ -32,13 +33,8 @@ class UserGet(Resource):
         }
     )
     @jwt_required
-    def get(self):
+    def get(self, username):
         """ Get a specific user by their username """
-        # Check for arguments
-        current_user = load_user(get_jwt_identity())
-        current_username = current_user.username
-
-        username = request.args.get("username", default=current_username)
         return UserService.get_user_info(username)
 
 @api.route('/update')

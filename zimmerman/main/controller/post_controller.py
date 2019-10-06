@@ -2,6 +2,7 @@ from flask import request
 from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from zimmerman.main import limiter
 from ..util.dto import PostDto
 from ..service.post_service import Post
 from ..service.user_service import load_user
@@ -26,6 +27,12 @@ class PostGet(Resource):
 @api.route('/create')
 class PostCreate(Resource):
 
+    decorators = [
+        limiter.limit(
+            '5/minute',
+            error_message='5 posts per minute exceeded.'
+        )
+    ]
     @api.expect(_post, validate=True)
     @api.doc('Create a new post.', 
         responses = {

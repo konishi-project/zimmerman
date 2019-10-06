@@ -14,6 +14,7 @@ from zimmerman.main.model import user
 from zimmerman import blueprint
 
 # Create the application in development mode.
+# We obviously want to change this to 'prod' in deployment.
 app = create_app('dev')
 
 # Register Blueprint from Zimmerman
@@ -26,8 +27,6 @@ manager = Manager(app)
 migrate = Migrate(app, db)
 
 manager.add_command('db', MigrateCommand)
-
-db.create_all()
 
 @manager.command
 def run():
