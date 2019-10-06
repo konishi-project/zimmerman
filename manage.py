@@ -15,7 +15,7 @@ from zimmerman import blueprint
 
 # Create the application in development mode.
 # We obviously want to change this to 'prod' in deployment.
-app = create_app('dev')
+app = create_app('prod')
 
 # Register Blueprint from Zimmerman
 app.register_blueprint(blueprint)
