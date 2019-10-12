@@ -32,7 +32,7 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL", "postgres://postgres:password@localhost:5432/konishidb"
+        "DATABASE_URL", "postgres://postgres:password@localhost:5432/konishi"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
