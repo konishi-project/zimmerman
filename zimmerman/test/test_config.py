@@ -19,7 +19,7 @@ class TestDevelopmentConfig(TestCase):
         self.assertFalse(current_app is None)
         self.assertTrue(
             app.config["SQLALCHEMY_DATABASE_URI"]
-            == "postgres://postgres:password@localhost:5432/konishidb"
+            == "postgres://postgres:password@localhost:5432/konishitesting"
         )
 
 
