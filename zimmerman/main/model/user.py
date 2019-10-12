@@ -21,8 +21,10 @@ class User(Model):
     public_id = Column(db.String(15), unique=True)
     email = Column(db.String(255), unique=True, nullable=False)
     username = Column(db.String(20), unique=True)
-    first_name = Column(db.String(50), nullable=True)
-    last_name = Column(db.String(50), nullable=True)
+    # Will be changed in the future.
+    # name = Column(db.String(50), nullable=True)
+    first_name = Column(db.String(25), nullable=True)
+    last_name = Column(db.String(25), nullable=True)
 
     password_hash = Column(db.String(255))
 
