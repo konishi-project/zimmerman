@@ -83,7 +83,9 @@ class UserService:
                 return response_object, 403
 
             # Verify the first name if it exists
-            if first_name is not None:
+            if len(first_name) > 0 or first_name is None:
+                first_name = None
+            else:
                 # Check if the first name is alphabetical
                 if not first_name.isalpha():
                     response_object = {
@@ -103,7 +105,10 @@ class UserService:
                     return response_object, 403
 
             # Verify last name
-            if last_name is not None:
+            if len(last_name) > 0 or last_name is None:
+                last_name = None
+
+            else:
                 # Check if the last name is alphabetical
                 if not last_name.isalpha():
                     response_object = {
