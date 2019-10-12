@@ -202,7 +202,7 @@ class UserService:
 
         # Check if the current user is the same as the one being updated.
         try:
-            if data["bio"] is not None len(data["bio"]) > 0:
+            if data["bio"] is not None and len(data["bio"]) > 0:
                 # Check if the bio does not exceed limits
                 if 1 <= len(data["bio"]) <= 150:
                     user.bio = data["bio"]
