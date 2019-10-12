@@ -10,28 +10,30 @@ from ..service.user_service import load_user
 api = ReplyDto.api
 _reply = ReplyDto.reply
 
-@api.route('/get/<int:reply_id>')
-class ReplyGet(Resource):
 
-    @api.doc('Get a specific reply.',
-        reponses = {
-            200: 'Reply has successfully been received by client.',
-            404: 'Reply not found!'
-        }
+@api.route("/get/<int:reply_id>")
+class ReplyGet(Resource):
+    @api.doc(
+        "Get a specific reply.",
+        reponses={
+            200: "Reply has successfully been received by client.",
+            404: "Reply not found!",
+        },
     )
     @jwt_required
     def get(self, reply_id):
         """ Get a specific reply using its id """
         return ReplyService.get(reply_id)
 
-@api.route('/create/<int:comment_id>')
-class ReplyCreate(Resource):
 
-    @api.doc('Reply on a comment',
-        responses = {
-            201: 'Successfully replied on the comment.',
-            403: 'Reply content exceeds limit'
-        }
+@api.route("/create/<int:comment_id>")
+class ReplyCreate(Resource):
+    @api.doc(
+        "Reply on a comment",
+        responses={
+            201: "Successfully replied on the comment.",
+            403: "Reply content exceeds limit",
+        },
     )
     @jwt_required
     def post(self, comment_id):
@@ -42,16 +44,17 @@ class ReplyCreate(Resource):
         current_user = load_user(get_jwt_identity())
         return ReplyService.create(comment_id, data, current_user)
 
-@api.route('/update/<int:reply_id>')
-class ReplyUpdate(Resource):
 
+@api.route("/update/<int:reply_id>")
+class ReplyUpdate(Resource):
     @api.expect(_reply, validate=True)
-    @api.doc('Update a reply',
-        responses = {
-            200: 'Reply has been updated.',
-            403: 'User does not have permissions.',
-            404: 'Reply or reply data not found.'
-        }
+    @api.doc(
+        "Update a reply",
+        responses={
+            200: "Reply has been updated.",
+            403: "User does not have permissions.",
+            404: "Reply or reply data not found.",
+        },
     )
     @jwt_required
     def put(self, reply_id):
@@ -62,15 +65,16 @@ class ReplyUpdate(Resource):
         current_user = load_user(get_jwt_identity())
         return ReplyService.update(reply_id, data, current_user)
 
-@api.route('/delete/<int:reply_id>')
-class ReplyDelete(Resource):
 
-    @api.doc('Delete a reply',
-        responses = {
-            200: 'Reply has been deleted.',
-            403: 'User does not have permissions.',
-            404: 'Reply not found!'
-        }
+@api.route("/delete/<int:reply_id>")
+class ReplyDelete(Resource):
+    @api.doc(
+        "Delete a reply",
+        responses={
+            200: "Reply has been deleted.",
+            403: "User does not have permissions.",
+            404: "Reply not found!",
+        },
     )
     @jwt_required
     def delete(self, reply_id):

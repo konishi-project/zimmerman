@@ -4,56 +4,52 @@ import json
 from flask import current_app
 from zimmerman.test.base import BaseTestCase
 
+
 def register_user(self):
     return self.client.post(
-      '/user/register',
-      data = json.dumps(dict (
-          email = 'test@Email.com',
-          username = 'testUser',
-          first_name = 'test',
-          last_name = 'user',
-          password = '123456',
-          entry_key = current_app.config['ENTRY_KEY']
-      )),
-      content_type = 'application/json'
+        "/user/register",
+        data=json.dumps(
+            dict(
+                email="test@Email.com",
+                username="testUser",
+                first_name="test",
+                last_name="user",
+                password="123456",
+                entry_key=current_app.config["ENTRY_KEY"],
+            )
+        ),
+        content_type="application/json",
     )
+
 
 def get_user(self, access_token, username):
     return self.client.get(
-        '/user/get/%s' % username,
-        headers = {
-            'Authorization': 'Bearer %s' % access_token
-        },
-        content_type = 'application/json'
+        "/user/get/%s" % username,
+        headers={"Authorization": "Bearer %s" % access_token},
+        content_type="application/json",
     )
+
 
 def update_user(self, data, access_token):
     return self.client.post(
-        '/user/update',
-        data = json.dumps(dict (
-            bio = data['bio'],
-            avatar = data['avatar']
-        )),
-        headers = {
-            'Authorization': 'Bearer %s' % access_token
-        },
-        content_type = 'application/json'
+        "/user/update",
+        data=json.dumps(dict(bio=data["bio"], avatar=data["avatar"])),
+        headers={"Authorization": "Bearer %s" % access_token},
+        content_type="application/json",
     )
+
 
 def login_user(self):
     return self.client.post(
-      '/auth/login',
-      data = json.dumps(dict (
-          email = 'test@Email.com',
-          password = '123456'
-      )),
-      content_type = 'application/json'
+        "/auth/login",
+        data=json.dumps(dict(email="test@Email.com", password="123456")),
+        content_type="application/json",
     )
 
-class TestAuthBlueprint(BaseTestCase):
 
+class TestAuthBlueprint(BaseTestCase):
     def test_registered_user_login(self):
-        ''' Test for login of registered-user login '''
+        """ Test for login of registered-user login """
 
         with self.client:
             # User registration
@@ -66,7 +62,7 @@ class TestAuthBlueprint(BaseTestCase):
             login_response = login_user(self)
             data = json.loads(login_response.data.decode())
 
-            self.assertTrue(data['Authorization'])
+            self.assertTrue(data["Authorization"])
             self.assertEqual(login_response.status_code, 200)
 
     def test_get_user(self):
@@ -77,10 +73,10 @@ class TestAuthBlueprint(BaseTestCase):
             register_user(self)
             login_response = login_user(self)
             login_response_data = json.loads(login_response.data.decode())
-            access_token = login_response_data['Authorization']
+            access_token = login_response_data["Authorization"]
 
             # Get the user data
-            username = login_response_data['user']['username']
+            username = login_response_data["user"]["username"]
             get_response = get_user(self, access_token, username)
             get_response_data = json.loads(get_response.data.decode())
 
@@ -94,17 +90,15 @@ class TestAuthBlueprint(BaseTestCase):
             register_user(self)
             login_response = login_user(self)
             login_response_data = json.loads(login_response.data.decode())
-            access_token = login_response_data['Authorization']
+            access_token = login_response_data["Authorization"]
 
             # Update the user data
-            updated_user = {
-                'bio': 'reEeeeEEEEEeEeeeee',
-                'avatar': 'test.png'
-            }
+            updated_user = {"bio": "reEeeeEEEEEeEeeeee", "avatar": "test.png"}
             update_response = update_user(self, updated_user, access_token)
             update_response_data = json.loads(update_response.data.decode())
 
-            self.assertTrue(update_response_data['success'])
+            self.assertTrue(update_response_data["success"])
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
