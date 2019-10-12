@@ -2,6 +2,7 @@ from flask_testing import TestCase
 from zimmerman.main import db
 from manage import app
 
+
 class BaseTestCase(TestCase):
     """ Base Tests """
 

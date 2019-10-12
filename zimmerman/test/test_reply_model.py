@@ -7,19 +7,19 @@ from zimmerman.main import db
 from zimmerman.main.model.user import Reply, Comments, User, Posts
 from zimmerman.test.base import BaseTestCase
 
-class TestReplyModel(BaseTestCase):
 
+class TestReplyModel(BaseTestCase):
     def test_create_reply(self):
         """ Test for reply model """
         # Create test user
         user = User(
-          public_id = str(uuid4().int)[:15],
-          email = 'email@test.com',
-          username = 'testUser',
-          first_name = 'Test',
-          last_name = 'User',
-          password = 'test1234',
-          joined_date = datetime.utcnow()
+            public_id=str(uuid4().int)[:15],
+            email="email@test.com",
+            username="testUser",
+            first_name="Test",
+            last_name="User",
+            password="test1234",
+            joined_date=datetime.utcnow(),
         )
 
         db.session.add(user)
@@ -27,11 +27,11 @@ class TestReplyModel(BaseTestCase):
 
         # Create test post
         post = Posts(
-            owner_id = user.id,
-            creator_public_id = user.public_id,
-            content = "Test content",
-            image_file = "",
-            status = "normal",
+            owner_id=user.id,
+            creator_public_id=user.public_id,
+            content="Test content",
+            image_file="",
+            status="normal",
         )
 
         db.session.add(post)
@@ -39,19 +39,17 @@ class TestReplyModel(BaseTestCase):
 
         # Create comment
         comment = Comments(
-          creator_public_id = user.public_id,
-          on_post = post.id,
-          content = "Test comment"
+            creator_public_id=user.public_id, on_post=post.id, content="Test comment"
         )
-        
+
         db.session.add(comment)
         db.session.commit()
 
         # Create reply
         reply = Reply(
-          creator_public_id = user.public_id,
-          on_comment = comment.id,
-          content = 'Test reply'
+            creator_public_id=user.public_id,
+            on_comment=comment.id,
+            content="Test reply",
         )
 
         db.session.add(reply)
@@ -59,5 +57,6 @@ class TestReplyModel(BaseTestCase):
 
         self.assertTrue(isinstance(reply, Reply))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

@@ -10,15 +10,16 @@ from .main.controller.reply_controller import api as reply_ns
 from .main.controller.like_controller import api as like_ns
 from .main.controller.upload_controller import api as upload_ns
 
-blueprint = Blueprint('api', __name__)
+blueprint = Blueprint("api", __name__)
 
-api = Api(blueprint, 
-          title='Zimmerman API',
-          version='0.69',
-          description="Zimmerman, backend API for Konishi"
-      )
+api = Api(
+    blueprint,
+    title="Zimmerman API",
+    version="0.69",
+    description="Zimmerman, backend API for Konishi",
+)
 
-api.add_namespace(user_ns, path='/user')
+api.add_namespace(user_ns, path="/user")
 api.add_namespace(auth_ns)
 api.add_namespace(feed_ns)
 api.add_namespace(post_ns)
