@@ -15,6 +15,13 @@ class UserDto:
             "public_id": fields.String(description="User identifier"),
         },
     )
+    user_update = api.model(
+        "user_update",
+        {
+            "bio": fields.String(description="Update user's bio"),
+            "avatar": fields.String(description="Update user's avatar"),
+        },
+    )
 
 
 class AuthDto:
