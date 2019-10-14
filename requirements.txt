@@ -13,7 +13,6 @@ Flask-Bcrypt
 Flask-Cors
 Flask-JWT-Extended
 Flask-Limiter
-Flask-Login
 Flask-Mail
 flask-marshmallow
 Flask-Migrate
@@ -21,7 +20,6 @@ flask-restplus
 Flask-Script
 Flask-SQLAlchemy
 Flask-Testing
-Flask-WTF
 gunicorn
 idna
 isort
@@ -52,4 +50,3 @@ SQLAlchemy
 typed-ast
 Werkzeug
 wrapt
-WTForms

@@ -196,20 +196,15 @@ class UserService:
         # Get the user
         user = User.query.filter_by(id=current_user.id).first()
 
-        # Set variables
-        bio = data["bio"]
-        avatar = data["avatar"]
-
         if not user:
             response_object = {"success": False, "message": "User not found!"}
             return response_object, 404
 
         # Check if the current user is the same as the one being updated.
         try:
-            # Update the user's data
-            if bio is not None and 1 <= bio <= 150:
+            if data["bio"] is not None and len(data["bio"]) > 0:
                 # Check if the bio does not exceed limits
-                if 1 <= bio <= 150:
+                if 1 <= len(data["bio"]) <= 150:
                     user.bio = data["bio"]
 
                 else:
