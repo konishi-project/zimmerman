@@ -10,6 +10,7 @@ api = UserDto.api
 _user = UserDto.user
 _user_update = UserDto.user_update
 
+
 @api.route("/register")
 class UserRegister(Resource):
     @api.expect(_user, validate=True)
@@ -40,8 +41,7 @@ class UserGet(Resource):
 
 @api.route("/update")
 class UserUpdate(Resource):
-
-    @api.expect(_user_update, validate=True)
+    @api.expect(_user_update)
     @api.doc(
         "Update a user' information",
         responses={200: "User data has been updated.", 404: "User not found!"},
