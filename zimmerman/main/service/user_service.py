@@ -64,6 +64,15 @@ class UserService:
                 }
                 return response_object, 403
 
+            # Check if the username is being used.
+            if User.query.filter_by(username=username).first() is not None:
+                response_object = {
+                    "success": False,
+                    "message": "Username is already taken!",
+                    "error_reason": "username_taken"
+                }
+                return response_object, 403
+
             # Check if the username is equal to or between 4 and 15
             elif not 4 <= len(username) <= 15:
                 response_object = {
