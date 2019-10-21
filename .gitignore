@@ -1,5 +1,4 @@
 .vscode/
 __pycache__
 konishienv
-migrations/versions/*
 zimmerman/main/static/*
