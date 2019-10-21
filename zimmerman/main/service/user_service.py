@@ -69,7 +69,7 @@ class UserService:
                 response_object = {
                     "success": False,
                     "message": "Username is already taken!",
-                    "error_reason": "username_taken"
+                    "error_reason": "username_taken",
                 }
                 return response_object, 403
 
@@ -168,11 +168,12 @@ class UserService:
             return response_object, 201
 
         except Exception as error:
+            print(error)
             response_object = {
                 "success": False,
-                "message": 'Something went wrong during the process!\nOutput: "%s"'
-                % error,
+                "message": "Something went wrong during the process!",
             }
+
             return response_object, 500
 
     # Get user INFO by its username
@@ -235,9 +236,10 @@ class UserService:
             return response_object, 200
 
         except Exception as error:
+            print(error)
             response_object = {
                 "success": False,
-                "message": "Something went wrong during the process!\nOutput: %s"
-                % error,
+                "message": "Something went wrong during the process!",
             }
+
             return response_object, 500
