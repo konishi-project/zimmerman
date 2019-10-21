@@ -101,3 +101,8 @@ or
 
 $ make run
 ```
+
+## Deploying
+
+When deploying to services like Heroku, remember that the filesystem is ephemeral. Run the db initialization and migrates locally, then commit those to the git repo.
+The `release` command in the procfile will do the rest.
