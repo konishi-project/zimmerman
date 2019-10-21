@@ -65,10 +65,9 @@ def upload_file(files, foldername, extensions):
             return response_object, 201
 
         except Exception as error:
-            # Return an error message if it fails to upload
+            print(error)
             response_object = {
                 "success": False,
-                "message": "Something went wrong during the process!\nOutput: %s"
-                % error,
+                "message": "Something went wrong during the process!",
             }
             return response_object, 500

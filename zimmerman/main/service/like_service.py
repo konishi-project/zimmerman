@@ -50,9 +50,10 @@ class Like:
             return response_object, 201
 
         except Exception as error:
+            print(error)
             response_object = {
                 "success": False,
-                "message": 'Something failed during the process!\nOutput: "%s"' % error,
+                "message": "Something failed during the process!",
             }
             return response_object, 500
 
@@ -90,10 +91,10 @@ class Like:
             return response_object, 201
 
         except Exception as error:
+            print(error)
             response_object = {
                 "success": False,
-                "message": 'Something went wrong during the process!\nOutput: "%s"'
-                % error,
+                "message": "Something went wrong during the process!",
             }
             return response_object, 500
 
@@ -127,10 +128,10 @@ class Like:
             return response_object, 201
 
         except Exception as error:
+            print(error)
             response_object = {
                 "success": False,
-                "message": 'Something went wrong during the process!\nOutput: "%s"'
-                % error,
+                "message": "Something went wrong during the process!",
             }
             return response_object, 500
 
@@ -152,10 +153,10 @@ class Unlike:
                     return response_object, 200
 
                 except Exception as error:
+                    print(error)
                     response_object = {
                         "success": False,
-                        "message": 'Something went wrong during the process!\nOutput: "%s"'
-                        % error,
+                        "message": "Something went wrong during the process!",
                     }
                     return response_object, 500
 
@@ -175,10 +176,10 @@ class Unlike:
                     return response_object, 200
 
                 except Exception as error:
+                    print(error)
                     response_object = {
                         "success": False,
-                        "message": 'Something went wrong during the process!\nOutput: "%s"'
-                        % error,
+                        "message": "Something went wrong during the process!",
                     }
                     return response_object, 500
 
@@ -197,9 +198,9 @@ class Unlike:
                     return response_object, 200
 
                 except Exception as error:
+                    print(error)
                     response_object = {
                         "success": False,
-                        "message": 'Something went wrong during the process!\nOutput: "%s"'
-                        % error,
+                        "message": "Something went wrong during the process!",
                     }
                     return response_object, 500

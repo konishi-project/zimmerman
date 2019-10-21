@@ -64,6 +64,15 @@ class UserService:
                 }
                 return response_object, 403
 
+            # Check if the username is being used.
+            if User.query.filter_by(username=username).first() is not None:
+                response_object = {
+                    "success": False,
+                    "message": "Username is already taken!",
+                    "error_reason": "username_taken",
+                }
+                return response_object, 403
+
             # Check if the username is equal to or between 4 and 15
             elif not 4 <= len(username) <= 15:
                 response_object = {
@@ -159,11 +168,12 @@ class UserService:
             return response_object, 201
 
         except Exception as error:
+            print(error)
             response_object = {
                 "success": False,
-                "message": 'Something went wrong during the process!\nOutput: "%s"'
-                % error,
+                "message": "Something went wrong during the process!",
             }
+
             return response_object, 500
 
     # Get user INFO by its username
@@ -226,9 +236,10 @@ class UserService:
             return response_object, 200
 
         except Exception as error:
+            print(error)
             response_object = {
                 "success": False,
-                "message": "Something went wrong during the process!\nOutput: %s"
-                % error,
+                "message": "Something went wrong during the process!",
             }
+
             return response_object, 500
