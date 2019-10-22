@@ -9,6 +9,15 @@ from zimmerman.main.model.user import User, UserSchema
 
 from .upload_service import get_image
 
+private_info = (
+    "password_hash",
+    "id",
+    "post_likes",
+    "comment_likes",
+    "reply_likes",
+    "posts",
+)
+
 
 def load_author(user_public_id):
     # Add the author's essential details.
@@ -17,15 +26,7 @@ def load_author(user_public_id):
     author = user_schema.dump(user)
 
     # Remove sensitive information
-    unnecessary_info = (
-        "password_hash",
-        "id",
-        "post_likes",
-        "comment_likes",
-        "reply_likes",
-        "posts",
-    )
-    for info in unnecessary_info:
+    for info in private_info:
         del author[info]
 
     # Add avatar if there are any
@@ -160,10 +161,19 @@ class UserService:
             db.session.add(new_user)
             db.session.commit()
 
+            # Load the user info
+            user_schema = UserSchema()
+            user_info = user_schema.dump(new_user)
+
+            for info in private_info:
+                del user_info[info]
+
             # Return success response
             response_object = {
                 "success": True,
                 "message": "User has successfully been registered",
+                "Authorization": create_access_token(identity=new_user.id),
+                "user": user_info,
             }
             return response_object, 201
 
