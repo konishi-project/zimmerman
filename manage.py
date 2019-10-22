@@ -11,14 +11,14 @@ from zimmerman.main.extensions import db
 from zimmerman.main.model import user
 
 # Import blueprint
-from zimmerman import blueprint
+from zimmerman import main_bp
 
 # Create the application in development mode.
 # We obviously want to change this to 'prod' in deployment.
-app = create_app('prod')
+app = create_app('dev')
 
-# Register Blueprint from Zimmerman
-app.register_blueprint(blueprint)
+# Register main blueprint from Zimmerman
+app.register_blueprint(main_bp)
 
 app.app_context().push()
 
