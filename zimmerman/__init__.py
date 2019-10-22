@@ -10,20 +10,22 @@ from .main.controller.reply_controller import api as reply_ns
 from .main.controller.like_controller import api as like_ns
 from .main.controller.upload_controller import api as upload_ns
 
-blueprint = Blueprint("api", __name__)
+main_bp = Blueprint("main", __name__)
 
-api = Api(
-    blueprint,
+main = Api(
+    main_bp,
     title="Zimmerman API",
     version="0.69",
     description="Zimmerman, backend API for Konishi",
 )
 
-api.add_namespace(user_ns, path="/user")
-api.add_namespace(auth_ns)
-api.add_namespace(feed_ns)
-api.add_namespace(post_ns)
-api.add_namespace(comment_ns)
-api.add_namespace(reply_ns)
-api.add_namespace(like_ns)
-api.add_namespace(upload_ns)
+main.add_namespace(user_ns, path="/user")
+main.add_namespace(auth_ns)
+main.add_namespace(feed_ns)
+main.add_namespace(post_ns)
+main.add_namespace(comment_ns)
+main.add_namespace(reply_ns)
+main.add_namespace(like_ns)
+main.add_namespace(upload_ns)
+
+# Add other packages here.
