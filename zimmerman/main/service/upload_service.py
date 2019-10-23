@@ -6,11 +6,11 @@ from werkzeug.utils import secure_filename
 
 from zimmerman.config import basedir
 
-STATIC_FOLDER_PATH = basedir + "/static/"
+STATIC_FOLDER_PATH = basedir + "/main/static/"
 
 
 def get_image(image, foldername):
-    image_url = url_for("static", filename="{}/{}".format(foldername, image))
+    image_url = url_for("static", filename=f"{foldername}/{image}")
 
     return image_url
 

@@ -1,3 +1,5 @@
+import re
+
 from flask import current_app
 from flask_jwt_extended import create_access_token
 from datetime import datetime
@@ -146,6 +148,10 @@ class Auth:
                         "error_reason": "fullname_invalid!",
                     }
                     return response_object, 403
+
+                # Replace multiple spaces with one.
+                # 'firstName    lastName' -> 'firstName lastName'
+                re.sub(' +', ' ', full_name)
 
             # Check if the entry key is right
             if entry_key != current_app.config["ENTRY_KEY"]:

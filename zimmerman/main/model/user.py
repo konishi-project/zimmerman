@@ -57,7 +57,7 @@ class User(Model):
         return bcrypt.check_password_hash(self.password_hash, password)
 
     def __repr__(self):
-        return "<User '{}'>".format(self.username)
+        return f"<User '{self.username}'>"
 
 
 class Role(Model):
@@ -70,7 +70,7 @@ class Role(Model):
     description = Column(db.String(50))
 
     def __repr__(self):
-        return "{} - {}".format(self.name, self.id)
+        return f"{self.name} - {self.id}"
 
 
 class Posts(Model):
@@ -96,7 +96,7 @@ class Posts(Model):
     )
 
     def __repr__(self):
-        return "<Post '{}'>".format(self.id)
+        return f"<Post '{self.id}'>"
 
 
 class Comments(Model):
@@ -119,7 +119,7 @@ class Comments(Model):
     replies = db.relationship("Reply", backref="comments", cascade="all, delete-orphan")
 
     def __repr__(self):
-        return "<Comment '{}'>".format(self.id)
+        return f"<Comment '{self.id}'>"
 
 
 class Reply(Model):
@@ -139,7 +139,7 @@ class Reply(Model):
     likes = db.relationship("ReplyLike", backref="reply", cascade="all, delete-orphan")
 
     def __repr__(self):
-        return "<Reply '{}'>".format(self.id)
+        return f"<Reply '{self.id}'>"
 
 
 class PostLike(Model):
@@ -152,7 +152,7 @@ class PostLike(Model):
     liked_on = Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return "<PostLike on Post '{}'>".format(self.on_post)
+        return f"<PostLike {self.id} on Post '{self.on_post}'>"
 
 
 class CommentLike(Model):
@@ -165,7 +165,7 @@ class CommentLike(Model):
     liked_on = Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return "<CommentLike on Comment '{}'>".format(self.on_comment)
+        return f"<CommentLike on Comment '{self.on_comment}'>"
 
 
 class ReplyLike(Model):
@@ -178,7 +178,7 @@ class ReplyLike(Model):
     liked_on = Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return "<ReplyLike on Reply '{}'>".format(self.on_comment)
+        return f"<ReplyLike on Reply '{self.on_comment}'>"
 
 
 # Model Schemas
