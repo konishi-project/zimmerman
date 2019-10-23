@@ -17,7 +17,7 @@
   <a>
     <img src="https://img.shields.io/badge/contributions-welcome-brightgreen" alt="contributions">
   </a>
-  <a href="./LICENSE.md">
+  <a href="./LICENSE">
     <img src="https://img.shields.io/github/license/konishi-project/zimmerman" alt="license">
   </a>
 </p>
