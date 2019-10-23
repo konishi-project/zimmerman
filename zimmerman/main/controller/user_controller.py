@@ -10,23 +10,6 @@ api = UserDto.api
 _user = UserDto.user
 _user_update = UserDto.user_update
 
-
-@api.route("/register")
-class UserRegister(Resource):
-    @api.expect(_user, validate=True)
-    @api.doc(
-        "Register a new user.",
-        responses={
-            403: "Requirements were not fulfilled",
-            201: "Successfully registered",
-        },
-    )
-    def post(self):
-        """ Registers new user """
-        data = request.get_json()
-        return UserService.register(data)
-
-
 @api.route("/get/<string:username>")
 class UserGet(Resource):
     @api.doc(
