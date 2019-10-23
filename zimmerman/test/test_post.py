@@ -39,6 +39,7 @@ def update_post(self, data, access_token, public_id):
         content_type="application/json",
     )
 
+
 class TestPostBlueprint(BaseTestCase):
     def test_create_delete_post(self):
         """ Test for post creation and deletion """

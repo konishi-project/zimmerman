@@ -160,10 +160,7 @@ class Unlike:
                     }
                     return response_object, 500
 
-            response_object = {
-                "success": False,
-                "message": "Post like not found!"
-            }
+            response_object = {"success": False, "message": "Post like not found!"}
             return response_object, 404
 
     def comment(comment_id, current_user):
@@ -188,11 +185,8 @@ class Unlike:
                         "message": "Something went wrong during the process!",
                     }
                     return response_object, 500
-            
-            response_object = {
-                "success": False,
-                "message": "Comment like not found!"
-            }
+
+            response_object = {"success": False, "message": "Comment like not found!"}
             return response_object, 404
 
     def reply(reply_id, current_user):

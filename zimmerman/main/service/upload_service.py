@@ -4,7 +4,7 @@ from flask import request, url_for
 from hashlib import sha256
 from werkzeug.utils import secure_filename
 
-from ..config import basedir
+from zimmerman.config import basedir
 
 STATIC_FOLDER_PATH = basedir + "/static/"
 

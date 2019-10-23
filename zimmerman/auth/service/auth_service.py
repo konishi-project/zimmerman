@@ -8,6 +8,7 @@ from zimmerman.main.model.user import User, UserSchema
 from zimmerman.main.service.upload_service import get_image
 from zimmerman.main.service.user_service import private_info
 
+
 class Auth:
     @staticmethod
     def login_user(data):
@@ -31,7 +32,7 @@ class Auth:
                 response_object = {
                     "success": False,
                     "message": "The email you have entered does not match any account.",
-                    "error_reason": "email_404"
+                    "error_reason": "email_404",
                 }
                 return response_object, 404
 
@@ -45,7 +46,9 @@ class Auth:
 
                 # Check if the user has an avatar
                 if user_info["profile_picture"]:
-                    user_info["avatar"] = get_image(user_info["profile_picture"], "avatars")
+                    user_info["avatar"] = get_image(
+                        user_info["profile_picture"], "avatars"
+                    )
 
                 access_token = create_access_token(identity=user.id)
                 if access_token:
@@ -61,17 +64,16 @@ class Auth:
             response_object = {
                 "success": False,
                 "message": "Failed to log in, password may be incorrect.",
-                "error_reason": "incorrect_password"
+                "error_reason": "incorrect_password",
             }
             return response_object, 403
-
 
         except Exception as error:
             print(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
-                "error_reason": "server_issues"
+                "error_reason": "server_issues",
             }
             return response_object, 500
 
@@ -108,7 +110,7 @@ class Auth:
                 response_object = {
                     "success": False,
                     "message": "Username length is invalid!",
-                    "error_reason": "username_invalid"
+                    "error_reason": "username_invalid",
                 }
                 return response_object, 403
 
@@ -128,7 +130,7 @@ class Auth:
             else:
                 # Validate the full name
                 # Remove any spaces so that it properly checks.
-                if not full_name.replace(' ', '').isalpha():
+                if not full_name.replace(" ", "").isalpha():
                     response_object = {
                         "success": False,
                         "message": "Name is not alphabetical!",
@@ -153,7 +155,6 @@ class Auth:
                     "error_reason": "entrykey_invalid",
                 }
                 return response_object, 403
-
 
             new_user = User(
                 public_id=str(uuid4().int)[:15],
@@ -193,6 +194,6 @@ class Auth:
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
-                "error_reason": "server_error"
+                "error_reason": "server_error",
             }
             return response_object, 500

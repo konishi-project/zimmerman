@@ -10,6 +10,7 @@ api = UserDto.api
 _user = UserDto.user
 _user_update = UserDto.user_update
 
+
 @api.route("/get/<string:username>")
 class UserGet(Resource):
     @api.doc(

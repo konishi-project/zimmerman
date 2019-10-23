@@ -5,6 +5,7 @@ from flask import current_app
 from zimmerman.test.base import BaseTestCase
 from zimmerman.test.common_functions import register_user, login_user
 
+
 def get_user(self, access_token, username):
     return self.client.get(
         "/user/get/%s" % username,

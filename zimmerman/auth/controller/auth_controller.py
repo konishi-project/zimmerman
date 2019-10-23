@@ -9,6 +9,7 @@ api = AuthDto.api
 auth_login = AuthDto.auth_login
 auth_register = AuthDto.auth_register
 
+
 @api.route("/login")
 class AuthLogin(Resource):
     """ User login endpoint
@@ -17,8 +18,7 @@ class AuthLogin(Resource):
 
     decorators = [
         limiter.limit(
-            "5/minute", 
-            error_message="You have exceeded max login attempts (5/minute)."
+            "5/minute", error_message="You have exceeded max login attempts (5/minute)."
         )
     ]
 
@@ -30,6 +30,7 @@ class AuthLogin(Resource):
         login_data = request.get_json()
         return Auth.login_user(login_data)
 
+
 @api.route("/register")
 class AuthRegister(Resource):
     """ User registration endpoint
@@ -38,10 +39,10 @@ class AuthRegister(Resource):
 
     decorators = [
         limiter.limit(
-            "5/day", 
-            error_message="You may only use registry route 5 times a day."
+            "5/day", error_message="You may only use registry route 5 times a day."
         )
     ]
+
     @api.doc("Auth registration endpoint")
     @api.expect(auth_register, validate=True)
     def post(self):

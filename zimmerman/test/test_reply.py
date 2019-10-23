@@ -57,6 +57,7 @@ def update_reply(self, access_token, reply_id, data):
         content_type="application/json",
     )
 
+
 class TestReplyBlueprint(BaseTestCase):
     def test_create_delete_reply(self):
         """ Test for reply creation and deletion """

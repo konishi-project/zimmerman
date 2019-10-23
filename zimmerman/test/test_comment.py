@@ -48,6 +48,7 @@ def update_comment(self, comment_id, access_token, data):
         content_type="application/json",
     )
 
+
 class TestCommentBlueprint(BaseTestCase):
     def test_create_delete_comment(self):
         """ Test for comment creation and deletion """

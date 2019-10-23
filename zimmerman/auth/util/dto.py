@@ -13,10 +13,21 @@ class AuthDto:
     auth_register = api.model(
         "register_details",
         {
-            "email": fields.String(required=True, description="Email address for logging in."),
-            "username": fields.String(required=True, description="Username for tagging users."),
-            "full_name": fields.String(description="Full name for identifying users humanly."),
-            "password": fields.String(description="Password for securing user accounts."),
-            "entry_key": fields.String(required=True, description="Entry key for filtering out unwanted members."),
+            "email": fields.String(
+                required=True, description="Email address for logging in."
+            ),
+            "username": fields.String(
+                required=True, description="Username for tagging users."
+            ),
+            "full_name": fields.String(
+                description="Full name for identifying users humanly."
+            ),
+            "password": fields.String(
+                description="Password for securing user accounts."
+            ),
+            "entry_key": fields.String(
+                required=True,
+                description="Entry key for filtering out unwanted members.",
+            ),
         },
     )
