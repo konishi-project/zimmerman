@@ -5,12 +5,12 @@ from flask import current_app
 from flask_testing import TestCase
 
 from manage import app
-from zimmerman.main.config import basedir
+from zimmerman.config import basedir
 
 
 class TestDevelopmentConfig(TestCase):
     def create_app(self):
-        app.config.from_object("zimmerman.main.config.DevelopmentConfig")
+        app.config.from_object("zimmerman.config.DevelopmentConfig")
         return app
 
     def test_app_is_development(self):
@@ -25,7 +25,7 @@ class TestDevelopmentConfig(TestCase):
 
 class TestProductionConfig(TestCase):
     def create_app(self):
-        app.config.from_object("zimmerman.main.config.ProductionConfig")
+        app.config.from_object("zimmerman.config.ProductionConfig")
         return app
 
     def test_app_is_production(self):

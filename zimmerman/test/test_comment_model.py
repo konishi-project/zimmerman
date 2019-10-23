@@ -15,8 +15,7 @@ class TestCommentModel(BaseTestCase):
             public_id=str(uuid4().int)[:15],
             email="email@test.com",
             username="testUser",
-            first_name="Test",
-            last_name="User",
+            full_name="Test User",
             password="test1234",
             joined_date=datetime.utcnow(),
         )
