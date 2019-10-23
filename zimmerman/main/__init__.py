@@ -1,10 +1,11 @@
+# Entry point
 from flask import Flask
 
 # Import extensions
 from .extensions import db, ma, jwt, bcrypt, cors, limiter
 
 # Import configuration
-from .config import config_by_name
+from zimmerman.config import config_by_name
 
 
 def create_app(config_name):

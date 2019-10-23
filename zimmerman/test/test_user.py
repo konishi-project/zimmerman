@@ -3,23 +3,7 @@ import json
 
 from flask import current_app
 from zimmerman.test.base import BaseTestCase
-
-
-def register_user(self):
-    return self.client.post(
-        "/user/register",
-        data=json.dumps(
-            dict(
-                email="test@Email.com",
-                username="testUser",
-                first_name="test",
-                last_name="user",
-                password="123456",
-                entry_key=current_app.config["ENTRY_KEY"],
-            )
-        ),
-        content_type="application/json",
-    )
+from zimmerman.test.common_functions import register_user, login_user
 
 
 def get_user(self, access_token, username):
@@ -35,14 +19,6 @@ def update_user(self, data, access_token):
         "/user/update",
         data=json.dumps(dict(bio=data["bio"], avatar=data["avatar"])),
         headers={"Authorization": "Bearer %s" % access_token},
-        content_type="application/json",
-    )
-
-
-def login_user(self):
-    return self.client.post(
-        "/auth/login",
-        data=json.dumps(dict(email="test@Email.com", password="123456")),
         content_type="application/json",
     )
 

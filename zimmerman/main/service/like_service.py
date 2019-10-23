@@ -160,6 +160,9 @@ class Unlike:
                     }
                     return response_object, 500
 
+            response_object = {"success": False, "message": "Post like not found!"}
+            return response_object, 404
+
     def comment(comment_id, current_user):
         # Query for the comment
         comment = Comments.query.filter_by(id=comment_id).first()
@@ -182,6 +185,9 @@ class Unlike:
                         "message": "Something went wrong during the process!",
                     }
                     return response_object, 500
+
+            response_object = {"success": False, "message": "Comment like not found!"}
+            return response_object, 404
 
     def reply(reply_id, current_user):
         # Query for the reply

@@ -71,6 +71,10 @@ class FeedDto:
     )
 
 
+class InstanceDto:
+    api = Namespace("instance", description="Instance related operations.")
+
+
 class LikeDto:
     api = Namespace("like", description="Like related operations.")
     like = api.model(
