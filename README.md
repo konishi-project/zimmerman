@@ -8,9 +8,9 @@
   <a href="https://github.com/konishi-project/zimmerman/commits/master">
     <img src="https://img.shields.io/github/last-commit/konishi-project/zimmerman" alt="last-commit">
   </a>
-  <a>
+  <!-- <a>
     <img src="https://img.shields.io/github/v/release/konishi-project/zimmerman?include_prereleases" alt="release">
-  </a>
+  </a> -->
   <a>
     <img src="https://img.shields.io/badge/python-3.6%2B-blue" alt="python">
   </a>
