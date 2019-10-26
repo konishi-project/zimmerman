@@ -8,7 +8,7 @@ from zimmerman.main import create_app
 from zimmerman.main.extensions import db
 
 # Models
-from zimmerman.main.model import user
+from zimmerman.main.model import main
 
 # Import blueprint
 from zimmerman import main_bp
