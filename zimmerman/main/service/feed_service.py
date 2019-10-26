@@ -132,6 +132,13 @@ class Feed:
         post_schema = PostSchema()
         posts = []
 
+        if len(id_array) == 0 or id_array is None:
+            response_object = {
+                "success": True,
+                "message": "There is nothing to send."
+            }
+            return response_object, 200
+
         for post_id in id_array:
             # Get the post and schema
             post = Post.query.filter_by(id=post_id).first()
