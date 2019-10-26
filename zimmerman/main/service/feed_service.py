@@ -135,7 +135,8 @@ class Feed:
         if len(id_array) == 0 or id_array is None:
             response_object = {
                 "success": True,
-                "message": "There is nothing to send."
+                "message": "There is nothing to send.",
+                "posts": posts
             }
             return response_object, 200
 
