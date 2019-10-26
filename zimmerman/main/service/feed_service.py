@@ -88,7 +88,7 @@ class Feed:
     def get_chronological():
         # Get Posts IDs by latest creation (chronological order)
         # Get Posts info
-        posts = Post.query.with_entities(Posts.id, Posts.created).order_by(
+        posts = Post.query.with_entities(Post.id, Post.created).order_by(
             Post.created.desc()
         )
         # WIP
@@ -108,7 +108,7 @@ class Feed:
 
         # Get the activity based on the latest comments
         post_activity_from_comments = [
-            {"id": c["posts"], "created": c["created"]} for c in comment_info
+            {"id": c["post"], "created": c["created"]} for c in comment_info
         ]
 
         feed = uniq(
