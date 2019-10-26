@@ -8,8 +8,8 @@ Model = db.Model
 
 roles_users = db.Table(
     "roles_users",
-    Column("user_id", db.Integer(), db.ForeignKey("user.id")),
-    Column("role_id", db.Integer(), db.ForeignKey("role.id")),
+    Column("user_id", db.Integer, db.ForeignKey("user.id")),
+    Column("role_id", db.Integer, db.ForeignKey("role.id")),
 )
 
 
@@ -71,7 +71,6 @@ class Role(Model):
     def __repr__(self):
         return f"{self.name} - {self.id}"
 
-
 class Notification(Model):
     id = Column(db.Integer, primary_key=True)
     owner_id = Column(db.Integer, db.ForeignKey("user.id"))
@@ -107,7 +106,9 @@ class Post(Model):
     edited = Column(db.Boolean, default=False)
 
     likes = db.relationship("PostLike", backref="post", cascade="all, delete-orphan")
-    comments = db.relationship("Comment", backref="post", cascade="all, delete-orphan")
+    comments = db.relationship(
+        "Comment", backref="post", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<Post '{self.id}'>"
