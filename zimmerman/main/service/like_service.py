@@ -1,10 +1,10 @@
 from datetime import datetime
 
 from zimmerman.main import db
-from zimmerman.main.model.user import (
-    Posts,
+from zimmerman.main.model.main import (
+    Post,
     PostLike,
-    Comments,
+    Comment,
     CommentLike,
     Reply,
     ReplyLike,
@@ -20,7 +20,7 @@ def check_like(likes, user_id):
 class Like:
     def post(post_public_id, current_user):
         # Query for the post using its public id
-        post = Posts.query.filter_by(public_id=post_public_id).first()
+        post = Post.query.filter_by(public_id=post_public_id).first()
 
         # Check if the post exists
         if not post:
@@ -59,7 +59,7 @@ class Like:
 
     def comment(comment_id, current_user):
         # Query for the comment
-        comment = Comments.query.filter_by(id=comment_id).first()
+        comment = Comment.query.filter_by(id=comment_id).first()
 
         # Check if the comment exists
         if not comment:
@@ -139,7 +139,7 @@ class Like:
 class Unlike:
     def post(post_public_id, current_user):
         # Query for the post
-        post = Posts.query.filter_by(public_id=post_public_id).first()
+        post = Post.query.filter_by(public_id=post_public_id).first()
 
         for like in post.likes:
             if like.owner_id == current_user.id:
@@ -165,7 +165,7 @@ class Unlike:
 
     def comment(comment_id, current_user):
         # Query for the comment
-        comment = Comments.query.filter_by(id=comment_id).first()
+        comment = Comment.query.filter_by(id=comment_id).first()
 
         for like in comment.likes:
             if like.owner_id == current_user.id:
