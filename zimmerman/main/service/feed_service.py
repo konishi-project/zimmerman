@@ -3,9 +3,9 @@ from glob import glob
 from flask import url_for
 
 from zimmerman.main import db
-from zimmerman.main.model.user import (
-    Posts,
-    Comments,
+from zimmerman.main.model.main import (
+    Post,
+    Comment,
     Reply,
     PostLike,
     CommentLike,
@@ -15,7 +15,7 @@ from zimmerman.main.service.like_service import check_like
 from zimmerman.main.service.post_service import load_author
 
 # Import Schema
-from zimmerman.main.model.user import PostSchema, CommentSchema, ReplySchema
+from zimmerman.main.model.main import PostSchema, CommentSchema, ReplySchema
 
 # Import upload path
 from .upload_service import get_image
@@ -37,7 +37,7 @@ def get_comments(post_info, current_user_id):
     # Get the first five comments
     for comment_id in sorted(post_info["comments"])[:5]:
         # Get the coment info
-        comment = Comments.query.filter_by(id=comment_id).first()
+        comment = Comment.query.filter_by(id=comment_id).first()
         comment_info = comment_schema.dump(comment)
 
         comment_info["author"] = load_author(comment_info["creator_public_id"])
@@ -88,8 +88,8 @@ class Feed:
     def get_chronological():
         # Get Posts IDs by latest creation (chronological order)
         # Get Posts info
-        posts = Posts.query.with_entities(Posts.id, Posts.created).order_by(
-            Posts.created.desc()
+        posts = Post.query.with_entities(Posts.id, Posts.created).order_by(
+            Post.created.desc()
         )
         # WIP
         print(posts)
@@ -97,12 +97,12 @@ class Feed:
     def get_activity():
         # Get Posts IDs by latest activity (latest comment on post)
         # Get Posts info
-        posts = Posts.query.with_entities(Posts.id, Posts.created).all()
+        posts = Post.query.with_entities(Post.id, Post.created).all()
         post_schema = PostSchema(many=True)
         post_info = post_schema.dump(posts)
 
         # Comments
-        comments = Comments.query.all()
+        comments = Comment.query.all()
         comment_schema = CommentSchema(many=True)
         comment_info = comment_schema.dump(comments)
 
@@ -134,7 +134,7 @@ class Feed:
 
         for post_id in id_array:
             # Get the post and schema
-            post = Posts.query.filter_by(id=post_id).first()
+            post = Post.query.filter_by(id=post_id).first()
             # Dump the data and append it to the posts list
             post_info = post_schema.dump(post)
 
