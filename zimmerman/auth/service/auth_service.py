@@ -6,7 +6,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from zimmerman.main import db
-from zimmerman.main.model.user import User, UserSchema
+from zimmerman.main.model.main import User, UserSchema
 from zimmerman.main.service.upload_service import get_image
 from zimmerman.main.service.user_service import private_info
 
