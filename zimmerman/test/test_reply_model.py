@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 from zimmerman.main import db
-from zimmerman.main.model.user import Reply, Comments, User, Posts
+from zimmerman.main.model.main import Reply, Comment, User, Post
 from zimmerman.test.base import BaseTestCase
 
 
@@ -25,7 +25,7 @@ class TestReplyModel(BaseTestCase):
         db.session.commit()
 
         # Create test post
-        post = Posts(
+        post = Post(
             owner_id=user.id,
             creator_public_id=user.public_id,
             content="Test content",
@@ -37,7 +37,7 @@ class TestReplyModel(BaseTestCase):
         db.session.commit()
 
         # Create comment
-        comment = Comments(
+        comment = Comment(
             creator_public_id=user.public_id, on_post=post.id, content="Test comment"
         )
 

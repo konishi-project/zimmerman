@@ -4,7 +4,7 @@ from datetime import datetime
 from flask_jwt_extended import create_access_token
 
 from zimmerman.main import db
-from zimmerman.main.model.user import User
+from zimmerman.main.model.main import User
 from zimmerman.test.base import BaseTestCase
 
 
