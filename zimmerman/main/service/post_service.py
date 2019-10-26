@@ -7,13 +7,13 @@ from flask import request, jsonify, url_for
 from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
-from zimmerman.main.model.user import Posts, PostLike
+from zimmerman.main.model.main import Post, PostLike
 
 from .user_service import load_author
 from .upload_service import get_image
 
 # Import Schema
-from zimmerman.main.model.user import PostSchema, UserSchema
+from zimmerman.main.model.main import PostSchema, UserSchema
 
 
 def add_post_and_flush(data):
@@ -28,7 +28,7 @@ def add_post_and_flush(data):
     return latest_post
 
 
-class Post:
+class PostService:
     def create(data, current_user):
         # Assign the vars
         content = data["content"]
@@ -49,7 +49,7 @@ class Post:
             return response_object, 403
 
         # Create new post obj.
-        new_post = Posts(
+        new_post = Post(
             public_id=str(uuid4().int)[:15],
             owner_id=current_user.id,
             creator_public_id=current_user.public_id,
@@ -79,7 +79,7 @@ class Post:
 
     def delete(post_public_id, current_user):
         # Query for the post
-        post = Posts.query.filter_by(public_id=post_public_id).first()
+        post = Post.query.filter_by(public_id=post_public_id).first()
         if not post:
             response_object = {"success": False, "message": "Post not found!"}
             return response_object, 404
@@ -88,7 +88,7 @@ class Post:
         elif (
             current_user.public_id == post.creator_public_id
         ):  # or is_admin(current_user)
-            post = Posts.query.filter_by(public_id=post_public_id).first()
+            post = Post.query.filter_by(public_id=post_public_id).first()
 
             try:
                 db.session.delete(post)
@@ -112,7 +112,7 @@ class Post:
         return response_object, 403
 
     def update(post_public_id, data, current_user):
-        post = Posts.query.filter_by(public_id=post_public_id).first()
+        post = Post.query.filter_by(public_id=post_public_id).first()
         if not post:
             response_object = {
                 "success": False,
@@ -172,7 +172,7 @@ class Post:
 
     def get(post_public_id):
         # Get the specific post using its public id
-        post = Posts.query.filter_by(public_id=post_public_id).first()
+        post = Post.query.filter_by(public_id=post_public_id).first()
         if not post:
             response_object = {"success": False, "message": "Post not found!"}
             return response_object, 404

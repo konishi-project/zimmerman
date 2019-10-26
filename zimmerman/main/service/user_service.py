@@ -5,7 +5,7 @@ from flask import jsonify, current_app
 from flask_jwt_extended import create_access_token
 
 from zimmerman.main import db
-from zimmerman.main.model.user import User, UserSchema
+from zimmerman.main.model.main import User, UserSchema
 
 from .upload_service import get_image
 

@@ -3,7 +3,7 @@ from uuid import uuid4
 from datetime import datetime
 
 from zimmerman.main import db
-from zimmerman.main.model.user import Posts, User
+from zimmerman.main.model.main import Post, User
 from zimmerman.test.base import BaseTestCase
 
 
@@ -25,7 +25,7 @@ class TestPostModel(BaseTestCase):
         db.session.commit()
 
         # Create post
-        post = Posts(
+        post = Post(
             owner_id=user.id,
             creator_public_id=user.public_id,
             content="Test content",
@@ -36,7 +36,7 @@ class TestPostModel(BaseTestCase):
         db.session.add(post)
         db.session.commit()
 
-        self.assertTrue(isinstance(post, Posts))
+        self.assertTrue(isinstance(post, Post))
 
 
 if __name__ == "__main__":

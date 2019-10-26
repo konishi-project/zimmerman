@@ -1,11 +1,12 @@
 from datetime import datetime
+from uuid import uuid4
 
 from zimmerman.main import db
-from zimmerman.main.model.user import Reply, Comments
+from zimmerman.main.model.main import Reply, Comment
 from .user_service import load_author
 
 # Import Schema
-from zimmerman.main.model.user import ReplyLike, ReplySchema
+from zimmerman.main.model.main import ReplyLike, ReplySchema
 
 
 def add_reply_and_flush(data):
@@ -23,7 +24,7 @@ def add_reply_and_flush(data):
 class ReplyService:
     def create(comment_id, data, current_user):
         # Get the comment
-        comment = Comments.query.filter_by(id=comment_id).first()
+        comment = Comment.query.filter_by(id=comment_id).first()
 
         # Assign the vars
         content = data["content"]
@@ -44,6 +45,7 @@ class ReplyService:
         try:
             # Create new reply obj.
             new_reply = Reply(
+                public_id=str(uuid4().int)[:15],
                 creator_public_id=current_user.public_id,
                 on_comment=comment.id,
                 content=content,

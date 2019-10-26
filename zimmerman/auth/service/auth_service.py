@@ -6,9 +6,12 @@ from datetime import datetime
 from uuid import uuid4
 
 from zimmerman.main import db
-from zimmerman.main.model.user import User, UserSchema
+from zimmerman.main.model.main import User, UserSchema
 from zimmerman.main.service.upload_service import get_image
 from zimmerman.main.service.user_service import private_info
+
+# Basic email regex check.
+EMAIl_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
 
 class Auth:
@@ -89,6 +92,15 @@ class Auth:
             password = data["password"]
             entry_key = data["entry_key"]
 
+            # Check if email exists
+            if len(email) == 0 or email is None:
+                response_object = {
+                    "success": False,
+                    "message": "Email is required!",
+                    "error_reason": "no_email",
+                }
+                return response_object, 403
+
             # Check if the email is being used
             if User.query.filter_by(email=email).first() is not None:
                 response_object = {
@@ -98,8 +110,26 @@ class Auth:
                 }
                 return response_object, 403
 
+            # Check if the email is valid
+            elif not EMAIl_REGEX.match(email):
+                response_object = {
+                    "success": False,
+                    "message": "Invalid email!",
+                    "error_reason": "email_invalid",
+                }
+                return response_object, 403
+
+            # Check if the username is empty
+            if len(username) == 0 or username is None:
+                response_object = {
+                    "success": False,
+                    "message": "Username is required!",
+                    "error_reason": "no_username",
+                }
+                return response_object, 403
+
             # Check if the username is being used
-            if User.query.filter_by(username=username).first() is not None:
+            elif User.query.filter_by(username=username).first() is not None:
                 response_object = {
                     "success": False,
                     "message": "Username is already taken!",
@@ -151,7 +181,7 @@ class Auth:
 
                 # Replace multiple spaces with one.
                 # 'firstName    lastName' -> 'firstName lastName'
-                re.sub(' +', ' ', full_name)
+                re.sub(" +", " ", full_name)
 
             # Check if the entry key is right
             if entry_key != current_app.config["ENTRY_KEY"]:
@@ -162,6 +192,7 @@ class Auth:
                 }
                 return response_object, 403
 
+            # Create new user object
             new_user = User(
                 public_id=str(uuid4().int)[:15],
                 email=email,
@@ -187,10 +218,11 @@ class Auth:
                 del user_info[info]
 
             # Return success response
+            access_token = create_access_token(identity=new_user.id)
             response_object = {
                 "success": True,
                 "message": "User has successfully been registered.",
-                "Authorization": create_access_token(identity=new_user.id),
+                "Authorization": access_token,
                 "user": user_info,
             }
             return response_object, 201

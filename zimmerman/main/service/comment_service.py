@@ -1,11 +1,12 @@
 from datetime import datetime
+from uuid import uuid4
 
 from zimmerman.main import db
-from zimmerman.main.model.user import Comments, Posts
+from zimmerman.main.model.main import Comment, Post
 from .user_service import load_author
 
 # Import Schema
-from zimmerman.main.model.user import CommentLike, CommentSchema
+from zimmerman.main.model.main import CommentLike, CommentSchema
 
 
 def add_comment_and_flush(data):
@@ -20,10 +21,10 @@ def add_comment_and_flush(data):
     return latest_comment
 
 
-class Comment:
+class CommentService:
     def create(post_public_id, data, current_user):
         # Get the post
-        post = Posts.query.filter_by(public_id=post_public_id).first()
+        post = Post.query.filter_by(public_id=post_public_id).first()
 
         # Assign the vars
         content = data["content"]
@@ -46,7 +47,8 @@ class Comment:
 
         try:
             # Create new comment obj.
-            new_comment = Comments(
+            new_comment = Comment(
+                public_id=str(uuid4().int)[:15],
                 creator_public_id=current_user.public_id,
                 on_post=post.id,
                 content=content,
@@ -75,7 +77,7 @@ class Comment:
 
     def delete(comment_id, current_user):
         # Query for the comment
-        comment = Comments.query.filter_by(id=comment_id).first()
+        comment = Comment.query.filter_by(id=comment_id).first()
         if not comment:
             response_object = {"success": False, "message": "Comment not found!"}
             return response_object, 404
@@ -84,7 +86,7 @@ class Comment:
         elif (
             current_user.public_id == comment.creator_public_id
         ):  # or is_admin(current_user)
-            comment = Comments.query.filter_by(id=comment_id).first()
+            comment = Comment.query.filter_by(id=comment_id).first()
 
             try:
                 db.session.delete(comment)
@@ -108,7 +110,7 @@ class Comment:
 
     def update(comment_id, data, current_user):
         # Query for the comment
-        comment = Comments.query.filter_by(id=comment_id).first()
+        comment = Comment.query.filter_by(id=comment_id).first()
         if not comment:
             response_object = {
                 "success": False,
@@ -157,7 +159,7 @@ class Comment:
 
     def get(comment_id):
         # Get the specific comment using its id
-        comment = Comments.query.filter_by(id=comment_id).first()
+        comment = Comment.query.filter_by(id=comment_id).first()
         if not comment:
             response_object = {"success": False, "message": "Comment not found!"}
             return response_object, 404

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from .. import db, ma, bcrypt
+from zimmerman.main import db, ma, bcrypt
 
 # Alias common SQLAlchemy names
 Column = db.Column
@@ -8,8 +8,8 @@ Model = db.Model
 
 roles_users = db.Table(
     "roles_users",
-    Column("user_id", db.Integer(), db.ForeignKey("user.id")),
-    Column("role_id", db.Integer(), db.ForeignKey("role.id")),
+    Column("user_id", db.Integer, db.ForeignKey("user.id")),
+    Column("role_id", db.Integer, db.ForeignKey("role.id")),
 )
 
 
@@ -20,20 +20,19 @@ class User(Model):
     id = Column(db.Integer, primary_key=True)
     public_id = Column(db.String(15), unique=True)
     email = Column(db.String(255), unique=True, nullable=False)
-    username = Column(db.String(20), unique=True)
+    username = Column(db.String(15), unique=True)
     full_name = Column(db.String(50), nullable=True)
     password_hash = Column(db.String(255))
-
-    # Extra details
     bio = Column(db.String(150), nullable=True)
 
     # Media
     profile_picture = Column(db.String(40), nullable=True)
     background_cover = Column(db.String(40), nullable=True)
 
+    # Relationships
+    notifications = db.relationship("Notification", backref="user")
+    posts = db.relationship("Post", backref="user")
     # Add Favorites (post)
-    # Post related
-    posts = db.relationship("Posts", backref="user")
 
     post_likes = db.relationship("PostLike", backref="user")
     comment_likes = db.relationship("CommentLike", backref="user")
@@ -72,8 +71,24 @@ class Role(Model):
     def __repr__(self):
         return f"{self.name} - {self.id}"
 
+class Notification(Model):
+    id = Column(db.Integer, primary_key=True)
+    owner_id = Column(db.Integer, db.ForeignKey("user.id"))
+    # Example actions: 'liked', 'replied', 'commented', etc.
+    action = Column(db.String(10))
 
-class Posts(Model):
+    timestamp = Column(db.DateTime)
+    read = Column(db.Boolean, default=False)
+
+    # Object names: post, comment, reply ...
+    object_name = Column(db.String(20))
+    object_public_id = Column(db.String(15))
+
+    def is_read(self, read):
+        self.read = True
+
+
+class Post(Model):
     """ Post Model for storing post related details """
 
     # Basic details
@@ -90,22 +105,23 @@ class Posts(Model):
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
 
-    likes = db.relationship("PostLike", backref="posts", cascade="all, delete-orphan")
+    likes = db.relationship("PostLike", backref="post", cascade="all, delete-orphan")
     comments = db.relationship(
-        "Comments", backref="posts", cascade="all, delete-orphan"
+        "Comment", backref="post", cascade="all, delete-orphan"
     )
 
     def __repr__(self):
         return f"<Post '{self.id}'>"
 
 
-class Comments(Model):
+class Comment(Model):
     """ Comment Model for storing comment related details """
 
     # Basic details
     id = Column(db.Integer, primary_key=True)
+    public_id = Column(db.String(15))
     creator_public_id = Column(db.String(15))
-    on_post = Column(db.Integer, db.ForeignKey("posts.id"))
+    on_post = Column(db.Integer, db.ForeignKey("post.id"))
 
     # Comment content and details
     content = Column(db.Text)
@@ -114,9 +130,9 @@ class Comments(Model):
     edited = Column(db.Boolean, default=False)
 
     likes = db.relationship(
-        "CommentLike", backref="comments", cascade="all, delete-orphan"
+        "CommentLike", backref="comment", cascade="all, delete-orphan"
     )
-    replies = db.relationship("Reply", backref="comments", cascade="all, delete-orphan")
+    replies = db.relationship("Reply", backref="comment", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Comment '{self.id}'>"
@@ -127,8 +143,9 @@ class Reply(Model):
 
     # Basic details
     id = Column(db.Integer, primary_key=True)
+    public_id = Column(db.String(15))
     creator_public_id = Column(db.String(15))
-    on_comment = Column(db.Integer, db.ForeignKey("comments.id"))
+    on_comment = Column(db.Integer, db.ForeignKey("comment.id"))
 
     # Reply content and details
     content = Column(db.Text)
@@ -147,7 +164,7 @@ class PostLike(Model):
 
     # Details
     id = Column(db.Integer, primary_key=True)
-    on_post = Column(db.Integer, db.ForeignKey("posts.id"))
+    on_post = Column(db.Integer, db.ForeignKey("post.id"))
     owner_id = Column(db.Integer, db.ForeignKey("user.id"))
     liked_on = Column(db.DateTime, default=datetime.utcnow)
 
@@ -160,7 +177,7 @@ class CommentLike(Model):
 
     # Details
     id = Column(db.Integer, primary_key=True)
-    on_comment = Column(db.Integer, db.ForeignKey("comments.id"))
+    on_comment = Column(db.Integer, db.ForeignKey("comment.id"))
     owner_id = Column(db.Integer, db.ForeignKey("user.id"))
     liked_on = Column(db.DateTime, default=datetime.utcnow)
 
@@ -189,12 +206,12 @@ class UserSchema(ma.ModelSchema):
 
 class PostSchema(ma.ModelSchema):
     class Meta:
-        model = Posts
+        model = Post
 
 
 class CommentSchema(ma.ModelSchema):
     class Meta:
-        model = Comments
+        model = Comment
 
 
 class ReplySchema(ma.ModelSchema):
