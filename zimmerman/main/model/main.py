@@ -29,7 +29,6 @@ class User(Model):
     profile_picture = Column(db.String(40), nullable=True)
     background_cover = Column(db.String(40), nullable=True)
 
-
     # Relationships
     notifications = db.relationship("Notification", backref="user")
     posts = db.relationship("Post", backref="user")
@@ -72,6 +71,7 @@ class Role(Model):
     def __repr__(self):
         return f"{self.name} - {self.id}"
 
+
 class Notification(Model):
     id = Column(db.Integer, primary_key=True)
     owner_id = Column(db.Integer, db.ForeignKey("user.id"))
@@ -107,9 +107,7 @@ class Post(Model):
     edited = Column(db.Boolean, default=False)
 
     likes = db.relationship("PostLike", backref="post", cascade="all, delete-orphan")
-    comments = db.relationship(
-        "Comment", backref="post", cascade="all, delete-orphan"
-    )
+    comments = db.relationship("Comment", backref="post", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Post '{self.id}'>"

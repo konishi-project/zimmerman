@@ -100,6 +100,7 @@ class Auth:
                     "error_reason": "no_email",
                 }
                 return response_object, 403
+
             # Check if the email is being used
             if User.query.filter_by(email=email).first() is not None:
                 response_object = {
