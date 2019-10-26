@@ -52,8 +52,8 @@ def get_comments(post_info, current_user_id):
         else:
             comment_info["liked"] = False
 
-        # if comment_info['replies']:
-        #     comment_info['latest_replies'] = get_replies(comment_info, current_user_id)
+        if comment_info['replies']:
+            comment_info['initial_replies'] = get_replies(comment_info, current_user_id)
 
         comments.append(comment_info)
 
@@ -68,6 +68,8 @@ def get_replies(comment_info, current_user_id):
     for reply_id in sorted(comment_info["replies"])[:2]:
         reply = Reply.query.filter_by(id=reply_id).first()
         reply_info = reply_schema.dump(reply)
+
+        reply_info["author"] = load_author(reply_info["creator_public_id"])
 
         # Check if the reply is liked
         user_likes = ReplyLike.query.filter_by(on_reply=reply_id).order_by(
