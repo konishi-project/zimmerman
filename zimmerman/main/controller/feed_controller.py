@@ -13,12 +13,22 @@ _feed = FeedDto.feed
 
 @api.route("/get")
 class FeedGet(Resource):
+    decorators = [
+        limiter.limit(
+            "10/minute", error_message="Too many posts requests (10 per minute)."
+        )
+    ]
     @api.doc("Get Posts IDs", responses={200: "Post IDs successfully sent to client."})
     @jwt_required
     def get(self):
         """ Return posts IDs from the Database. """
         return Feed.get_activity()
 
+    decorators = [
+        limiter.limit(
+            "25/minute", error_message="Too many posts requests (25 per minute)."
+        )
+    ]
     @api.expect(_feed, validate=True)
     @api.doc(
         "Get the posts data",
