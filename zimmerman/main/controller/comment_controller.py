@@ -6,7 +6,7 @@ from zimmerman.main import limiter
 from ..util.dto import CommentDto
 
 # from ..service.comment_service import create_new_comment, delete_comment, update_comment, get_comment
-from ..service.comment_service import Comment
+from ..service.comment_service import CommentService
 from ..service.user_service import load_user
 
 api = CommentDto.api
@@ -25,7 +25,7 @@ class CommentGet(Resource):
     @jwt_required
     def get(self, comment_id):
         """ Get a specific comment using its id """
-        return Comment.get(comment_id)
+        return CommentService.get(comment_id)
 
 
 @api.route("/create/<string:post_public_id>")
@@ -46,7 +46,7 @@ class CommentCreate(Resource):
         data = request.get_json()
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return Comment.create(post_public_id, data, current_user)
+        return CommentService.create(post_public_id, data, current_user)
 
 
 @api.route("/update/<int:comment_id>")
@@ -65,7 +65,7 @@ class CommentUpdate(Resource):
         """ Updates a comment using its id and new content """
         current_user = load_user(get_jwt_identity())
         data = request.get_json()
-        return Comment.update(comment_id, data, current_user)
+        return CommentService.update(comment_id, data, current_user)
 
 
 @api.route("/delete/<int:comment_id>")
@@ -82,4 +82,4 @@ class CommentDelete(Resource):
     def delete(self, comment_id):
         """ Deletes a comment using its id """
         current_user = load_user(get_jwt_identity())
-        return Comment.delete(comment_id, current_user)
+        return CommentService.delete(comment_id, current_user)
