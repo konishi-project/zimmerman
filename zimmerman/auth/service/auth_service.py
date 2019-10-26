@@ -218,7 +218,7 @@ class Auth:
                 del user_info[info]
 
             # Return success response
-            access_token = create_access_token(identity=user.id)
+            access_token = create_access_token(identity=new_user.id)
             response_object = {
                 "success": True,
                 "message": "User has successfully been registered.",
