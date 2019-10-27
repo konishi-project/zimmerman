@@ -63,6 +63,16 @@ Feel free to contact the lead developer [X1Zeth2X](https://github.com/X1Zeth2X) 
 * Financial support/contribution.
 * Suggesting improvements, features.
 
+## Prerequisites
+[TODO: Add instructions for other distros]
+- Python3.x
+    - Ubuntu: ``` sudo apt install python3 ```
+- virtualenv
+    - Ubuntu: ``` sudo apt install python3-virtualenv python3-venv virtualenv```
+- postgresql
+    - Find up-to-date instructions for your distro. Often subject to change.
+
+
 ## Install and Setting up
 
 NOTE: If you are going to run this app with gunicorn, `gunicorn zimmerman:main` will not work and raise `Application not callable` error. Instead use `gunicorn manage:app` to run it using the manage.py module.
