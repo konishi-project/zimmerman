@@ -83,6 +83,7 @@ $ source konishienv/bin/activate
 ```bash
 $ pip install -r requirements.txt
 ```
+- Note: On some distros like Ubuntu it is ```pip3``` not ```pip```. Command may break because it's looking for python2.  
 
 **Setting up the database** 
 
