@@ -30,7 +30,7 @@ def uniq(a_list):
         encountered.add(elem)
     return result
 
-
+# Use SQL Joins to make the process less redundant.
 def get_comments(post_info, current_user_id):
     comments = []
     comment_schema = CommentSchema()
@@ -52,8 +52,8 @@ def get_comments(post_info, current_user_id):
         else:
             comment_info["liked"] = False
 
-        if comment_info['replies']:
-            comment_info['initial_replies'] = get_replies(comment_info, current_user_id)
+        if comment_info["replies"]:
+            comment_info["initial_replies"] = get_replies(comment_info, current_user_id)
 
         comments.append(comment_info)
 
@@ -138,7 +138,7 @@ class Feed:
             response_object = {
                 "success": True,
                 "message": "There is nothing to send.",
-                "posts": posts
+                "posts": posts,
             }
             return response_object, 200
 
