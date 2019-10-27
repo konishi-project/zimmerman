@@ -80,8 +80,8 @@ class Notification(Model):
     timestamp = Column(db.DateTime)
     read = Column(db.Boolean, default=False)
 
-    # Object names: post, comment, reply ...
-    object_name = Column(db.String(20))
+    # Object type: post, comment, reply ...
+    object_type = Column(db.String(20))
     object_public_id = Column(db.String(15))
 
     def is_read(self, read):
@@ -202,6 +202,11 @@ class ReplyLike(Model):
 class UserSchema(ma.ModelSchema):
     class Meta:
         model = User
+
+
+class NotificationSchema(ma.ModelSchema):
+    class Meta:
+        model = Notification
 
 
 class PostSchema(ma.ModelSchema):
