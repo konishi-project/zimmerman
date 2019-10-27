@@ -70,7 +70,7 @@ NOTE: If you are going to run this app with gunicorn, `gunicorn zimmerman:main` 
 **Clone the repo**
 ```bash
 $ git clone https://github.com/konishi-project/zimmerman.git
-$ cd zimmermanv2
+$ cd zimmerman
 ```
 
 **Create the virtualenv and activate**
