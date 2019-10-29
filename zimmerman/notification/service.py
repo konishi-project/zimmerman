@@ -101,3 +101,30 @@ def send_notification(data, target_user_public_id):
             "error_reason": "server_error",
         }
         return response_object, 500
+
+class NotificationService:
+    def get_notifications(current_user):
+        # returns an array of notifications.
+        try:
+            pass
+        except Exception as error:
+            print(error)
+            response_object = {
+                "success": False,
+                "message": "Something went wrong during the process!",
+                "error_reason": "server_error"
+            }
+            return response_object, 500
+
+    def read_notifications():
+        # @todo - Use PUT method
+        try:
+            pass
+        except Exception as error:
+            print(error)
+            response_object = {
+                "success": False,
+                "message": "Something went wrong during the process!",
+                "error_reason": "server_error"
+            }
+            return response_object, 500
