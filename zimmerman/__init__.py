@@ -9,7 +9,7 @@ from .main.controller.reply_controller import api as reply_ns
 from .main.controller.like_controller import api as like_ns
 from .main.controller.upload_controller import api as upload_ns
 
-from .auth.controller.auth_controller import api as auth_ns
+from .auth.controller import api as auth_ns
 
 main_bp = Blueprint("main", __name__)
 
