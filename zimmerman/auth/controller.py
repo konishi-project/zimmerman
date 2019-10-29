@@ -2,8 +2,8 @@ from flask import request
 from flask_restplus import Resource
 
 from zimmerman.main import limiter
-from ..service.auth_service import Auth
-from ..util.dto import AuthDto
+from .service import Auth
+from .util.dto import AuthDto
 
 api = AuthDto.api
 auth_login = AuthDto.auth_login
