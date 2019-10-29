@@ -103,9 +103,11 @@ def send_notification(data, target_user_public_id):
         return response_object, 500
 
 class NotificationService:
-    def get_notifications(current_user):
-        # returns an array of notifications.
+    def get_notification_ids(current_user):
+        # returns an array of latest notifications.
         try:
+            # 
+            # The database gets the unread notifications 
             pass
         except Exception as error:
             print(error)
@@ -116,8 +118,11 @@ class NotificationService:
             }
             return response_object, 500
 
+    def get_notification_info():
+        pass
+
     def read_notifications():
-        # @todo - Use PUT method
+        # Uses PUT method, receives notification ID(s)
         try:
             pass
         except Exception as error:
