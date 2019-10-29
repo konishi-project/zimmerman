@@ -15,7 +15,7 @@ def get_user(self, access_token, username):
 
 
 def update_user(self, data, access_token):
-    return self.client.post(
+    return self.client.put(
         "/user/update",
         data=json.dumps(dict(bio=data["bio"], avatar=data["avatar"])),
         headers={"Authorization": "Bearer %s" % access_token},
