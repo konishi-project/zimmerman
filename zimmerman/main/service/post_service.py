@@ -12,7 +12,7 @@ from .user_service import load_author
 from .upload_service import get_image
 
 # Import Schema
-from zimmerman.main.model.main import PostSchema, UserSchema
+from zimmerman.main.model.main import PostSchema
 
 
 def add_post_and_flush(data):
@@ -45,7 +45,7 @@ class PostService:
 
         if not content:
             response_object = {"success": False, "message": "Content cannot be empty!"}
-            return response_object, 403
+            return resronse_object, 403
 
         # Create new post obj.
         new_post = Post(
