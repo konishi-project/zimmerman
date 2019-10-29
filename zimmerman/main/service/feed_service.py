@@ -30,6 +30,7 @@ def uniq(a_list):
         encountered.add(elem)
     return result
 
+
 # Use SQL Joins to make the process less redundant.
 def get_comments(post_info, current_user_id):
     comments = []
