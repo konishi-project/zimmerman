@@ -71,17 +71,19 @@ class Role(Model):
     def __repr__(self):
         return f"{self.name} - {self.id}"
 
+
 class Notification(Model):
     id = Column(db.Integer, primary_key=True)
-    owner_id = Column(db.Integer, db.ForeignKey("user.id"))
+    # Target owner is the user receiving the notification.
+    target_owner = Column(db.Integer, db.ForeignKey("user.id"))
     # Example actions: 'liked', 'replied', 'commented', etc.
     action = Column(db.String(10))
 
     timestamp = Column(db.DateTime)
     read = Column(db.Boolean, default=False)
 
-    # Object names: post, comment, reply ...
-    object_name = Column(db.String(20))
+    # Object type: post, comment, reply ...
+    object_type = Column(db.String(20))
     object_public_id = Column(db.String(15))
 
     def is_read(self, read):
@@ -106,9 +108,7 @@ class Post(Model):
     edited = Column(db.Boolean, default=False)
 
     likes = db.relationship("PostLike", backref="post", cascade="all, delete-orphan")
-    comments = db.relationship(
-        "Comment", backref="post", cascade="all, delete-orphan"
-    )
+    comments = db.relationship("Comment", backref="post", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Post '{self.id}'>"
@@ -202,6 +202,11 @@ class ReplyLike(Model):
 class UserSchema(ma.ModelSchema):
     class Meta:
         model = User
+
+
+class NotificationSchema(ma.ModelSchema):
+    class Meta:
+        model = Notification
 
 
 class PostSchema(ma.ModelSchema):

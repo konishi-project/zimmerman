@@ -3,7 +3,9 @@ from uuid import uuid4
 
 from zimmerman.main import db
 from zimmerman.main.model.main import Comment, Post
+
 from .user_service import load_author
+from zimmerman.notification.service import send_notification
 
 # Import Schema
 from zimmerman.main.model.main import CommentLike, CommentSchema
@@ -59,6 +61,14 @@ class CommentService:
 
             # Add the author's info
             latest_comment["author"] = load_author(latest_comment["creator_public_id"])
+
+            # Send a notification to the post owner.
+            notif_data = dict(
+                action="commented",
+                object_type="comment",
+                object_public_id=latest_comment["public_id"],
+            )
+            send_notification(notif_data, post.creator_public_id)
 
             response_object = {
                 "success": True,

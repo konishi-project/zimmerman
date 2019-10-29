@@ -18,6 +18,7 @@ class FeedGet(Resource):
             "10/minute", error_message="Too many posts requests (10 per minute)."
         )
     ]
+
     @api.doc("Get Posts IDs", responses={200: "Post IDs successfully sent to client."})
     @jwt_required
     def get(self):
@@ -29,6 +30,7 @@ class FeedGet(Resource):
             "25/minute", error_message="Too many posts requests (25 per minute)."
         )
     ]
+
     @api.expect(_feed, validate=True)
     @api.doc(
         "Get the posts data",
