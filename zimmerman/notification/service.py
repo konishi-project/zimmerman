@@ -1,3 +1,4 @@
+from flask import jsonify
 from datetime import datetime
 from flask_jwt_extended import get_jwt_identity
 
@@ -21,6 +22,14 @@ allowed_types = ("post", "comment", "reply")
 # Add more if needed
 valid_actions = ("replied", "liked", "commented")
 
+def uniq(a_list):
+    encountered = set()
+    result = []
+    for elem in a_list:
+        if elem not in encountered:
+            result.append(elem)
+        encountered.add(elem)
+    return result
 
 def add_notification_and_flush(data):
     db.session.add(data)
@@ -102,27 +111,42 @@ def send_notification(data, target_user_public_id):
         }
         return response_object, 500
 
+
 class NotificationService:
     def get_notification_ids(current_user):
-        # returns an array of latest notifications.
         try:
-            # 
-            # The database gets the unread notifications 
-            pass
+            # The database gets the unread notifications
+            notifs = (
+                Notification.query.filter_by(target_owner=current_user.id)
+                .with_entities(Notification.id, Notification.timestamp)
+                .all()
+            )
+            notification_schema = NotificationSchema(many=True)
+            notification_info = notification_schema.dump(notifs)
+
+            ids = uniq(
+                x["id"]
+                for x in sorted(
+                    notification_info, key=lambda x: x["timestamp"], reverse=True
+                )
+            )
+
+            response_object = {
+                "success": True,
+                "message": "Sent notification IDs",
+                "notif_ids": ids,
+            }
+            return response_object
         except Exception as error:
             print(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
-                "error_reason": "server_error"
+                "error_reason": "server_error",
             }
             return response_object, 500
 
-    def get_notification_info():
-        pass
-
-    def read_notifications():
-        # Uses PUT method, receives notification ID(s)
+    def get_notification_info(id_array, current_user):
         try:
             pass
         except Exception as error:
@@ -130,6 +154,19 @@ class NotificationService:
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
-                "error_reason": "server_error"
+                "error_reason": "server_error",
+            }
+            return response_object, 500
+
+    def read_notifications():
+        # Uses PATCH method, receives notification ID(s)
+        try:
+            pass
+        except Exception as error:
+            print(error)
+            response_object = {
+                "success": False,
+                "message": "Something went wrong during the process!",
+                "error_reason": "server_error",
             }
             return response_object, 500

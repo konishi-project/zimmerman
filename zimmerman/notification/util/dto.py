@@ -1,10 +1,13 @@
 from flask_restplus import Namespace, fields
 
+
 class NotificationDto:
     api = Namespace("notifications", description="Notification related operations.")
     notification = api.model(
-        "notification", 
+        "notification",
         {
-            "notification_ids": fields.List(fields.Integer, description="Array of Notification IDs")
-        }
+            "notification_ids": fields.List(
+                fields.Integer, description="Array of Notification IDs"
+            )
+        },
     )
