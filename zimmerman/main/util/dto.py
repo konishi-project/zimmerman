@@ -67,7 +67,8 @@ class ReplyDto:
 class FeedDto:
     api = Namespace("feed", description="Feed related operations.")
     feed = api.model(
-        "feed", {"post_ids": fields.List(fields.Integer, description="Array of Post IDs")}
+        "feed",
+        {"post_ids": fields.List(fields.Integer, description="Array of Post IDs")},
     )
 
 
