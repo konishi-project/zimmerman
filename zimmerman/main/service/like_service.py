@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from zimmerman.main import db
+from zimmerman.notification.service import send_notification
 from zimmerman.main.model.main import (
     Post,
     PostLike,
@@ -16,6 +17,13 @@ def check_like(likes, user_id):
         if like.owner_id == user_id:
             return True
 
+def notify(object_type, object_public_id, target_owner_public_id):
+    notif_data = dict(
+        action="liked",
+        object_type=object_type,
+        object_public_id=object_public_id,
+    )
+    send_notification(notif_data, target_owner_public_id)
 
 class Like:
     def post(post_public_id, current_user):
@@ -29,8 +37,8 @@ class Like:
 
         # Check if the user already liked the post
         likes = PostLike.query.filter_by(on_post=post.id).all()
-        # Temporary
-        if check_like(likes, current_user.id):
+
+        if current_user.id in likes:
             response_object = {
                 "success": False,
                 "message": "User has already liked the post.",
@@ -44,6 +52,9 @@ class Like:
 
         # Commit the changes
         try:
+            if current_user.public_id != post.creator_public_id:
+                notify("post", post.public_id, post.creator_public_id)
+
             db.session.add(like_post)
             db.session.commit()
             response_object = {"success": True, "message": "User has liked the post."}
@@ -82,6 +93,9 @@ class Like:
 
         # Commit the changes
         try:
+            if current_user.public_id != comment.creator_public_id:
+                notify("comment", comment.public_id, comment.creator_public_id)
+
             db.session.add(like_comment)
             db.session.commit()
             response_object = {
@@ -122,6 +136,9 @@ class Like:
         )
 
         try:
+            if current_user.public_id != reply.creator_public_id:
+                notify("reply", reply.public_id, reply.creator_public_id)
+
             db.session.add(like_reply)
             db.session.commit()
             response_object = {"success": False, "message": "User has liked the reply."}
