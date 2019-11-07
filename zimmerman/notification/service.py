@@ -68,12 +68,7 @@ def send_notification(data, target_user_public_id):
     ).first()
 
     if notification is not None:
-        response_object = {
-            "success": False,
-            "message": "Notification exists!",
-            "error_reason": "notification_exists",
-        }
-        return response_object, 403
+        return None, 204
 
     # Validate
     if object_type not in allowed_types:
