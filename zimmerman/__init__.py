@@ -11,6 +11,8 @@ from .main.controller.upload_controller import api as upload_ns
 
 from .auth.controller import api as auth_ns
 
+from .notification.controller import api as notif_ns
+
 main_bp = Blueprint("main", __name__)
 
 main = Api(main_bp, title="Main API", version="1.10.1", description="Main routes.")
@@ -24,3 +26,4 @@ main.add_namespace(like_ns)
 main.add_namespace(upload_ns)
 
 main.add_namespace(auth_ns)
+main.add_namespace(notif_ns)

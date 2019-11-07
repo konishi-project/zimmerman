@@ -31,7 +31,7 @@ class UserUpdate(Resource):
         responses={200: "User data has been updated.", 404: "User not found!"},
     )
     @jwt_required
-    def post(self):
+    def put(self):
         """ Update a user's data """
         current_user = load_user(get_jwt_identity())
         data = request.get_json()

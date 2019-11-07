@@ -50,6 +50,8 @@ Resourceful Links for the commonly used distros ;)
 
 * Gentoo - (https://wiki.gentoo.org/wiki/PostgreSQL/QuickStart)
 
+Zimmerman uses [Black](https://github.com/psf/black) for linting the code.
+
 ## Contributing
 
 The Konishi project is a community project which includes Zimmerman. We are welcoming contributors who would like to make an impact in the project and eventually the social networking industry.
