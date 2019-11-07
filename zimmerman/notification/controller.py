@@ -8,34 +8,42 @@ from .service import NotificationService
 from .util.dto import NotificationDto
 
 api = NotificationDto.api
-notification = NotificationDto.notification
+_notification = NotificationDto.notification
 
+# Add rate limiting
 
 @api.route("/get")
 class NotificationGet(Resource):
-    """ 
-    Get user notifications IDs
-    """
 
+    @api.doc("Get Notification IDs", responses={
+        200: "Notification IDs successfully sent to the client.",
+        500: "Server Error",
+    })
     @jwt_required
     def get(self):
+        """ Get user notifications IDs """
         current_user = load_user(get_jwt_identity())
         return NotificationService.get_notification_ids(current_user)
 
-
-@api.route("/get")
-class NotificationGetInfo(Resource):
     """ Get user notifications' info
     User hits the endpoint with array of IDs
     and returns the information.
     """
 
+    @api.expect(_notification, validate=True)
+    @api.doc(
+        "Get the notifications' data",
+        responses={
+            200: "Notification data successfully sent to the client."
+        }
+    )
     @jwt_required
     def post(self):
+        """ Get notifications' data """
         data = request.get_json()
-        notif_ids = data["notif_ids"]
-        return NotificationService.get_notification_info(notif_ids)
-
+        notif_ids = data["notification_ids"]
+        current_user = load_user(get_jwt_identity())
+        return NotificationService.get_notifs_info(notif_ids, current_user)
 
 @api.route("/read")
 class NotificationRead(Resource):
@@ -46,6 +54,7 @@ class NotificationRead(Resource):
 
     @jwt_required
     def put(self):
+        """ Set notifications as read """
         data = request.get_json()
         notif_ids = data["notif_ids"]
         current_user = load_user(get_jwt_identity())

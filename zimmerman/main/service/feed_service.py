@@ -135,17 +135,13 @@ class Feed:
         post_schema = PostSchema()
         posts = []
 
+        # Check if the array is empty
         if len(id_array) == 0 or id_array is None:
-            response_object = {
-                "success": True,
-                "message": "There is nothing to send.",
-                "posts": posts,
-            }
-            return response_object, 200
+            return None, 204
 
         for post_id in id_array:
-            # Get the post and schema
-            post = Post.query.filter_by(id=post_id).first()
+            # Get the post
+            post = Post.query.get(post_id)
             # Dump the data and append it to the posts list
             post_info = post_schema.dump(post)
 
@@ -177,7 +173,7 @@ class Feed:
 
         response_object = {
             "success": True,
-            "message": "Post data successfully delivered.",
+            "message": "Post data successfully sent.",
             "posts": posts,
         }
         return response_object, 200

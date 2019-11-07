@@ -74,6 +74,8 @@ class Role(Model):
 
 class Notification(Model):
     id = Column(db.Integer, primary_key=True)
+    # The user that committed the action, takes public_id.
+    actor = Column(db.String(15))
     # Target owner is the user receiving the notification.
     target_owner = Column(db.Integer, db.ForeignKey("user.id"))
     # Example actions: 'liked', 'replied', 'commented', etc.

@@ -4,10 +4,11 @@ from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
 from zimmerman.main.model.main import Notification, NotificationSchema, User
+from zimmerman.main.service.user_service import load_user, load_author
 
 """
 Notification flow:
-When a user commits an action, it'll create a notification
+When the actor commits an action, it'll create a notification
 and add it to the target owner's notifications.
 
 If the target object has the same owner, then no need to create
@@ -47,6 +48,7 @@ def add_notification_and_flush(data):
 
 # Creates and sends the notification to the user.
 def send_notification(data, target_user_public_id):
+    actor = load_user(get_jwt_identity())
 
     action = data["action"]
     # Post, Comment, Reply, etc.
@@ -84,6 +86,7 @@ def send_notification(data, target_user_public_id):
     try:
         new_notification = Notification(
             target_owner=target_user.id,
+            actor=actor.public_id,
             action=action,
             timestamp=datetime.utcnow(),
             object_type=object_type,
@@ -112,7 +115,6 @@ def send_notification(data, target_user_public_id):
 class NotificationService:
     def get_notification_ids(current_user):
         try:
-            # The database gets the unread notifications
             notifs = (
                 Notification.query.filter_by(target_owner=current_user.id)
                 .with_entities(Notification.id, Notification.timestamp)
@@ -134,6 +136,7 @@ class NotificationService:
                 "notif_ids": ids,
             }
             return response_object
+
         except Exception as error:
             print(error)
             response_object = {
@@ -143,9 +146,32 @@ class NotificationService:
             }
             return response_object, 500
 
-    def get_notification_info(id_array, current_user):
+    def get_notifs_info(id_array, current_user):
+        notif_schema = NotificationSchema()
+        notifs = []
+
+        # Check if the array is empty
+        if len(id_array) == 0 or id_array is None:
+            return None, 204
+
         try:
-            pass
+            for notif_id in id_array:
+                # Get the notif and dump
+                notif = Notification.query.get(notif_id)
+                # Dump the data and append it to notifs
+                notif_info = notif_schema.dump(notif)
+                # Load the actor as user
+                notif_info["user"] = load_author(notif_info['actor'])
+
+                notifs.append(notif_info)
+
+            response_object = {
+                "success": True,
+                "message": "Notifications successfully sent.",
+                "notifications": notifs,
+            }
+            return response_object, 200
+
         except Exception as error:
             print(error)
             response_object = {
@@ -156,7 +182,6 @@ class NotificationService:
             return response_object, 500
 
     def read_notifications():
-        # Uses PATCH method, receives notification ID(s)
         try:
             pass
         except Exception as error:
