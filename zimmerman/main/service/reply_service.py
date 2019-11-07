@@ -20,6 +20,13 @@ def add_reply_and_flush(data):
 
     return latest_reply
 
+def notify(object_public_id, target_owner_public_id):
+    notif_data = dict(
+        action="replied",
+        object_type="reply",
+        object_public_id=object_public_id,
+    )
+    send_notification(notif_data, target_owner_public_id)
 
 class ReplyService:
     def create(comment_id, data, current_user):
@@ -56,6 +63,10 @@ class ReplyService:
 
             # Add the author's info
             latest_reply["author"] = load_author(latest_reply["creator_public_id"])
+
+            # Send a notification to the comment owner
+            if current_user.public_id != comment.creator_public_id:
+                notify(latest_reply['public_id'], comment.creator_public_id)
 
             response_object = {
                 "success": True,

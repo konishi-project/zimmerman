@@ -22,13 +22,13 @@ def add_comment_and_flush(data):
 
     return latest_comment
 
-def notify(object_public_id, creator_public_id):
+def notify(object_public_id, target_owner_public_id):
     notif_data = dict(
         action="commented",
         object_type="comment",
         object_public_id=object_public_id,
     )
-    send_notification(notif_data, creator_public_id)
+    send_notification(notif_data, target_owner_public_id)
 
 
 class CommentService:
