@@ -17,13 +17,13 @@ def check_like(likes, user_id):
         if like.owner_id == user_id:
             return True
 
+
 def notify(object_type, object_public_id, target_owner_public_id):
     notif_data = dict(
-        action="liked",
-        object_type=object_type,
-        object_public_id=object_public_id,
+        action="liked", object_type=object_type, object_public_id=object_public_id
     )
     send_notification(notif_data, target_owner_public_id)
+
 
 class Like:
     def post(post_public_id, current_user):

@@ -22,6 +22,7 @@ allowed_types = ("post", "comment", "reply")
 # Add more if needed
 valid_actions = ("replied", "liked", "commented")
 
+
 def uniq(a_list):
     encountered = set()
     result = []
@@ -30,6 +31,7 @@ def uniq(a_list):
             result.append(elem)
         encountered.add(elem)
     return result
+
 
 def add_notification_and_flush(data):
     db.session.add(data)
@@ -62,14 +64,6 @@ def send_notification(data, target_user_public_id):
         }
         return response_object, 403
 
-    # Check if notification exists.
-    notification = Notification.query.filter_by(
-        object_type=object_type, object_public_id=object_public_id
-    ).first()
-
-    if notification is not None:
-        return None, 204
-
     # Validate
     if object_type not in allowed_types:
         response_object = {
@@ -78,6 +72,14 @@ def send_notification(data, target_user_public_id):
             "error_reason": "object_invalid",
         }
         return response_object, 403
+
+    # Check if notification exists.
+    notification = Notification.query.filter_by(
+        object_type=object_type, object_public_id=object_public_id
+    ).first()
+
+    if notification is not None:
+        return None, 204
 
     try:
         new_notification = Notification(
