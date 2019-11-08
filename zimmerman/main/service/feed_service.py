@@ -137,7 +137,12 @@ class Feed:
 
         # Check if the array is empty
         if len(id_array) == 0 or id_array is None:
-            return None, 204
+            response_object = {
+                "success": True,
+                "message": "Requested posts id array is empty, nothing to send.",
+                "posts": posts,
+            }
+            return response_object, 200
 
         for post_id in id_array:
             # Get the post
