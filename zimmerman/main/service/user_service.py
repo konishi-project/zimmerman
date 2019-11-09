@@ -16,6 +16,7 @@ private_info = (
     "comment_likes",
     "reply_likes",
     "posts",
+    "notifications",
 )
 
 
@@ -41,7 +42,16 @@ def load_by_public_id(user_public_id):
 
 
 def load_user(user_id):
-    return User.query.filter_by(id=user_id).first()
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        response_object = {
+            "success": False,
+            "message": "Current user does not exist!",
+            "error_reason": "non_existent",
+        }
+        return response_object, 403
+
+    return user
 
 
 class UserService:
