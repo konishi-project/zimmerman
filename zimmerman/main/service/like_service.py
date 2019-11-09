@@ -43,7 +43,7 @@ class Like:
                 "message": "User has already liked the post.",
             }
             return response_object, 403
-        
+
         if current_user.id in likes:
             response_object = {
                 "success": False,

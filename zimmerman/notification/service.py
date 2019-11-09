@@ -161,7 +161,7 @@ class NotificationService:
                 # Dump the data and append it to notifs
                 notif_info = notif_schema.dump(notif)
                 # Load the actor as user
-                notif_info["actor_info"] = load_author(notif_info['actor'])
+                notif_info["actor_info"] = load_author(notif_info["actor"])
 
                 notifs.append(notif_info)
 

@@ -56,6 +56,7 @@ class Auth:
                     )
 
                 access_token = create_access_token(identity=user.id)
+
                 if access_token:
                     response_object = {
                         "success": True,

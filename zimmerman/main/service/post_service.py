@@ -33,6 +33,7 @@ def add_post_and_flush(data):
 
     return latest_post
 
+
 def get_comments(post_info, current_user_id):
     comments = []
     comment_schema = CommentSchema()
@@ -230,8 +231,6 @@ class PostService:
         }
         return response_object, 403
 
-
-
     def get(post_public_id, current_user):
         # Get the specific post using its public id
         post = Post.query.filter_by(public_id=post_public_id).first()
@@ -243,7 +242,7 @@ class PostService:
         post_info = post_schema.dump(post)
 
         post_info["author"] = load_author(post_info["creator_public_id"])
-        
+
         # Check if the current user has liked the post
         user_likes = PostLike.query.filter_by(on_post=post.id).order_by(
             PostLike.liked_on.desc()

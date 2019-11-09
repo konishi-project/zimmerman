@@ -1,9 +1,5 @@
 from zimmerman.main import db
-from zimmerman.main.model.main import (
-    Post,
-    Comment,
-    PostLike,
-)
+from zimmerman.main.model.main import Post, Comment, PostLike
 from zimmerman.main.service.like_service import check_like
 from zimmerman.main.service.post_service import load_author, get_comments, get_replies
 
@@ -22,6 +18,7 @@ def uniq(a_list):
             result.append(elem)
         encountered.add(elem)
     return result
+
 
 class Feed:
     def get_chronological():

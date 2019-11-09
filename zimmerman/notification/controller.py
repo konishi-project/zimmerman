@@ -12,13 +12,16 @@ _notification = NotificationDto.notification
 
 # Add rate limiting
 
+
 @api.route("/get")
 class NotificationGet(Resource):
-
-    @api.doc("Get Notification IDs", responses={
-        200: "Notification IDs successfully sent to the client.",
-        500: "Server Error",
-    })
+    @api.doc(
+        "Get Notification IDs",
+        responses={
+            200: "Notification IDs successfully sent to the client.",
+            500: "Server Error",
+        },
+    )
     @jwt_required
     def get(self):
         """ Get user notifications IDs """
@@ -33,9 +36,7 @@ class NotificationGet(Resource):
     @api.expect(_notification, validate=True)
     @api.doc(
         "Get the notifications' data",
-        responses={
-            200: "Notification data successfully sent to the client."
-        }
+        responses={200: "Notification data successfully sent to the client."},
     )
     @jwt_required
     def post(self):
@@ -44,6 +45,7 @@ class NotificationGet(Resource):
         notif_ids = data["notification_ids"]
         current_user = load_user(get_jwt_identity())
         return NotificationService.get_notifs_info(notif_ids, current_user)
+
 
 @api.route("/read")
 class NotificationRead(Resource):
