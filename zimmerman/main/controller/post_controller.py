@@ -23,7 +23,8 @@ class PostGet(Resource):
     @jwt_required
     def get(self, post_public_id):
         """ Get a specific post using its public id """
-        return PostService.get(post_public_id)
+        current_user = load_user(get_jwt_identity())
+        return PostService.get(post_public_id, current_user)
 
 
 @api.route("/create")
