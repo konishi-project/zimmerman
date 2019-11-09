@@ -2,7 +2,7 @@
 from flask import Flask
 
 # Import extensions
-from .extensions import db, ma, jwt, bcrypt, cors, limiter
+from .extensions import db, ma, jwt, bcrypt, cors, limiter, talisman
 
 # Import configuration
 from zimmerman.config import config_by_name
@@ -25,3 +25,4 @@ def register_extensions(app):
     bcrypt.init_app(app)
     cors.init_app(app)
     limiter.init_app(app)
+    talisman.init_app(app)
