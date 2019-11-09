@@ -48,8 +48,8 @@ def add_notification_and_flush(data):
 
 # Creates and sends the notification to the user.
 def send_notification(data, target_user_public_id):
-    actor = load_user(get_jwt_identity())
 
+    actor = load_user(get_jwt_identity())
     action = data["action"]
     # Post, Comment, Reply, etc.
     object_type = data["object_type"]
@@ -161,7 +161,7 @@ class NotificationService:
                 # Dump the data and append it to notifs
                 notif_info = notif_schema.dump(notif)
                 # Load the actor as user
-                notif_info["user"] = load_author(notif_info['actor'])
+                notif_info["actor_info"] = load_author(notif_info['actor'])
 
                 notifs.append(notif_info)
 
