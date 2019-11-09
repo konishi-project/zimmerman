@@ -35,9 +35,15 @@ class Like:
             response_object = {"success": False, "message": "Post not found!"}
             return response_object, 404
 
-        # Check if the user already liked the post
+        # Check if the user already liked
         likes = PostLike.query.filter_by(on_post=post.id).all()
-
+        if check_like(likes, current_user.id):
+            response_object = {
+                "success": False,
+                "message": "User has already liked the post.",
+            }
+            return response_object, 403
+        
         if current_user.id in likes:
             response_object = {
                 "success": False,
