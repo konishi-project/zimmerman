@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from zimmerman.main import db
 from zimmerman.main.model.main import Reply, Comment
+from zimmerman.notification.service import send_notification
 from .user_service import load_author
 
 # Import Schema
