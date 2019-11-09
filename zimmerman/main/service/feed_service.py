@@ -1,21 +1,14 @@
-import os
-from glob import glob
-from flask import url_for
-
 from zimmerman.main import db
 from zimmerman.main.model.main import (
     Post,
     Comment,
-    Reply,
     PostLike,
-    CommentLike,
-    ReplyLike,
 )
 from zimmerman.main.service.like_service import check_like
 from zimmerman.main.service.post_service import load_author, get_comments, get_replies
 
 # Import Schemas
-from zimmerman.main.model.main import PostSchema, CommentSchema, ReplySchema
+from zimmerman.main.model.main import PostSchema, CommentSchema
 
 # Import upload path
 from .upload_service import get_image
