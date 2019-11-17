@@ -25,4 +25,4 @@ def register_extensions(app):
     bcrypt.init_app(app)
     cors.init_app(app)
     limiter.init_app(app)
-    talisman.init_app(app)
+    # talisman.init_app(app)

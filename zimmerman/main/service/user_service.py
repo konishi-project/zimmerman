@@ -20,6 +20,21 @@ private_info = (
 )
 
 
+def filter_author(user):
+    # Remove sensitive information
+    for info in private_info:
+        del user[info]
+
+    # Add the avatar
+    user["avatar"] = (
+        get_image(user["profile_picture"], "avatars")
+        if user["profile_picture"] is not None
+        else None
+    )
+
+    return user
+
+
 def load_author(user_public_id):
     # Add the author's essential details.
     user_schema = UserSchema()
