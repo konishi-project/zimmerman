@@ -6,6 +6,7 @@ from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
 from zimmerman.main.model.main import (
+    User,
     Post,
     Comment,
     Reply,
@@ -14,19 +15,24 @@ from zimmerman.main.model.main import (
     ReplyLike,
 )
 
-from .user_service import load_author
+from .user_service import filter_author, load_author
 from .like_service import check_like
 from .upload_service import get_image
 
 # Import Schemas
-from zimmerman.main.model.main import PostSchema, CommentSchema, ReplySchema
+from zimmerman.main.model.main import PostSchema, CommentSchema, ReplySchema, UserSchema
+
+# Define the schemas
+post_schema = PostSchema()
+comment_schema = CommentSchema()
+reply_schema = ReplySchema()
+user_schema = UserSchema()
 
 
 def add_post_and_flush(data):
     db.session.add(data)
     db.session.flush()
 
-    post_schema = PostSchema()
     latest_post = post_schema.dump(data)
 
     db.session.commit()
@@ -34,59 +40,64 @@ def add_post_and_flush(data):
     return latest_post
 
 
-def get_comments(post_info, current_user_id):
-    comments = []
-    comment_schema = CommentSchema()
-    # Get the first five comments
-    for comment_id in sorted(post_info["comments"])[:5]:
-        # Get the coment info
-        comment = Comment.query.filter_by(id=comment_id).first()
-        comment_info = comment_schema.dump(comment)
-
-        comment_info["author"] = load_author(comment_info["creator_public_id"])
-
-        # Check if the comment is liked
-        user_likes = CommentLike.query.filter_by(on_comment=comment_id).order_by(
-            CommentLike.liked_on.desc()
-        )
-
-        if check_like(user_likes, current_user_id):
-            comment_info["liked"] = True
-        else:
-            comment_info["liked"] = False
-
-        if comment_info["replies"]:
-            comment_info["initial_replies"] = get_replies(comment_info, current_user_id)
-
-        comments.append(comment_info)
-
-    return comments
-
-
-def get_replies(comment_info, current_user_id):
+# Get initial replies and comments will replace the older methods
+def get_initial_replies(id_array):
     replies = []
-    reply_schema = ReplySchema()
 
-    # Get the latest 2 replies if they are existent
-    for reply_id in sorted(comment_info["replies"])[:2]:
-        reply = Reply.query.filter_by(id=reply_id).first()
+    query = (
+        db.session.query(Reply, User)
+        .join(Reply, User.public_id == Reply.creator_public_id)
+        .filter(Reply.id.in_(id_array))
+        .all()
+    )
+
+    for result in query:
+        reply = result.Reply
+        author = result.User
+
         reply_info = reply_schema.dump(reply)
 
-        reply_info["author"] = load_author(reply_info["creator_public_id"])
-
-        # Check if the reply is liked
-        user_likes = ReplyLike.query.filter_by(on_reply=reply_id).order_by(
-            ReplyLike.liked_on.desc()
-        )
-
-        if check_like(user_likes, current_user_id):
-            reply_info["liked"] = True
-        else:
-            reply_info["liked"] = False
+        # Set and filter out the author's sensitive info.
+        author = user_schema.dump(author)
+        reply_info["author"] = filter_author(author)
 
         replies.append(reply_info)
 
     return replies
+
+
+def get_initial_comments(id_array):
+    comments = []
+
+    query = (
+        db.session.query(Comment, User)
+        .join(Comment, User.public_id == Comment.creator_public_id)
+        .filter(Comment.id.in_(id_array))
+        .all()
+    )
+
+    for result in query:
+        comment = result.Comment
+        author = result.User
+
+        comment_info = comment_schema.dump(comment)
+
+        # Set and filter out the author's sensitive info.
+        author = user_schema.dump(author)
+        comment_info["author"] = filter_author(author)
+
+        # Check if liked
+
+        # Get the first 2 replies if there are any.
+        comment_info["initial_replies"] = (
+            get_initial_replies(sorted(comment_info["replies"])[:2])
+            if comment_info["replies"]
+            else None
+        )
+
+        comments.append(comment_info)
+
+    return comments
 
 
 class PostService:
@@ -238,7 +249,6 @@ class PostService:
             response_object = {"success": False, "message": "Post not found!"}
             return response_object, 404
 
-        post_schema = PostSchema()
         post_info = post_schema.dump(post)
 
         post_info["author"] = load_author(post_info["creator_public_id"])
@@ -259,7 +269,7 @@ class PostService:
 
         # Get the latest 5 comments
         if post_info["comments"]:
-            post_info["initial_comments"] = get_comments(post_info, current_user.id)
+            post_info["initial_comments"] = get_initial_comments(sorted(post_info["initial_comments"])[:5])
 
         response_object = {
             "success": True,
