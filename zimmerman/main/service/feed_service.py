@@ -1,10 +1,11 @@
 from zimmerman.main import db
-from zimmerman.main.model.main import Post, Comment, PostLike
+from zimmerman.main.model.main import Post, Comment, PostLike, User
 from zimmerman.main.service.like_service import check_like
-from zimmerman.main.service.post_service import load_author, get_comments, get_replies
+from zimmerman.main.service.post_service import get_initial_comments
+from zimmerman.main.service.user_service import filter_author, load_author
 
 # Import Schemas
-from zimmerman.main.model.main import PostSchema, CommentSchema
+from zimmerman.main.model.main import PostSchema, CommentSchema, UserSchema
 
 # Import upload path
 from .upload_service import get_image
@@ -64,54 +65,60 @@ class Feed:
         return response_object, 200
 
     def get_posts_info(id_array, current_user):
-        # Get the data in the array of post IDs
-        post_schema = PostSchema()
-        posts = []
-
         # Check if the array is empty
         if len(id_array) == 0 or id_array is None:
-            response_object = {
-                "success": True,
-                "message": "Requested posts id array is empty, nothing to send.",
-                "posts": posts,
-            }
-            return response_object, 200
+            ## Nothing to send back..
+            return "", 204
 
-        for post_id in id_array:
-            # Get the post
-            post = Post.query.get(post_id)
-            # Dump the data and append it to the posts list
+        posts = []
+
+        # Define the schemas
+        post_schema = PostSchema()
+        user_schema = UserSchema()
+
+        # Get the posts, join the latest 5 comments and the comments' latest 2 replies.
+        query = (
+            db.session.query(Post, User)
+            .join(Post, User.id == Post.owner_id)
+            .filter(Post.id.in_(id_array))
+            .all()
+        )
+
+        for result in query:
+            post = result.Post
+            author = result.User
+
             post_info = post_schema.dump(post)
 
-            # Add the author
-            post_info["author"] = load_author(post_info["creator_public_id"])
+            # Set the author
+            author = user_schema.dump(author)
+            post_info["author"] = filter_author(author)
 
-            # Check if the current user has liked the post
-            user_likes = PostLike.query.filter_by(on_post=post.id).order_by(
-                PostLike.liked_on.desc()
+            # Get the first 5 comments if there are any
+            post_info["initial_comments"] = (
+                get_initial_comments(sorted(post_info["comments"])[:5])
+                if post_info["comments"]
+                else None
             )
 
-            if check_like(user_likes, current_user.id):
-                post_info["liked"] = True
-            else:
-                post_info["liked"] = False
+            # # Check if liked
+            # if current_user.id in post_info["likes"].owner_id:
+            #     post_info["liked"] = True
+            # else:
+            #     post_info["liked"] = False
 
-            # Check if it has an image
-            if post_info["image_file"]:
-                # Get the image_url
-                post_info["image_url"] = get_image(
-                    post_info["image_file"], "postimages"
-                )
-
-            # Get the latest 5 comments
-            if post_info["comments"]:
-                post_info["initial_comments"] = get_comments(post_info, current_user.id)
+            # Get image (if exists)
+            post_info["image_url"] = (
+                get_image(post_info["image_file"], "postimages")
+                if post_info["image_file"]
+                else None
+            )
 
             posts.append(post_info)
 
         response_object = {
             "success": True,
-            "message": "Post data successfully sent.",
+            "message": "Posts successfully sent.",
             "posts": posts,
         }
         return response_object, 200
