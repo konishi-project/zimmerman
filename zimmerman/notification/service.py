@@ -3,8 +3,11 @@ from datetime import datetime
 from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
-from zimmerman.main.model.main import Notification, NotificationSchema, User
-from zimmerman.main.service.user_service import load_user, load_author
+from zimmerman.main.model.main import Notification, User
+from zimmerman.main.service.user_service import load_user, filter_author
+
+# Grab schemas
+from zimmerman.main.model.main import UserSchema, NotificationSchema
 
 """
 Notification flow:
@@ -18,6 +21,10 @@ Example:
 User *likes* a post -> Create a notification to the post's owner
 (if User == Post owner) then ignore notification creation.
 """
+
+# Define schema
+notification_schema = NotificationSchema()
+user_schema = UserSchema()
 
 allowed_types = ("post", "comment", "reply")
 # Add more if needed
@@ -38,7 +45,6 @@ def add_notification_and_flush(data):
     db.session.add(data)
     db.session.flush()
 
-    notification_schema = NotificationSchema()
     latest_notification = notification_schema.dump(data)
 
     db.session.commit()
@@ -111,7 +117,6 @@ def send_notification(data, target_user_public_id):
         }
         return response_object, 500
 
-
 class NotificationService:
     def get_notification_ids(current_user):
         try:
@@ -147,21 +152,21 @@ class NotificationService:
             return response_object, 500
 
     def get_notifs_info(id_array, current_user):
-        notif_schema = NotificationSchema()
-        notifs = []
-
         # Check if the array is empty
         if len(id_array) == 0 or id_array is None:
             return None, 204
 
+        notifs = []
+
+        notif_query = Notification.query.filter(Notification.id.in_(id_array)).all()
+
         try:
-            for notif_id in id_array:
-                # Get the notif and dump
-                notif = Notification.query.get(notif_id)
-                # Dump the data and append it to notifs
-                notif_info = notif_schema.dump(notif)
+            for notification in notif_query:
+                notif_info = notification_schema.dump(notification)
+
                 # Load the actor as user
-                notif_info["actor_info"] = load_author(notif_info["actor"])
+                actor = user_schema.dump(notification.user)
+                notif_info["actor_info"] = filter_author(actor)
 
                 notifs.append(notif_info)
 

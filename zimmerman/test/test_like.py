@@ -55,14 +55,12 @@ class TestLikeBlueprint(BaseTestCase):
             like_response_data = json.loads(like_response.data.decode())
 
             self.assertEqual(like_response.status_code, 201)
-            self.assertTrue(like_response_data["success"])
 
             # Unlike the post
             unlike_response = unlike_post(self, access_token, post_public_id)
             unlike_response_data = json.loads(unlike_response.data.decode())
 
             self.assertEqual(unlike_response.status_code, 200)
-            self.assertTrue(unlike_response_data["success"])
 
 
 if __name__ == "__main__":

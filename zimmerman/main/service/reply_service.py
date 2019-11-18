@@ -4,18 +4,22 @@ from uuid import uuid4
 from zimmerman.main import db
 from zimmerman.main.model.main import Reply, Comment
 from zimmerman.notification.service import send_notification
-from .user_service import load_author
+from .user_service import load_author, filter_author
+from .like_service import check_like
 
 # Import Schema
-from zimmerman.main.model.main import ReplyLike, ReplySchema
+from zimmerman.main.model.main import ReplySchema, UserSchema
+
+# Define schema
+reply_schema = ReplySchema()
+user_schema = UserSchema()
 
 
-def add_reply_and_flush(data):
+def add_reply_and_flush(data, user_id):
     db.session.add(data)
     db.session.flush()
 
-    reply_schema = ReplySchema()
-    latest_reply = reply_schema.dump(data)
+    latest_reply = load_reply(data, user_id)
 
     db.session.commit()
 
@@ -27,6 +31,21 @@ def notify(object_public_id, target_owner_public_id):
         action="replied", object_type="reply", object_public_id=object_public_id
     )
     send_notification(notif_data, target_owner_public_id)
+
+
+def load_reply(reply, user_id):
+    reply_info = reply_schema.dump(reply)
+
+    # Set the author
+    author = user_schema.dump(reply.author)
+    reply_info["author"] = filter_author(author)
+
+    # Return boolean
+    reply_info["liked"] = check_like(reply.likes, user_id)
+
+    # Filter reply
+
+    return reply_info
 
 
 class ReplyService:
@@ -54,20 +73,14 @@ class ReplyService:
             # Create new reply obj.
             new_reply = Reply(
                 public_id=str(uuid4().int)[:15],
+                owner_id=current_user.id,
                 creator_public_id=current_user.public_id,
                 on_comment=comment.id,
                 content=content,
                 created=datetime.utcnow(),
             )
 
-            latest_reply = add_reply_and_flush(new_reply)
-
-            # Add the author's info
-            latest_reply["author"] = load_author(latest_reply["creator_public_id"])
-
-            # Send a notification to the comment owner
-            if current_user.public_id != comment.creator_public_id:
-                notify(latest_reply["public_id"], comment.creator_public_id)
+            latest_reply = add_reply_and_flush(new_reply, current_user.id)
 
             response_object = {
                 "success": True,
@@ -95,8 +108,6 @@ class ReplyService:
         elif (
             current_user.public_id == reply.creator_public_id
         ):  # or is_admin(current_user)
-            reply = Reply.query.filter_by(id=reply_id).first()
-
             try:
                 # Delete the reply and commit
                 db.session.delete(reply)

@@ -31,8 +31,10 @@ class User(Model):
 
     # Relationships
     notifications = db.relationship("Notification", backref="user")
-    posts = db.relationship("Post", backref="user")
-    # Add Favorites (post)
+
+    posts = db.relationship("Post", backref="author", lazy=True)
+    comments = db.relationship("Comment", backref="author", lazy=True)
+    replies = db.relationship("Reply", backref="author", lazy=True)
 
     post_likes = db.relationship("PostLike", backref="user")
     comment_likes = db.relationship("CommentLike", backref="user")
@@ -98,7 +100,7 @@ class Post(Model):
     # Basic details
     id = Column(db.Integer, primary_key=True)
     public_id = Column(db.String(15))
-    owner_id = Column(db.Integer, db.ForeignKey("user.id"))
+    owner_id = Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     creator_public_id = Column(db.String(15))
 
     # Post content and details
@@ -109,8 +111,12 @@ class Post(Model):
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
 
-    likes = db.relationship("PostLike", backref="post", cascade="all, delete-orphan")
-    comments = db.relationship("Comment", backref="post", cascade="all, delete-orphan")
+    likes = db.relationship(
+        "PostLike", backref="post", cascade="all, delete-orphan", lazy=True
+    )
+    comments = db.relationship(
+        "Comment", backref="post", cascade="all, delete-orphan", lazy=True
+    )
 
     def __repr__(self):
         return f"<Post '{self.id}'>"
@@ -122,6 +128,7 @@ class Comment(Model):
     # Basic details
     id = Column(db.Integer, primary_key=True)
     public_id = Column(db.String(15))
+    owner_id = Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     creator_public_id = Column(db.String(15))
     on_post = Column(db.Integer, db.ForeignKey("post.id"))
 
@@ -132,7 +139,7 @@ class Comment(Model):
     edited = Column(db.Boolean, default=False)
 
     likes = db.relationship(
-        "CommentLike", backref="comment", cascade="all, delete-orphan"
+        "CommentLike", backref="comment", cascade="all, delete-orphan", lazy=True
     )
     replies = db.relationship("Reply", backref="comment", cascade="all, delete-orphan")
 
@@ -146,6 +153,7 @@ class Reply(Model):
     # Basic details
     id = Column(db.Integer, primary_key=True)
     public_id = Column(db.String(15))
+    owner_id = Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     creator_public_id = Column(db.String(15))
     on_comment = Column(db.Integer, db.ForeignKey("comment.id"))
 

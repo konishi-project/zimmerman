@@ -25,7 +25,8 @@ class CommentGet(Resource):
     @jwt_required
     def get(self, comment_id):
         """ Get a specific comment using its id """
-        return CommentService.get(comment_id)
+        current_user = load_user(get_jwt_identity())
+        return CommentService.get(comment_id, current_user)
 
 
 @api.route("/create/<string:post_public_id>")

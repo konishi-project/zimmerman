@@ -110,6 +110,8 @@ class TestCommentBlueprint(BaseTestCase):
             )
             update_response_data = json.loads(update_response.data.decode())
 
+            print(update_response_data)
+
             self.assertTrue(update_response_data["success"])
             self.assertEqual(update_response.status_code, 200)
 

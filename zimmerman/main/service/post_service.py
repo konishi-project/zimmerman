@@ -8,32 +8,33 @@ from zimmerman.main import db
 from zimmerman.main.model.main import (
     User,
     Post,
-    Comment,
-    Reply,
-    PostLike,
-    CommentLike,
-    ReplyLike,
 )
 
 from .user_service import filter_author, load_author
+from .comment_service import load_comment
+from .reply_service import load_reply
+
 from .like_service import check_like
 from .upload_service import get_image
 
 # Import Schemas
-from zimmerman.main.model.main import PostSchema, CommentSchema, ReplySchema, UserSchema
+from zimmerman.main.model.main import PostSchema, UserSchema
 
 # Define the schemas
 post_schema = PostSchema()
-comment_schema = CommentSchema()
-reply_schema = ReplySchema()
 user_schema = UserSchema()
 
+sensitive_info = (
+    "id",
+    "image_file",
+)
 
-def add_post_and_flush(data):
+
+def add_post_and_flush(data, user_id):
     db.session.add(data)
     db.session.flush()
 
-    latest_post = post_schema.dump(data)
+    latest_post = load_post(data, user_id)
 
     db.session.commit()
 
@@ -41,63 +42,59 @@ def add_post_and_flush(data):
 
 
 # Get initial replies and comments will replace the older methods
-def get_initial_replies(id_array):
+def get_initial_replies(reply_array, user_id):
     replies = []
 
-    query = (
-        db.session.query(Reply, User)
-        .join(Reply, User.public_id == Reply.creator_public_id)
-        .filter(Reply.id.in_(id_array))
-        .all()
-    )
-
-    for result in query:
-        reply = result.Reply
-        author = result.User
-
-        reply_info = reply_schema.dump(reply)
-
-        # Set and filter out the author's sensitive info.
-        author = user_schema.dump(author)
-        reply_info["author"] = filter_author(author)
-
+    for reply in reply_array:
+        reply_info = load_reply(reply, user_id)
         replies.append(reply_info)
 
     return replies
 
 
-def get_initial_comments(id_array):
+def get_initial_comments(comment_array, user_id):
     comments = []
 
-    query = (
-        db.session.query(Comment, User)
-        .join(Comment, User.public_id == Comment.creator_public_id)
-        .filter(Comment.id.in_(id_array))
-        .all()
-    )
-
-    for result in query:
-        comment = result.Comment
-        author = result.User
-
-        comment_info = comment_schema.dump(comment)
-
-        # Set and filter out the author's sensitive info.
-        author = user_schema.dump(author)
-        comment_info["author"] = filter_author(author)
-
-        # Check if liked
-
-        # Get the first 2 replies if there are any.
-        comment_info["initial_replies"] = (
-            get_initial_replies(sorted(comment_info["replies"])[:2])
-            if comment_info["replies"]
-            else None
-        )
-
+    for comment in comment_array:
+        comment_info = load_comment(comment, user_id)
         comments.append(comment_info)
 
     return comments
+
+
+def filter_post(post_info):
+    # Remove sensitive information
+    # Add more if possible
+    for i in sensitive_info:
+        del post_info[i]
+
+
+def load_post(post, user_id):
+    post_info = post_schema.dump(post)
+
+    # Set the author
+    author = user_schema.dump(post.author)
+    post_info["author"] = filter_author(author)
+
+    # Get the first 5 comments
+    post_info["initial_comments"] = (
+        get_initial_comments(sorted(post.comments)[:5], user_id)
+        if post.comments
+        else None
+    )
+
+    # Returns boolean
+    post_info["liked"] = check_like(post.likes, user_id)
+
+    # Returns static path.
+    post_info["image_url"] = (
+        get_image(post.image_file, "postimages") if post.image_file else None
+    )
+
+    # Remove post sensitive data
+    filter_post(post_info)
+
+    return post_info
 
 
 class PostService:
@@ -131,16 +128,7 @@ class PostService:
             created=datetime.utcnow(),
         )
 
-        latest_post = add_post_and_flush(new_post)
-
-        # Check if the latest post has an image
-        if latest_post["image_file"]:
-            latest_post["image_url"] = get_image(
-                latest_post["image_file"], "postimages"
-            )
-
-        # Add the author's info
-        latest_post["author"] = load_author(latest_post["creator_public_id"])
+        latest_post = add_post_and_flush(new_post, current_user.id)
 
         response_object = {
             "success": True,
@@ -160,8 +148,6 @@ class PostService:
         elif (
             current_user.public_id == post.creator_public_id
         ):  # or is_admin(current_user)
-            post = Post.query.filter_by(public_id=post_public_id).first()
-
             try:
                 db.session.delete(post)
                 db.session.commit()
@@ -249,28 +235,8 @@ class PostService:
             response_object = {"success": False, "message": "Post not found!"}
             return response_object, 404
 
-        post_info = post_schema.dump(post)
-
-        post_info["author"] = load_author(post_info["creator_public_id"])
-
-        # Check if the current user has liked the post
-        user_likes = PostLike.query.filter_by(on_post=post.id).order_by(
-            PostLike.liked_on.desc()
-        )
-
-        if check_like(user_likes, current_user.id):
-            post_info["liked"] = True
-        else:
-            post_info["liked"] = False
-
-        # Check for an image file and add it.
-        if post_info["image_file"]:
-            post_info["image_url"] = get_image(post_info["image_file"], "postimages")
-
-        # Get the latest 5 comments
-        if post_info["comments"]:
-            post_info["initial_comments"] = get_initial_comments(sorted(post_info["initial_comments"])[:5])
-
+        # Load the post
+        post_info = load_post(post, current_user.id)
         response_object = {
             "success": True,
             "message": "Post info successfully sent.",
