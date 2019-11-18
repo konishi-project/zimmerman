@@ -11,12 +11,24 @@ from zimmerman.main.model.main import (
     ReplyLike,
 )
 
+def check_like(post_likes, user_id):
+    # Ternary operator
+    # Is liked is true if post_likes > 0 and owner_id in post_likes.
+    is_liked = (
+        True
+        if len(post_likes) > 0 and (l.owner_id == user_id for l in post_likes)
+        else False
+    )
 
-def check_like(likes, user_id):
-    for like in likes:
-        if like.owner_id == user_id:
-            return True
+    return is_liked
 
+def remove_like(like):
+    db.session.delete(like)
+    db.session.commit()
+
+def add_like(like):
+    db.session.add(like)
+    db.session.commit()
 
 def notify(object_type, object_public_id, target_owner_public_id):
     notif_data = dict(
@@ -35,16 +47,7 @@ class Like:
             response_object = {"success": False, "message": "Post not found!"}
             return response_object, 404
 
-        # Check if the user already liked
-        likes = PostLike.query.filter_by(on_post=post.id).all()
-        if check_like(likes, current_user.id):
-            response_object = {
-                "success": False,
-                "message": "User has already liked the post.",
-            }
-            return response_object, 403
-
-        if current_user.id in likes:
+        if check_like(post.likes, current_user.id):
             response_object = {
                 "success": False,
                 "message": "User has already liked the post.",
@@ -52,19 +55,18 @@ class Like:
             return response_object, 403
 
         # Create a new like obj.
-        like_post = PostLike(
+        post_like = PostLike(
             on_post=post.id, owner_id=current_user.id, liked_on=datetime.utcnow()
         )
 
         # Commit the changes
         try:
+            # Notify post owner
             if current_user.public_id != post.creator_public_id:
                 notify("post", post.public_id, post.creator_public_id)
 
-            db.session.add(like_post)
-            db.session.commit()
-            response_object = {"success": True, "message": "User has liked the post."}
-            return response_object, 201
+            add_like(post_like)
+            return "", 201
 
         except Exception as error:
             print(error)
@@ -80,30 +82,24 @@ class Like:
 
         # Check if the comment exists
         if not comment:
-            response_object = {"success": False, "message": "Comment not found!"}
-            return response_object, 404
+            return "", 404
 
         # Check if the user already liked
-        likes = CommentLike.query.filter_by(on_comment=comment_id).all()
-        if check_like(likes, current_user.id):
-            response_object = {
-                "success": False,
-                "message": "User has already liked the comment.",
-            }
-            return response_object, 403
+        if check_like(comment.likes, current_user.id):
+            return "", 403
 
         # Create a new like obj.
-        like_comment = CommentLike(
+        comment_like = CommentLike(
             on_comment=comment_id, owner_id=current_user.id, liked_on=datetime.utcnow()
         )
 
-        # Commit the changes
         try:
+            # Notify comment owner
             if current_user.public_id != comment.creator_public_id:
                 notify("comment", comment.public_id, comment.creator_public_id)
 
-            db.session.add(like_comment)
-            db.session.commit()
+            add_like(comment_like)
+
             response_object = {
                 "success": True,
                 "message": "User has liked the comment.",
@@ -124,17 +120,11 @@ class Like:
 
         # Check if the reply exists
         if not reply:
-            response_object = {"success": False, "message": "Reply not found!"}
-            return response_object, 404
+            return "", 404
 
         # Check if the user already liked
-        likes = ReplyLike.query.filter_by(on_reply=reply_id).all()
-        if check_like(likes, current_user.id):
-            response_object = {
-                "success": False,
-                "message": "User has already liked the reply.",
-            }
-            return response_object, 403
+        if check_like(reply.likes, current_user.id):
+            return "", 403
 
         # Create a new like obj.
         like_reply = ReplyLike(
@@ -142,13 +132,14 @@ class Like:
         )
 
         try:
+            # Notify reply owner
             if current_user.public_id != reply.creator_public_id:
                 notify("reply", reply.public_id, reply.creator_public_id)
 
             db.session.add(like_reply)
             db.session.commit()
-            response_object = {"success": False, "message": "User has liked the reply."}
-            return response_object, 201
+
+            return "", 201
 
         except Exception as error:
             print(error)
@@ -167,13 +158,8 @@ class Unlike:
         for like in post.likes:
             if like.owner_id == current_user.id:
                 try:
-                    db.session.delete(like)
-                    db.session.commit()
-                    response_object = {
-                        "success": True,
-                        "message": "User has unliked the post.",
-                    }
-                    return response_object, 200
+                    remove_like(like)
+                    return "", 200
 
                 except Exception as error:
                     print(error)
@@ -183,7 +169,7 @@ class Unlike:
                     }
                     return response_object, 500
 
-            response_object = {"success": False, "message": "Post like not found!"}
+            # Return 404 if item isn't found
             return response_object, 404
 
     def comment(comment_id, current_user):
@@ -193,13 +179,8 @@ class Unlike:
         for like in comment.likes:
             if like.owner_id == current_user.id:
                 try:
-                    db.session.delete(like)
-                    db.session.commit()
-                    response_object = {
-                        "success": True,
-                        "message": "User has unliked the comment.",
-                    }
-                    return response_object, 200
+                    remove_like(like)
+                    return "", 200
 
                 except Exception as error:
                     print(error)
@@ -209,8 +190,8 @@ class Unlike:
                     }
                     return response_object, 500
 
-            response_object = {"success": False, "message": "Comment like not found!"}
-            return response_object, 404
+            # Return 404 if item isn't found
+            return "", 404
 
     def reply(reply_id, current_user):
         # Query for the reply
@@ -218,13 +199,8 @@ class Unlike:
         for like in reply.likes:
             if like.owner_id == current_user.id:
                 try:
-                    db.session.delete(like)
-                    db.session.commit()
-                    response_object = {
-                        "success": True,
-                        "message": "User has unliked the reply.",
-                    }
-                    return response_object, 200
+                    remove_like(like)
+                    return "", 204
 
                 except Exception as error:
                     print(error)
@@ -233,3 +209,5 @@ class Unlike:
                         "message": "Something went wrong during the process!",
                     }
                     return response_object, 500
+
+            return "", 404
