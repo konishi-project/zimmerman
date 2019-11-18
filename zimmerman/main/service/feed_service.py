@@ -1,7 +1,7 @@
 from zimmerman.main import db
 from zimmerman.main.model.main import Post, Comment, PostLike, User
 from zimmerman.main.service.like_service import check_like
-from zimmerman.main.service.post_service import get_initial_comments
+from zimmerman.main.service.post_service import load_post
 from zimmerman.main.service.user_service import filter_author, load_author
 
 # Import Schemas
@@ -9,6 +9,13 @@ from zimmerman.main.model.main import PostSchema, CommentSchema, UserSchema
 
 # Import upload path
 from .upload_service import get_image
+
+# Define the schemas
+user_schema = UserSchema()
+post_schema = PostSchema()
+
+post_many_schema = PostSchema(many=True)
+comment_many_schema = CommentSchema(many=True)
 
 
 def uniq(a_list):
@@ -31,17 +38,22 @@ class Feed:
         # WIP
         print(posts)
 
-    def get_activity():
+    def get_activity(query_limit):
         # Get Posts IDs by latest activity (latest comment on post)
+
         # Get Posts info
-        posts = Post.query.with_entities(Post.id, Post.created).all()
-        post_schema = PostSchema(many=True)
-        post_info = post_schema.dump(posts)
+        # Currently set limits
+        posts = Post.query.with_entities(Post.id, Post.created).limit(query_limit).all()
+        post_info = post_many_schema.dump(posts)
 
         # Comments
-        comments = Comment.query.all()
-        comment_schema = CommentSchema(many=True)
-        comment_info = comment_schema.dump(comments)
+        comments = (
+            Comment.query.with_entities(Comment.id, Comment.created, Comment.post)
+            .limit(query_limit)
+            .all()
+        )
+
+        comment_info = comment_many_schema.dump(comments)
 
         # Get the activity based on the latest comments
         post_activity_from_comments = [
@@ -65,6 +77,7 @@ class Feed:
         return response_object, 200
 
     def get_posts_info(id_array, current_user):
+
         # Check if the array is empty
         if len(id_array) == 0 or id_array is None:
             ## Nothing to send back..
@@ -72,48 +85,10 @@ class Feed:
 
         posts = []
 
-        # Define the schemas
-        post_schema = PostSchema()
-        user_schema = UserSchema()
+        post_query = Post.query.filter(Post.id.in_(id_array)).all()
 
-        # Get the posts, join the latest 5 comments and the comments' latest 2 replies.
-        query = (
-            db.session.query(Post, User)
-            .join(Post, User.id == Post.owner_id)
-            .filter(Post.id.in_(id_array))
-            .all()
-        )
-
-        for result in query:
-            post = result.Post
-            author = result.User
-
-            post_info = post_schema.dump(post)
-
-            # Set the author
-            author = user_schema.dump(author)
-            post_info["author"] = filter_author(author)
-
-            # Get the first 5 comments if there are any
-            post_info["initial_comments"] = (
-                get_initial_comments(sorted(post_info["comments"])[:5])
-                if post_info["comments"]
-                else None
-            )
-
-            # # Check if liked
-            # if current_user.id in post_info["likes"].owner_id:
-            #     post_info["liked"] = True
-            # else:
-            #     post_info["liked"] = False
-
-            # Get image (if exists)
-            post_info["image_url"] = (
-                get_image(post_info["image_file"], "postimages")
-                if post_info["image_file"]
-                else None
-            )
-
+        for post in post_query:
+            post_info = load_post(post, current_user.id)
             posts.append(post_info)
 
         response_object = {
