@@ -8,31 +8,27 @@ from zimmerman.main import db
 from zimmerman.main.model.main import (
     User,
     Post,
-    Comment,
-    Reply,
-    PostLike,
-    CommentLike,
-    ReplyLike,
 )
 
 from .user_service import filter_author, load_author
+from .comment_service import load_comment
+from .reply_service import load_reply
+
 from .like_service import check_like
 from .upload_service import get_image
 
 # Import Schemas
-from zimmerman.main.model.main import PostSchema, CommentSchema, ReplySchema, UserSchema
+from zimmerman.main.model.main import PostSchema, UserSchema
 
 # Define the schemas
 post_schema = PostSchema()
-comment_schema = CommentSchema()
-reply_schema = ReplySchema()
 user_schema = UserSchema()
 
 sensitive_info = (
-    "user",
     "id",
     "image_file",
 )
+
 
 def add_post_and_flush(data, user_id):
     db.session.add(data)
@@ -46,52 +42,21 @@ def add_post_and_flush(data, user_id):
 
 
 # Get initial replies and comments will replace the older methods
-def get_initial_replies(id_array):
+def get_initial_replies(reply_array, user_id):
     replies = []
 
-    query = (
-        db.session.query(Reply, User)
-        .join(Reply, User.public_id == Reply.creator_public_id)
-        .filter(Reply.id.in_(id_array))
-        .all()
-    )
-
-    for result in query:
-        reply = result.Reply
-        author = result.User
-
-        reply_info = reply_schema.dump(reply)
-
-        # Set and filter out the author's sensitive info.
-        author = user_schema.dump(author)
-        reply_info["author"] = filter_author(author)
-
+    for reply in reply_array:
+        reply_info = load_reply(reply, user_id)
         replies.append(reply_info)
 
     return replies
 
 
-def get_initial_comments(id_array):
+def get_initial_comments(comment_array, user_id):
     comments = []
 
-    comment_query = Comment.query.filter(Comment.id.in_(id_array)).all()
-
-    for comment in comment_query:
-        comment_info = comment_schema.dump(comment)
-
-        # Set and filter out the author's sensitive info.
-        author = user_schema.dump(comment.user)
-        comment_info["author"] = filter_author(author)
-
-        # Check if liked
-
-        # Get the first 2 replies if there are any.
-        comment_info["initial_replies"] = (
-            get_initial_replies(sorted(comment_info["replies"])[:2])
-            if comment_info["replies"]
-            else None
-        )
-
+    for comment in comment_array:
+        comment_info = load_comment(comment, user_id)
         comments.append(comment_info)
 
     return comments
@@ -108,12 +73,14 @@ def load_post(post, user_id):
     post_info = post_schema.dump(post)
 
     # Set the author
-    author = user_schema.dump(post.user)
+    author = user_schema.dump(post.author)
     post_info["author"] = filter_author(author)
 
     # Get the first 5 comments
     post_info["initial_comments"] = (
-        get_initial_comments(sorted(post.comments)[:5]) if post.comments else None
+        get_initial_comments(sorted(post.comments)[:5], user_id)
+        if post.comments
+        else None
     )
 
     # Returns boolean
@@ -269,7 +236,7 @@ class PostService:
             return response_object, 404
 
         # Load the post
-        post_info = load_post(post)
+        post_info = load_post(post, current_user.id)
         response_object = {
             "success": True,
             "message": "Post info successfully sent.",
