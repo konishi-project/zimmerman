@@ -23,7 +23,10 @@ class FeedGet(Resource):
     @jwt_required
     def get(self):
         """ Return posts IDs from the Database. """
-        return Feed.get_activity()
+        # Args
+        limit = request.args.get("limit", default=500, type=int)
+
+        return Feed.get_activity(limit)
 
     decorators = [
         limiter.limit(
