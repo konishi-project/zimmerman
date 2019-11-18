@@ -91,13 +91,23 @@ class Feed:
 
         post_query = Post.query.filter(Post.id.in_(id_array)).all()
 
-        for post in reversed(post_query):
-            post_info = load_post(post, current_user.id)
-            posts.append(post_info)
+        try:
+            for post in reversed(post_query):
+                post_info = load_post(post, current_user.id)
+                posts.append(post_info)
 
-        response_object = {
-            "success": True,
-            "message": "Posts successfully sent.",
-            "posts": posts,
-        }
-        return response_object, 200
+            response_object = {
+                "success": True,
+                "message": "Posts successfully sent.",
+                "posts": posts,
+            }
+            return response_object, 200
+
+        except Exception as error:
+            # Log error
+            response_object = {
+                "success": False,
+                "message": "Something went wrong during the process!",
+                "error_reason": "server_error"
+            }
+            return response_object, 500
