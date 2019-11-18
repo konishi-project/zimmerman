@@ -1,14 +1,9 @@
 from zimmerman.main import db
-from zimmerman.main.model.main import Post, Comment, PostLike, User
-from zimmerman.main.service.like_service import check_like
+from zimmerman.main.model.main import Post, Comment
 from zimmerman.main.service.post_service import load_post
-from zimmerman.main.service.user_service import filter_author, load_author
 
 # Import Schemas
 from zimmerman.main.model.main import PostSchema, CommentSchema, UserSchema
-
-# Import upload path
-from .upload_service import get_image
 
 # Define the schemas
 user_schema = UserSchema()
@@ -29,14 +24,24 @@ def uniq(a_list):
 
 
 class Feed:
-    def get_chronological():
+    def get_chronological(query_limit):
         # Get Posts IDs by latest creation (chronological order)
         # Get Posts info
-        posts = Post.query.with_entities(Post.id, Post.created).order_by(
-            Post.created.desc()
-        )
+        posts = Post.query.with_entities(Post.id, Post.created).limit(500).all()
+
+        post_info = post_many_schema.dump(posts)
+
         # WIP
-        print(posts)
+        feed = uniq(
+            x["id"] for x in sorted(post_info, key=lambda x: x["created"], reverse=True)
+        )
+
+        response_object = {
+            "success": True,
+            "message": "Post IDs sent to client.",
+            "post_ids": feed,
+        }
+        return response_object, 200
 
     def get_activity(query_limit):
         # Get Posts IDs by latest activity (latest comment on post)
@@ -47,10 +52,9 @@ class Feed:
         post_info = post_many_schema.dump(posts)
 
         # Comments
+        # Limit into the 10 latest active posts
         comments = (
-            Comment.query.with_entities(Comment.id, Comment.created, Comment.post)
-            .limit(query_limit)
-            .all()
+            Comment.query.limit(10).all()
         )
 
         comment_info = comment_many_schema.dump(comments)
@@ -87,7 +91,7 @@ class Feed:
 
         post_query = Post.query.filter(Post.id.in_(id_array)).all()
 
-        for post in post_query:
+        for post in reversed(post_query):
             post_info = load_post(post, current_user.id)
             posts.append(post_info)
 
