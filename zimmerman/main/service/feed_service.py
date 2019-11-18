@@ -92,7 +92,7 @@ class Feed:
         post_query = Post.query.filter(Post.id.in_(id_array)).all()
 
         try:
-            for post in reversed(post_query):
+            for post in post_query:
                 post_info = load_post(post, current_user.id)
                 posts.append(post_info)
 
