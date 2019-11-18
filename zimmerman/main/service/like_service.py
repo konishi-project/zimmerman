@@ -11,16 +11,13 @@ from zimmerman.main.model.main import (
     ReplyLike,
 )
 
-def check_like(post_likes, user_id):
-    # Ternary operator
-    # Is liked is true if post_likes > 0 and owner_id in post_likes.
-    is_liked = (
-        True
-        if len(post_likes) > 0 and (l.owner_id == user_id for l in post_likes)
-        else False
-    )
 
-    return is_liked
+def check_like(item_likes, user_id):
+    for like in item_likes:
+        if user_id == like.owner_id:
+            return True
+
+        return False
 
 def remove_like(like):
     db.session.delete(like)
@@ -29,6 +26,7 @@ def remove_like(like):
 def add_like(like):
     db.session.add(like)
     db.session.commit()
+
 
 def notify(object_type, object_public_id, target_owner_public_id):
     notif_data = dict(
@@ -170,7 +168,7 @@ class Unlike:
                     return response_object, 500
 
             # Return 404 if item isn't found
-            return response_object, 404
+            return "", 404
 
     def comment(comment_id, current_user):
         # Query for the comment
