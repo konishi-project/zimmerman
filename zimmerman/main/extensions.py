@@ -22,4 +22,8 @@ cors = CORS()
 jwt = JWTManager()
 ma = Marshmallow()
 limiter = Limiter(key_func=get_remote_address)
-talisman = Talisman()
+
+csp = {
+    "default-src": ["'self'"],
+}
+talisman = Talisman(content_security_policy=csp)
