@@ -25,7 +25,6 @@ post_schema = PostSchema()
 user_schema = UserSchema()
 
 sensitive_info = (
-    "id",
     "image_file",
 )
 

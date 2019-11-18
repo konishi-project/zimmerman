@@ -26,12 +26,12 @@ def uniq(a_list):
 class Feed:
     def get_chronological(query_limit):
         # Get Posts IDs by latest creation (chronological order)
+
         # Get Posts info
-        posts = Post.query.with_entities(Post.id, Post.created).limit(500).all()
+        posts = Post.query.with_entities(Post.id, Post.created).limit(query_limit).all()
 
         post_info = post_many_schema.dump(posts)
 
-        # WIP
         feed = uniq(
             x["id"] for x in sorted(post_info, key=lambda x: x["created"], reverse=True)
         )
@@ -53,9 +53,7 @@ class Feed:
 
         # Comments
         # Limit into the 10 latest active posts
-        comments = (
-            Comment.query.limit(10).all()
-        )
+        comments = Comment.query.limit(10).all()
 
         comment_info = comment_many_schema.dump(comments)
 
@@ -96,10 +94,13 @@ class Feed:
                 post_info = load_post(post, current_user.id)
                 posts.append(post_info)
 
+            # Re-sort it back the the original array
+            res = [post for id in id_array for post in posts if post["id"] == id]
+
             response_object = {
                 "success": True,
                 "message": "Posts successfully sent.",
-                "posts": posts,
+                "posts": res,
             }
             return response_object, 200
 
