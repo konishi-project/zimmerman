@@ -19,9 +19,11 @@ def check_like(item_likes, user_id):
 
         return False
 
+
 def remove_like(like):
     db.session.delete(like)
     db.session.commit()
+
 
 def add_like(like):
     db.session.add(like)

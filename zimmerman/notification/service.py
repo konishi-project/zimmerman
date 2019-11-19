@@ -117,6 +117,7 @@ def send_notification(data, target_user_public_id):
         }
         return response_object, 500
 
+
 class NotificationService:
     def get_notification_ids(current_user):
         try:

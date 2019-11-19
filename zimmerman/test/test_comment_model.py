@@ -37,7 +37,10 @@ class TestCommentModel(BaseTestCase):
 
         # Create comment
         comment = Comment(
-            creator_public_id=user.public_id, on_post=post.id, content="Test comment", owner_id=user.id
+            creator_public_id=user.public_id,
+            on_post=post.id,
+            content="Test comment",
+            owner_id=user.id,
         )
 
         db.session.add(comment)
