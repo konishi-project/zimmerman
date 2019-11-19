@@ -117,6 +117,7 @@ def send_notification(data, target_user_public_id):
         }
         return response_object, 500
 
+
 class NotificationService:
     def get_notification_ids(current_user):
         try:
@@ -169,6 +170,9 @@ class NotificationService:
                 notif_info["actor_info"] = filter_author(actor)
 
                 notifs.append(notif_info)
+
+            # Re-sort it back to the original array
+            res = sorted(posts, key=lambda x: id_array.index(x["id"]))
 
             response_object = {
                 "success": True,

@@ -24,10 +24,7 @@ from zimmerman.main.model.main import PostSchema, UserSchema
 post_schema = PostSchema()
 user_schema = UserSchema()
 
-sensitive_info = (
-    "id",
-    "image_file",
-)
+sensitive_info = ("image_file",)
 
 
 def add_post_and_flush(data, user_id):
