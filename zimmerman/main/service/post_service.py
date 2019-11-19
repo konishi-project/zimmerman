@@ -62,8 +62,10 @@ def get_initial_comments(comment_array, user_id):
 def filter_post(post_info):
     # Remove sensitive information
     # Add more if possible
-    for i in sensitive_info:
-        del post_info[i]
+    del post_info["image_file"]
+
+    # for i in sensitive_info:
+    #     del post_info[i]
 
 
 def load_post(post, user_id):
