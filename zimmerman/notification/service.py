@@ -171,6 +171,9 @@ class NotificationService:
 
                 notifs.append(notif_info)
 
+            # Re-sort it back to the original array
+            res = sorted(posts, key=lambda x: id_array.index(x["id"]))
+
             response_object = {
                 "success": True,
                 "message": "Notifications successfully sent.",
