@@ -95,7 +95,11 @@ class Feed:
                 posts.append(post_info)
 
             # Re-sort it back the the original array
-            res = sorted(posts, key=lambda x: id_array.index(x["id"]))
+            res = [
+                post for id in id_array
+                for post in posts
+                if post["id"] == id
+            ]
 
             response_object = {
                 "success": True,
