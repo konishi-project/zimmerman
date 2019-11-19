@@ -95,7 +95,7 @@ class Feed:
                 posts.append(post_info)
 
             # Re-sort it back the the original array
-            res = [post for id in id_array for post in posts if post["id"] == id]
+            res = sorted(posts, key=lambda x: id_array.index(x["id"]))
 
             response_object = {
                 "success": True,
@@ -109,6 +109,6 @@ class Feed:
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
-                "error_reason": "server_error"
+                "error_reason": "server_error",
             }
             return response_object, 500
