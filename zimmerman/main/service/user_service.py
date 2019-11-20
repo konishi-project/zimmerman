@@ -34,24 +34,6 @@ def filter_author(user):
 
     return user
 
-
-def load_author(user_public_id):
-    # Add the author's essential details.
-    user_schema = UserSchema()
-    user = load_by_public_id(user_public_id)
-    author = user_schema.dump(user)
-
-    # Remove sensitive information
-    for info in private_info:
-        del author[info]
-
-    # Add avatar if there are any
-    if author["profile_picture"]:
-        author["avatar"] = get_image(author["profile_picture"], "avatars")
-
-    return author
-
-
 def load_by_public_id(user_public_id):
     return User.query.filter_by(public_id=user_public_id).first()
 
