@@ -10,7 +10,7 @@ from zimmerman.main.model.main import (
     Post,
 )
 
-from .user_service import filter_author, load_author
+from .user_service import filter_author
 from .comment_service import load_comment
 from .reply_service import load_reply
 

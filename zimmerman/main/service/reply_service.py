@@ -4,7 +4,7 @@ from uuid import uuid4
 from zimmerman.main import db
 from zimmerman.main.model.main import Reply, Comment
 from zimmerman.notification.service import send_notification
-from .user_service import load_author, filter_author
+from .user_service import filter_author
 from .like_service import check_like
 
 # Import Schema
@@ -177,18 +177,14 @@ class ReplyService:
         }
         return response_object, 403
 
-    def get(reply_id):
+    def get(reply_id, current_user):
         # Get the specific reply using its id
         reply = Reply.query.filter_by(id=reply_id).first()
         if not reply:
             response_object = {"success": False, "message": "Reply not found!"}
             return response_object, 404
 
-        reply_schema = ReplySchema()
-        reply_info = reply_schema.dump(reply)
-
-        # Add the reply's author
-        reply_info["author"] = load_author(reply_info["creator_public_id"])
+        reply_info = load_reply(reply, current_user.id)
 
         response_object = {
             "success": True,
