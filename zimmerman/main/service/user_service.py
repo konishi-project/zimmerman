@@ -34,9 +34,6 @@ def filter_author(user):
 
     return user
 
-def load_by_public_id(user_public_id):
-    return User.query.filter_by(public_id=user_public_id).first()
-
 
 def load_user(user_id):
     user = User.query.filter_by(id=user_id).first()
