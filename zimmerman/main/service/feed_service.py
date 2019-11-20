@@ -95,11 +95,7 @@ class Feed:
                 posts.append(post_info)
 
             # Re-sort it back the the original array
-            res = [
-                post for id in id_array
-                for post in posts
-                if post["id"] == id
-            ]
+            res = [post for id in id_array for post in posts if post["id"] == id]
 
             response_object = {
                 "success": True,

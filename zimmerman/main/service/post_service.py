@@ -25,7 +25,8 @@ post_schema = PostSchema()
 user_schema = UserSchema()
 
 # Add more if possible.
-sensitive_info = ("image_file")
+sensitive_info = "image_file"
+
 
 def add_post_and_flush(data, user_id):
     db.session.add(data)
