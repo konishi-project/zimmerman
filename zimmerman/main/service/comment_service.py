@@ -19,7 +19,7 @@ user_schema = UserSchema()
 def notify(object_public_id, target_owner_public_id):
     notif_data = dict(
         action="commented", object_type="comment", object_public_id=object_public_id
-    #  )
+    )
     send_notification(notif_data, target_owner_public_id)
 
 def add_comment_and_flush(data, user_id):
