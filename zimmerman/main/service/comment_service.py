@@ -5,10 +5,11 @@ from flask import current_app
 from zimmerman.main import db
 from zimmerman.main.model.main import Comment, Post
 
+from .reply_service import load_reply
 from .user_service import filter_author
 from .like_service import check_like
-from zimmerman.notification.service import send_notification
 
+from zimmerman.notification.service import send_notification
 from zimmerman.main.model.likes import CommentLike
 
 # Import Schemas
@@ -37,6 +38,17 @@ def add_comment_and_flush(data, user_id):
     return latest_comment
 
 
+# Get initial replies and comments will replace the older methods
+def get_initial_replies(reply_array, user_id):
+    replies = []
+
+    for reply in reply_array:
+        reply_info = load_reply(reply, user_id)
+        replies.append(reply_info)
+
+    return replies
+
+
 def load_comment(comment, user_id):
     comment_info = comment_schema.dump(comment)
 
@@ -49,7 +61,9 @@ def load_comment(comment, user_id):
 
     # Get the first 2 replies if there are any.
     comment_info["initial_replies"] = (
-        load_replies(sorted(comment.replies)[:2]) if comment_info["replies"] else None
+        get_initial_replies(sorted(comment.replies)[:2], user_id)
+        if comment_info["replies"]
+        else None
     )
 
     # Filter comment

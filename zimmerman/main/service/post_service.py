@@ -36,17 +36,6 @@ def add_post_and_flush(data, user_id):
     return latest_post
 
 
-# Get initial replies and comments will replace the older methods
-def get_initial_replies(reply_array, user_id):
-    replies = []
-
-    for reply in reply_array:
-        reply_info = load_reply(reply, user_id)
-        replies.append(reply_info)
-
-    return replies
-
-
 def get_initial_comments(comment_array, user_id):
     comments = []
 

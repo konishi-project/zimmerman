@@ -77,9 +77,9 @@ class UserService:
             del user_info[info]
 
         # Add avatar
-        user["avatar"] = (
-            get_image(user["profile_picture"], "avatars")
-            if user["profile_picture"] is not None
+        user_info["avatar"] = (
+            get_image(user.profile_picture, "avatars")
+            if user.profile_picture is not None
             else None
         )
 
