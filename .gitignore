@@ -1,5 +1,4 @@
 .vscode/
 __pycache__
 konishienv
-zimmerman/main/static/*
 zimmerman.log

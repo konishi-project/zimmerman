@@ -10,7 +10,7 @@ from zimmerman.config import config_by_name, basedir
 
 
 def create_app(config_name):
-    app = Flask(__name__, static_url_path=f"{basedir}/static")
+    app = Flask(__name__, static_url_path="/static")
     app.config.from_object(config_by_name[config_name])
     logging.basicConfig(
         filename="zimmerman.log",
