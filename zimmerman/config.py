@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -6,12 +7,14 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     # Change secret keys in production run!
     SECRET_KEY = os.getenv("SECRET_KEY", os.urandom(24))
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "4cRK'[pGI%28blJ6$?/Oy+')uG=Txx")
-    # Set token to never expire.
-    JWT_ACCESS_TOKEN_EXPIRES = False
     DEBUG = False
     # Change the entry key in production
     ENTRY_KEY = os.getenv("ENTRY_KEY", "KonishiTesting")
+
+    # JWT Extended configs
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "4cRK'[pGI%28blJ6$?/Oy+')uG=Txx")
+    # Set token to expire every month.
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=30)
 
 
 class DevelopmentConfig(Config):
