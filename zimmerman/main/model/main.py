@@ -1,10 +1,11 @@
 from datetime import datetime
 
-from zimmerman.main import db, ma, bcrypt
+from zimmerman.main import db, bcrypt
 
 # Alias common SQLAlchemy names
 Column = db.Column
 Model = db.Model
+relationship = db.relationship
 
 roles_users = db.Table(
     "roles_users",
@@ -30,19 +31,19 @@ class User(Model):
     background_cover = Column(db.String(40), nullable=True)
 
     # Relationships
-    notifications = db.relationship("Notification", backref="user")
+    notifications = relationship("Notification", backref="user")
 
-    posts = db.relationship("Post", backref="author", lazy=True)
-    comments = db.relationship("Comment", backref="author", lazy=True)
-    replies = db.relationship("Reply", backref="author", lazy=True)
+    posts = relationship("Post", backref="author", lazy=True)
+    comments = relationship("Comment", backref="author", lazy=True)
+    replies = relationship("Reply", backref="author", lazy=True)
 
-    post_likes = db.relationship("PostLike", backref="user")
-    comment_likes = db.relationship("CommentLike", backref="user")
-    reply_likes = db.relationship("ReplyLike", backref="user")
+    post_likes = relationship("PostLike", backref="user")
+    comment_likes = relationship("CommentLike", backref="user")
+    reply_likes = relationship("ReplyLike", backref="user")
 
     # Status
     joined_date = Column(db.DateTime)
-    roles = db.relationship(
+    roles = relationship(
         "Role", secondary=roles_users, backref=db.backref("users"), lazy="dynamic"
     )
 
@@ -71,7 +72,7 @@ class Role(Model):
     description = Column(db.String(50))
 
     def __repr__(self):
-        return f"{self.name} - {self.id}"
+        return f"{self.name} - {self.id}>"
 
 
 class Notification(Model):
@@ -111,10 +112,10 @@ class Post(Model):
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
 
-    likes = db.relationship(
+    likes = relationship(
         "PostLike", backref="post", cascade="all, delete-orphan", lazy=True
     )
-    comments = db.relationship(
+    comments = relationship(
         "Comment", backref="post", cascade="all, delete-orphan", lazy=True
     )
 
@@ -138,10 +139,10 @@ class Comment(Model):
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
 
-    likes = db.relationship(
+    likes = relationship(
         "CommentLike", backref="comment", cascade="all, delete-orphan", lazy=True
     )
-    replies = db.relationship("Reply", backref="comment", cascade="all, delete-orphan")
+    replies = relationship("Reply", backref="comment", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Comment '{self.id}'>"
@@ -163,77 +164,14 @@ class Reply(Model):
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
 
-    likes = db.relationship("ReplyLike", backref="reply", cascade="all, delete-orphan")
+    likes = relationship("ReplyLike", backref="reply", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Reply '{self.id}'>"
 
 
-class PostLike(Model):
-    """ PostLike Model for storing post like related details """
+## Import Likes
+from .likes import *
 
-    # Details
-    id = Column(db.Integer, primary_key=True)
-    on_post = Column(db.Integer, db.ForeignKey("post.id"))
-    owner_id = Column(db.Integer, db.ForeignKey("user.id"))
-    liked_on = Column(db.DateTime, default=datetime.utcnow)
-
-    def __repr__(self):
-        return f"<PostLike {self.id} on Post '{self.on_post}'>"
-
-
-class CommentLike(Model):
-    """ CommentLike Model for storing comment like related details """
-
-    # Details
-    id = Column(db.Integer, primary_key=True)
-    on_comment = Column(db.Integer, db.ForeignKey("comment.id"))
-    owner_id = Column(db.Integer, db.ForeignKey("user.id"))
-    liked_on = Column(db.DateTime, default=datetime.utcnow)
-
-    def __repr__(self):
-        return f"<CommentLike on Comment '{self.on_comment}'>"
-
-
-class ReplyLike(Model):
-    """ ReplyLike Model for storing reply like related details """
-
-    # Details
-    id = Column(db.Integer, primary_key=True)
-    on_reply = Column(db.Integer, db.ForeignKey("reply.id"))
-    owner_id = Column(db.Integer, db.ForeignKey("user.id"))
-    liked_on = Column(db.DateTime, default=datetime.utcnow)
-
-    def __repr__(self):
-        return f"<ReplyLike on Reply '{self.on_comment}'>"
-
-
-# Model Schemas
-class UserSchema(ma.ModelSchema):
-    class Meta:
-        model = User
-
-
-class NotificationSchema(ma.ModelSchema):
-    class Meta:
-        model = Notification
-
-
-class PostSchema(ma.ModelSchema):
-    class Meta:
-        model = Post
-
-
-class CommentSchema(ma.ModelSchema):
-    class Meta:
-        model = Comment
-
-
-class ReplySchema(ma.ModelSchema):
-    class Meta:
-        model = Reply
-
-
-class PostLikeSchema(ma.ModelSchema):
-    class Meta:
-        model = PostLike
+## Import schemas
+from .schemas import *
