@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import current_app
 from datetime import datetime
 from flask_jwt_extended import get_jwt_identity
 
@@ -6,8 +6,8 @@ from zimmerman.main import db
 from zimmerman.main.model.main import Notification, User
 from zimmerman.main.service.user_service import load_user, filter_author
 
-# Grab schemas
-from zimmerman.main.model.main import UserSchema, NotificationSchema
+# Import schemas
+from zimmerman.main.model.schemas import UserSchema, NotificationSchema
 
 """
 Notification flow:
@@ -109,7 +109,7 @@ def send_notification(data, target_user_public_id):
         return response_object, 201
 
     except Exception as error:
-        print(error)
+        current_app.logger.error(error)
         response_object = {
             "success": False,
             "message": "Something went wrong during the process!",
@@ -144,7 +144,7 @@ class NotificationService:
             return response_object
 
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
@@ -166,23 +166,24 @@ class NotificationService:
                 notif_info = notification_schema.dump(notification)
 
                 # Load the actor as user
-                actor = user_schema.dump(notification.user)
-                notif_info["actor_info"] = filter_author(actor)
+                actor = load_user(notif_info["actor"])
+                actor_info = user_schema.dump(actor)
+                notif_info["actor_info"] = filter_author(actor_info)
 
                 notifs.append(notif_info)
 
             # Re-sort it back to the original array
-            res = sorted(posts, key=lambda x: id_array.index(x["id"]))
+            res = [notif for id in id_array for notif in notifs if notif["id"] == id]
 
             response_object = {
                 "success": True,
                 "message": "Notifications successfully sent.",
-                "notifications": notifs,
+                "notifications": res,
             }
             return response_object, 200
 
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
@@ -194,7 +195,7 @@ class NotificationService:
         try:
             pass
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",

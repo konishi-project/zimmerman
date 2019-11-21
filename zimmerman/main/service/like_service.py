@@ -1,15 +1,16 @@
 from datetime import datetime
+from flask import current_app
 
 from zimmerman.main import db
 from zimmerman.notification.service import send_notification
 from zimmerman.main.model.main import (
     Post,
-    PostLike,
     Comment,
-    CommentLike,
     Reply,
-    ReplyLike,
 )
+
+# Import like models
+from zimmerman.main.model.likes import PostLike, CommentLike, ReplyLike
 
 
 def check_like(item_likes, user_id):
@@ -69,7 +70,7 @@ class Like:
             return "", 201
 
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something failed during the process!",
@@ -107,7 +108,7 @@ class Like:
             return response_object, 201
 
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
@@ -142,7 +143,7 @@ class Like:
             return "", 201
 
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
@@ -162,7 +163,7 @@ class Unlike:
                     return "", 200
 
                 except Exception as error:
-                    print(error)
+                    current_app.logger.error(error)
                     response_object = {
                         "success": False,
                         "message": "Something went wrong during the process!",
@@ -183,7 +184,7 @@ class Unlike:
                     return "", 200
 
                 except Exception as error:
-                    print(error)
+                    current_app.logger.error(error)
                     response_object = {
                         "success": False,
                         "message": "Something went wrong during the process!",
@@ -203,7 +204,7 @@ class Unlike:
                     return "", 204
 
                 except Exception as error:
-                    print(error)
+                    current_app.logger.error(error)
                     response_object = {
                         "success": False,
                         "message": "Something went wrong during the process!",

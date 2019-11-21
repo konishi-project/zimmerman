@@ -1,14 +1,11 @@
 from datetime import datetime
 from uuid import uuid4
-from glob import glob
 
+from flask import current_app
 from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
-from zimmerman.main.model.main import (
-    User,
-    Post,
-)
+from zimmerman.main.model.main import Post, User
 
 from .user_service import filter_author
 from .comment_service import load_comment
@@ -18,7 +15,7 @@ from .like_service import check_like
 from .upload_service import get_image
 
 # Import Schemas
-from zimmerman.main.model.main import PostSchema, UserSchema
+from zimmerman.main.model.schemas import PostSchema, UserSchema
 
 # Define the schemas
 post_schema = PostSchema()
@@ -158,7 +155,7 @@ class PostService:
                 return response_object, 200
 
             except Exception as error:
-                print(error)
+                current_app.logger.error(error)
                 response_object = {
                     "success": False,
                     "message": "Something went wrong during the process!",
@@ -205,7 +202,7 @@ class PostService:
                 return response_object, 200
 
             except Exception as error:
-                print(error)
+                current_app.logger.error(error)
                 response_object = {
                     "success": False,
                     "message": "Something went wrong during the process!",

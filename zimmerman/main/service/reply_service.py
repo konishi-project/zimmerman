@@ -1,5 +1,6 @@
 from datetime import datetime
 from uuid import uuid4
+from flask import current_app
 
 from zimmerman.main import db
 from zimmerman.main.model.main import Reply, Comment
@@ -8,7 +9,7 @@ from .user_service import filter_author
 from .like_service import check_like
 
 # Import Schema
-from zimmerman.main.model.main import ReplySchema, UserSchema
+from zimmerman.main.model.schemas import ReplySchema, UserSchema
 
 # Define schema
 reply_schema = ReplySchema()
@@ -90,7 +91,7 @@ class ReplyService:
             return response_object, 201
 
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
@@ -119,7 +120,7 @@ class ReplyService:
                 return response_object, 200
 
             except Exception as error:
-                print(error)
+                current_app.logger.error(error)
                 response_object = {
                     "success": False,
                     "message": "Something went wrong during the process!",
@@ -163,7 +164,7 @@ class ReplyService:
                 return response_object, 200
 
             except Exception as error:
-                print(error)
+                current_app.logger.error(error)
                 response_object = {
                     "success": False,
                     "message": "Something went wrong during the process!",

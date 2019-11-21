@@ -6,9 +6,12 @@ from datetime import datetime
 from uuid import uuid4
 
 from zimmerman.main import db
-from zimmerman.main.model.main import User, UserSchema
 from zimmerman.main.service.upload_service import get_image
 from zimmerman.main.service.user_service import private_info
+
+
+from zimmerman.main.model.main import User
+from zimmerman.main.model.schemas import UserSchema
 
 # Basic email regex check.
 EMAIl_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
@@ -75,7 +78,7 @@ class Auth:
             return response_object, 403
 
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
@@ -229,7 +232,7 @@ class Auth:
             return response_object, 201
 
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
