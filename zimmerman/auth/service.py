@@ -6,9 +6,12 @@ from datetime import datetime
 from uuid import uuid4
 
 from zimmerman.main import db
-from zimmerman.main.model.main import User, UserSchema
 from zimmerman.main.service.upload_service import get_image
 from zimmerman.main.service.user_service import private_info
+
+
+from zimmerman.main.model.main import User
+from zimmerman.main.model.schemas import UserSchema
 
 # Basic email regex check.
 EMAIl_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
