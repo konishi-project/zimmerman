@@ -4,12 +4,12 @@ from zimmerman.main import db
 from zimmerman.notification.service import send_notification
 from zimmerman.main.model.main import (
     Post,
-    PostLike,
     Comment,
-    CommentLike,
     Reply,
-    ReplyLike,
 )
+
+# Import like models
+from zimmerman.main.model.likes import PostLike, CommentLike, ReplyLike
 
 
 def check_like(item_likes, user_id):

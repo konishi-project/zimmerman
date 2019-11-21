@@ -8,7 +8,7 @@ from .user_service import filter_author
 from .like_service import check_like
 
 # Import Schema
-from zimmerman.main.model.main import ReplySchema, UserSchema
+from zimmerman.main.model.schemas import ReplySchema, UserSchema
 
 # Define schema
 reply_schema = ReplySchema()

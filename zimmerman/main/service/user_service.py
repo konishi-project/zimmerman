@@ -5,7 +5,9 @@ from flask import jsonify, current_app
 from flask_jwt_extended import create_access_token
 
 from zimmerman.main import db
-from zimmerman.main.model.main import User, UserSchema
+
+from zimmerman.main.model.main import User
+from zimmerman.main.model.schemas import UserSchema
 
 from .upload_service import get_image
 
@@ -16,8 +18,12 @@ private_info = (
     "comment_likes",
     "reply_likes",
     "posts",
+    "comments",
+    "replies",
     "notifications",
 )
+
+unnecessary_info = ("password_hash", "id", "comment_likes", "reply_likes")
 
 
 def filter_author(user):
@@ -35,8 +41,15 @@ def filter_author(user):
     return user
 
 
-def load_user(user_id):
-    user = User.query.filter_by(id=user_id).first()
+def load_user(identififer):
+    # If the user_id is an int then use id
+    if type(identififer) == int:
+        user = User.query.filter_by(id=identififer).first()
+
+    # Use public id
+    else:
+        user = User.query.filter_by(public_id=identififer).first()
+
     if not user:
         response_object = {
             "success": False,
@@ -59,14 +72,16 @@ class UserService:
         user_schema = UserSchema()
         user_info = user_schema.dump(user)
 
-        unnecessary_info = ("password_hash", "id", "comment_likes", "reply_likes")
         # Remove unnecessary info
         for info in unnecessary_info:
             del user_info[info]
 
-        # Add avatar if there are any
-        if user_info["profile_picture"]:
-            user_info["avatar"] = get_image(user_info["profile_picture"], "avatars")
+        # Add avatar
+        user["avatar"] = (
+            get_image(user["profile_picture"], "avatars")
+            if user["profile_picture"] is not None
+            else None
+        )
 
         response_object = {
             "success": True,

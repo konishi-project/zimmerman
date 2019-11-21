@@ -3,7 +3,7 @@ from zimmerman.main.model.main import Post, Comment
 from zimmerman.main.service.post_service import load_post
 
 # Import Schemas
-from zimmerman.main.model.main import PostSchema, CommentSchema, UserSchema
+from zimmerman.main.model.schemas import PostSchema, CommentSchema, UserSchema
 
 # Define the schemas
 user_schema = UserSchema()

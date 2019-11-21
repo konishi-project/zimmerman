@@ -5,10 +5,7 @@ from glob import glob
 from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
-from zimmerman.main.model.main import (
-    User,
-    Post,
-)
+from zimmerman.main.model.main import Post, User
 
 from .user_service import filter_author
 from .comment_service import load_comment
@@ -18,7 +15,7 @@ from .like_service import check_like
 from .upload_service import get_image
 
 # Import Schemas
-from zimmerman.main.model.main import PostSchema, UserSchema
+from zimmerman.main.model.schemas import PostSchema, UserSchema
 
 # Define the schemas
 post_schema = PostSchema()

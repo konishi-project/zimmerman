@@ -8,8 +8,10 @@ from .user_service import filter_author
 from .like_service import check_like
 from zimmerman.notification.service import send_notification
 
-# Import Schema
-from zimmerman.main.model.main import CommentLike, CommentSchema, UserSchema
+from zimmerman.main.model.likes import CommentLike
+
+# Import Schemas
+from zimmerman.main.model.schemas import CommentSchema, UserSchema
 
 # Define schema
 comment_schema = CommentSchema()
@@ -21,6 +23,7 @@ def notify(object_public_id, target_owner_public_id):
         action="commented", object_type="comment", object_public_id=object_public_id
     )
     send_notification(notif_data, target_owner_public_id)
+
 
 def add_comment_and_flush(data, user_id):
     db.session.add(data)
