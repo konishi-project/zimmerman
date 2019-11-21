@@ -1,5 +1,6 @@
 from datetime import datetime
 from uuid import uuid4
+from flask import current_app
 
 from zimmerman.main import db
 from zimmerman.main.model.main import Reply, Comment
@@ -90,7 +91,7 @@ class ReplyService:
             return response_object, 201
 
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
@@ -119,7 +120,7 @@ class ReplyService:
                 return response_object, 200
 
             except Exception as error:
-                print(error)
+                current_app.logger.error(error)
                 response_object = {
                     "success": False,
                     "message": "Something went wrong during the process!",
@@ -163,7 +164,7 @@ class ReplyService:
                 return response_object, 200
 
             except Exception as error:
-                print(error)
+                current_app.logger.error(error)
                 response_object = {
                     "success": False,
                     "message": "Something went wrong during the process!",

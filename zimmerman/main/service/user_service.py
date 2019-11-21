@@ -1,7 +1,7 @@
 from uuid import uuid4
 from datetime import datetime
 
-from flask import jsonify, current_app
+from flask import current_app
 from flask_jwt_extended import create_access_token
 
 from zimmerman.main import db
@@ -124,7 +124,7 @@ class UserService:
             return response_object, 200
 
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",

@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import current_app
 from datetime import datetime
 from flask_jwt_extended import get_jwt_identity
 
@@ -109,7 +109,7 @@ def send_notification(data, target_user_public_id):
         return response_object, 201
 
     except Exception as error:
-        print(error)
+        current_app.logger.error(error)
         response_object = {
             "success": False,
             "message": "Something went wrong during the process!",
@@ -144,7 +144,7 @@ class NotificationService:
             return response_object
 
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
@@ -183,7 +183,7 @@ class NotificationService:
             return response_object, 200
 
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
@@ -195,7 +195,7 @@ class NotificationService:
         try:
             pass
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",

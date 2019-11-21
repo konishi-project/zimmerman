@@ -1,4 +1,5 @@
 # Entry point
+import logging
 from flask import Flask
 
 # Import extensions
@@ -11,6 +12,11 @@ from zimmerman.config import config_by_name
 def create_app(config_name):
     app = Flask(__name__, static_url_path="/static")
     app.config.from_object(config_by_name[config_name])
+    logging.basicConfig(
+        filename="zimmerman.log",
+        level=logging.NOTSET,
+        format="%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s",
+    )
 
     register_extensions(app)
 

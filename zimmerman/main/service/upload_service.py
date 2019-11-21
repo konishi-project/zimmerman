@@ -1,6 +1,6 @@
 import os
 
-from flask import request, url_for
+from flask import current_app, url_for
 from hashlib import sha256
 from werkzeug.utils import secure_filename
 
@@ -65,7 +65,7 @@ def upload_file(files, foldername, extensions):
             return response_object, 201
 
         except Exception as error:
-            print(error)
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",

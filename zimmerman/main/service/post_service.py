@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import uuid4
-from glob import glob
 
+from flask import current_app
 from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
@@ -155,7 +155,7 @@ class PostService:
                 return response_object, 200
 
             except Exception as error:
-                print(error)
+                current_app.logger.error(error)
                 response_object = {
                     "success": False,
                     "message": "Something went wrong during the process!",
@@ -202,7 +202,7 @@ class PostService:
                 return response_object, 200
 
             except Exception as error:
-                print(error)
+                current_app.logger.error(error)
                 response_object = {
                     "success": False,
                     "message": "Something went wrong during the process!",
