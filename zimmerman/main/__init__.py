@@ -6,11 +6,11 @@ from flask import Flask
 from .extensions import db, ma, jwt, bcrypt, cors, limiter, talisman
 
 # Import configuration
-from zimmerman.config import config_by_name
+from zimmerman.config import config_by_name, basedir
 
 
 def create_app(config_name):
-    app = Flask(__name__, static_url_path="/static")
+    app = Flask(__name__, static_url_path=f"{basedir}/static")
     app.config.from_object(config_by_name[config_name])
     logging.basicConfig(
         filename="zimmerman.log",
