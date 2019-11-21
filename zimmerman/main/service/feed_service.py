@@ -1,3 +1,5 @@
+from flask import current_app
+
 from zimmerman.main import db
 from zimmerman.main.model.main import Post, Comment
 from zimmerman.main.service.post_service import load_post
@@ -105,7 +107,7 @@ class Feed:
             return response_object, 200
 
         except Exception as error:
-            # Log error
+            current_app.logger.error(error)
             response_object = {
                 "success": False,
                 "message": "Something went wrong during the process!",
