@@ -95,6 +95,7 @@ class Auth:
             full_name = data["full_name"]
             password = data["password"]
             entry_key = data["entry_key"]
+            orientation = data["orientation"]
 
             # Check if email exists
             if len(email) == 0 or email is None:
@@ -133,7 +134,7 @@ class Auth:
                 return response_object, 403
 
             # Check if the username is being used
-            elif User.query.filter_by(username=username).first() is not None:
+            elif User.query.filter_by(username=username.lower()).first() is not None:
                 response_object = {
                     "success": False,
                     "message": "Username is already taken!",
@@ -158,7 +159,21 @@ class Auth:
                     "error_reason": "username_not_alpha_numeric",
                 }
                 return response_object, 403
+            
+            # Check if the orientation is alphabetical and 1-30
+            if len(orientation) == 0 or orientation is None:
+                orientation = None
 
+            elif not 1 <= len(orientation) <= 30 or not orientation.isalpha():
+                response_object = {
+                    "success": False,
+                    "message": "Orientation is not alphabetical or between 1-30.",
+                    "error_reason": "invalid_orientation",
+                }
+                return response_object
+
+
+                
             # Verify the full name and if it exists
             if len(full_name) == 0 or full_name is None:
                 full_name = None
@@ -200,8 +215,9 @@ class Auth:
             new_user = User(
                 public_id=str(uuid4().int)[:15],
                 email=email,
-                username=username,
+                username=username.lower(),
                 full_name=full_name,
+                orientation=orientation,
                 password=password,
                 joined_date=datetime.now(),
             )
