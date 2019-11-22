@@ -64,7 +64,9 @@ def load_post(post, user_id):
 
     # Get the first 5 comments
     post_info["initial_comments"] = (
-        get_initial_comments(sorted(post.comments)[:5], user_id)
+        get_initial_comments(
+            sorted(post.comments, key=lambda x: x.created, reverse=True)[:5], user_id
+        )
         if post.comments
         else None
     )
