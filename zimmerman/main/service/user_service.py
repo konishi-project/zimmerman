@@ -64,7 +64,7 @@ def load_user(identififer):
 class UserService:
     # Get user INFO by its username
     def get_user_info(username):
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(username=username.lower()).first()
         if not user:
             response_object = {"success": False, "message": "User not found!"}
             return response_object, 404
