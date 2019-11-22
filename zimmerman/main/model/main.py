@@ -22,11 +22,14 @@ class User(Model):
     public_id = Column(db.String(15), unique=True)
     email = Column(db.String(255), unique=True, nullable=False)
     username = Column(db.String(15), unique=True)
-    full_name = Column(db.String(50), nullable=True)
     password_hash = Column(db.String(255))
-    bio = Column(db.String(150), nullable=True)
 
-    # Media
+    # Optional
+    full_name = Column(db.String(50), nullable=True)
+    bio = Column(db.String(150), nullable=True)
+    orientation = Column(db.String(30), nullable=True)
+
+    ## Media
     profile_picture = Column(db.String(40), nullable=True)
     background_cover = Column(db.String(40), nullable=True)
 
