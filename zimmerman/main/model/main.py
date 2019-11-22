@@ -72,7 +72,7 @@ class Role(Model):
     description = Column(db.String(50))
 
     def __repr__(self):
-        return f"{self.name} - {self.id}>"
+        return f"<{self.name} - {self.id}>"
 
 
 class Notification(Model):
@@ -167,7 +167,7 @@ class Reply(Model):
     likes = relationship("ReplyLike", backref="reply", cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"<Reply '{self.id}'>"
+        return "<Reply {self.id}>"
 
 
 ## Import Likes

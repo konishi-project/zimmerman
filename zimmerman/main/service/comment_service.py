@@ -61,8 +61,10 @@ def load_comment(comment, user_id):
 
     # Get the first 2 replies if there are any.
     comment_info["initial_replies"] = (
-        get_initial_replies(sorted(comment.replies)[:2], user_id)
-        if comment_info["replies"]
+        get_initial_replies(
+            sorted(comment.replies, key=lambda x: x.created, reverse=True)[:2], user_id
+        )
+        if comment.replies
         else None
     )
 
