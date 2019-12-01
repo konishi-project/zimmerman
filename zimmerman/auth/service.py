@@ -95,7 +95,7 @@ class Auth:
             full_name = data["full_name"]
             password = data["password"]
             entry_key = data["entry_key"]
-            orientation = data["orientation"]
+            # orientation = data["orientation"]
 
             # Check if email exists
             if len(email) == 0 or email is None:
@@ -161,18 +161,16 @@ class Auth:
                 return response_object, 403
             
             # Check if the orientation is alphabetical and 1-30
-            if len(orientation) == 0 or orientation is None:
-                orientation = None
+            # if len(orientation) == 0 or orientation is None:
+            #     orientation = None
 
-            elif not 1 <= len(orientation) <= 30 or not orientation.isalpha():
-                response_object = {
-                    "success": False,
-                    "message": "Orientation is not alphabetical or between 1-30.",
-                    "error_reason": "invalid_orientation",
-                }
-                return response_object
-
-
+            # elif not 1 <= len(orientation) <= 30 or not orientation.isalpha():
+            #     response_object = {
+            #         "success": False,
+            #         "message": "Orientation is not alphabetical or between 1-30.",
+            #         "error_reason": "invalid_orientation",
+            #     }
+            #     return response_object
                 
             # Verify the full name and if it exists
             if len(full_name) == 0 or full_name is None:
@@ -217,7 +215,7 @@ class Auth:
                 email=email,
                 username=username.lower(),
                 full_name=full_name,
-                orientation=orientation,
+                # orientation=orientation,
                 password=password,
                 joined_date=datetime.now(),
             )
