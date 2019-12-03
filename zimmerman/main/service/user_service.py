@@ -5,6 +5,7 @@ from flask import current_app
 from flask_jwt_extended import create_access_token
 
 from zimmerman.main import db
+from zimmerman.util import Message, ErrResp
 
 from zimmerman.main.model.main import User
 from zimmerman.main.model.schemas import UserSchema
@@ -51,12 +52,9 @@ def load_user(identififer):
         user = User.query.filter_by(public_id=identififer).first()
 
     if not user:
-        response_object = {
-            "success": False,
-            "message": "Current user does not exist!",
-            "error_reason": "non_existent",
-        }
-        return response_object, 403
+        resp = Message(False, "Current user does not exist!")
+        resp["error_reason"] = "user_404"
+        return resp, 404
 
     return user
 
@@ -66,8 +64,8 @@ class UserService:
     def get_user_info(username):
         user = User.query.filter_by(username=username.lower()).first()
         if not user:
-            response_object = {"success": False, "message": "User not found!"}
-            return response_object, 404
+            resp = Message(False, "User not found!")
+            return resp, 404
 
         user_schema = UserSchema()
         user_info = user_schema.dump(user)
@@ -83,20 +81,17 @@ class UserService:
             else None
         )
 
-        response_object = {
-            "success": True,
-            "message": "User data sent.",
-            "user": user_info,
-        }
-        return response_object, 200
+        resp = Message(True, "User data sent.")
+        resp["user"] = user_info
+        return resp, 200
 
     def update(data, current_user):
         # Get the user
         user = User.query.filter_by(id=current_user.id).first()
 
         if not user:
-            response_object = {"success": False, "message": "User not found!"}
-            return response_object, 404
+            resp = Message(False, "User not found!")
+            return resp, 404
 
         # Check if the current user is the same as the one being updated.
         try:
@@ -106,28 +101,18 @@ class UserService:
                     user.bio = data["bio"]
 
                 else:
-                    response_object = {
-                        "success": False,
-                        "message": "Bio content is invalid!",
-                    }
-                    return response_object, 403
+                    resp = Message(False, "Bio content is invalid!")
+                    return resp, 403
 
             if data["avatar"] is not None:
                 user.profile_picture = data["avatar"]
 
             # Commit the changes
             db.session.commit()
-            response_object = {
-                "success": True,
-                "message": "User data has successfully been updated.",
-            }
-            return response_object, 200
+
+            resp = Message(True, "User data updated.")
+            return resp, 200
 
         except Exception as error:
             current_app.logger.error(error)
-            response_object = {
-                "success": False,
-                "message": "Something went wrong during the process!",
-            }
-
-            return response_object, 500
+            ErrResp()

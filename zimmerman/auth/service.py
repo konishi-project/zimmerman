@@ -6,7 +6,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from zimmerman.main import db
-from zimmerman.util import Message
+from zimmerman.util import Message, ErrResp
 from zimmerman.main.service.upload_service import get_image
 from zimmerman.main.service.user_service import private_info
 
@@ -35,7 +35,9 @@ class Auth:
             # Fetch the user data
             user = User.query.filter_by(email=email).first()
             if not user:
-                resp = Message(False, "The email you have entered does not match any account")
+                resp = Message(
+                    False, "The email you have entered does not match any account"
+                )
                 resp["error_reason"] = "email_404"
                 return Message, 404
 
@@ -68,9 +70,7 @@ class Auth:
 
         except Exception as error:
             current_app.logger.error(error)
-            resp = Message(False, "Something went wrong during the process!")
-            resp["error_reason"] = "server_issues"
-            return resp, 500
+            ErrResp()
 
     @staticmethod
     def register(data):
@@ -84,67 +84,46 @@ class Auth:
 
             # Check if email exists
             if len(email) == 0 or email is None:
-                response_object = {
-                    "success": False,
-                    "message": "Email is required!",
-                    "error_reason": "no_email",
-                }
-                return response_object, 403
+                resp = Message(False, "Email is required!")
+                resp["error_reason"] = "no_email"
+                return resp, 403
 
             # Check if the email is being used
             if User.query.filter_by(email=email).first() is not None:
-                response_object = {
-                    "success": False,
-                    "message": "Email is being used in another account.",
-                    "error_reason": "email_used",
-                }
-                return response_object, 403
+                resp = Message(False, "Email is required!")
+                resp["error_reason"] = "email_used"
+                return resp, 403
 
             # Check if the email is valid
             elif not EMAIl_REGEX.match(email):
-                response_object = {
-                    "success": False,
-                    "message": "Invalid email!",
-                    "error_reason": "email_invalid",
-                }
-                return response_object, 403
+                resp = Message(False, "Invalid email!")
+                resp["error_reason"] = "email_invalid"
+                return resp, 403
 
             # Check if the username is empty
             if len(username) == 0 or username is None:
-                response_object = {
-                    "success": False,
-                    "message": "Username is required!",
-                    "error_reason": "no_username",
-                }
-                return response_object, 403
+                resp = Message(False, "Username is required!")
+                resp["error_reason"] = "username_none"
+                return resp, 403
 
             # Check if the username is being used
             elif User.query.filter_by(username=username.lower()).first() is not None:
-                response_object = {
-                    "success": False,
-                    "message": "Username is already taken!",
-                    "error_reason": "username_taken",
-                }
-                return response_object, 403
+                resp = Message(False, "Username is already taken!")
+                resp["error_reason"] = "username_taken"
+                return resp, 403
 
             # Check if the username is equal to or between 4 and 15
             elif not 4 <= len(username) <= 15:
-                response_object = {
-                    "success": False,
-                    "message": "Username length is invalid!",
-                    "error_reason": "username_invalid",
-                }
-                return response_object, 403
+                resp = Message(False, "Username length is invalid!")
+                resp["error_reason"] = "username_invalid"
+                return resp, 403
 
             # Check if the username is alpha numeric
             elif not username.isalnum():
-                response_object = {
-                    "success": False,
-                    "message": "Username is not alpha numeric",
-                    "error_reason": "username_not_alpha_numeric",
-                }
-                return response_object, 403
-                
+                resp = Message(False, "Username is not alpha numeric.")
+                resp["error_reason"] = "username_not_alphanum"
+                return resp, 403
+
             # Verify the full name and if it exists
             if len(full_name) == 0 or full_name is None:
                 full_name = None
@@ -153,21 +132,15 @@ class Auth:
                 # Validate the full name
                 # Remove any spaces so that it properly checks.
                 if not full_name.replace(" ", "").isalpha():
-                    response_object = {
-                        "success": False,
-                        "message": "Name is not alphabetical!",
-                        "error_reason": "fullname_notalpha",
-                    }
-                    return response_object, 403
+                    resp = Message(False, "Name is not alphabetical!")
+                    resp["error_reason"] = "name_nonalpha"
+                    return resp, 403
 
                 # Check if the full name is equal to or between 2 and 50
                 elif not 2 <= len(full_name) <= 50:
-                    response_object = {
-                        "success": False,
-                        "message": "Name is length is invalid!",
-                        "error_reason": "fullname_invalid!",
-                    }
-                    return response_object, 403
+                    resp = Message(False, "Name length is invalid!")
+                    resp["error_reason"] = "name_invalid"
+                    return resp, 403
 
                 # Replace multiple spaces with one.
                 # 'firstName    lastName' -> 'firstName lastName'
@@ -175,12 +148,9 @@ class Auth:
 
             # Check if the entry key is right
             if entry_key != current_app.config["ENTRY_KEY"]:
-                response_object = {
-                    "success": False,
-                    "message": "Entry key is invalid!",
-                    "error_reason": "entrykey_invalid",
-                }
-                return response_object, 403
+                resp = Message(False, "Entry key is invalid!")
+                resp["error_reason"] = "entry_key_invalid"
+                return resp, 403
 
             # Create new user object
             new_user = User(
@@ -188,7 +158,6 @@ class Auth:
                 email=email,
                 username=username.lower(),
                 full_name=full_name,
-                # orientation=orientation,
                 password=password,
                 joined_date=datetime.now(),
             )
@@ -210,19 +179,12 @@ class Auth:
 
             # Return success response
             access_token = create_access_token(identity=new_user.id)
-            response_object = {
-                "success": True,
-                "message": "User has successfully been registered.",
-                "Authorization": access_token,
-                "user": user_info,
-            }
-            return response_object, 201
+
+            resp = Message(True, "User registered.")
+            resp["Authorization"] = access_token
+            resp["user"] = user_info
+            return resp, 201
 
         except Exception as error:
             current_app.logger.error(error)
-            response_object = {
-                "success": False,
-                "message": "Something went wrong during the process!",
-                "error_reason": "server_error",
-            }
-            return response_object, 500
+            ErrResp()

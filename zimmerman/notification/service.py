@@ -3,6 +3,7 @@ from datetime import datetime
 from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
+from zimmerman.util import Message, ErrResp
 from zimmerman.main.model.main import Notification, User
 from zimmerman.main.service.user_service import load_user, filter_author
 
@@ -65,21 +66,15 @@ def send_notification(data, target_user_public_id):
     target_user = User.query.filter_by(public_id=target_user_public_id).first()
 
     if action not in valid_actions:
-        response_object = {
-            "success": False,
-            "message": "Invalid action!",
-            "error_reason": "action_invalid",
-        }
-        return response_object, 403
+        resp = Message(False, "Invalid action!")
+        resp["error_reason"] = "action_invalid"
+        return resp, 403
 
     # Validate
     if object_type not in allowed_types:
-        response_object = {
-            "success": False,
-            "message": "Object type is invalid!",
-            "error_reason": "object_invalid",
-        }
-        return response_object, 403
+        resp = Message(False, "Object type is invalid!")
+        resp["error_reason"] = "object_invalid"
+        return resp, 403
 
     # Check if notification exists.
     notification = Notification.query.filter_by(
@@ -101,21 +96,13 @@ def send_notification(data, target_user_public_id):
 
         latest_notification = add_notification_and_flush(new_notification)
 
-        response_object = {
-            "success": True,
-            "message": "Notification has been created.",
-            "notification": latest_notification,
-        }
-        return response_object, 201
+        resp = Message(True, "Notification has been created.")
+        resp["notification"] = latest_notification
+        return resp, 201
 
     except Exception as error:
         current_app.logger.error(error)
-        response_object = {
-            "success": False,
-            "message": "Something went wrong during the process!",
-            "error_reason": "server_error",
-        }
-        return response_object, 500
+        ErrResp()
 
 
 class NotificationService:
@@ -136,21 +123,13 @@ class NotificationService:
                 )
             )
 
-            response_object = {
-                "success": True,
-                "message": "Sent notification IDs",
-                "notif_ids": ids,
-            }
-            return response_object
+            resp = Message(True, "Sent notification IDs.")
+            resp["notif_ids"] = ids
+            return resp, 200
 
         except Exception as error:
             current_app.logger.error(error)
-            response_object = {
-                "success": False,
-                "message": "Something went wrong during the process!",
-                "error_reason": "server_error",
-            }
-            return response_object, 500
+            ErrResp()
 
     def get_notifs_info(id_array, current_user):
         # Check if the array is empty
@@ -175,30 +154,17 @@ class NotificationService:
             # Re-sort it back to the original array
             res = [notif for id in id_array for notif in notifs if notif["id"] == id]
 
-            response_object = {
-                "success": True,
-                "message": "Notifications successfully sent.",
-                "notifications": res,
-            }
-            return response_object, 200
+            resp = Message(True, "Notifications sent.")
+            resp["notifications"] = res
+            return resp, 200
 
         except Exception as error:
             current_app.logger.error(error)
-            response_object = {
-                "success": False,
-                "message": "Something went wrong during the process!",
-                "error_reason": "server_error",
-            }
-            return response_object, 500
+            ErrResp()
 
     def read_notifications():
         try:
             pass
         except Exception as error:
             current_app.logger.error(error)
-            response_object = {
-                "success": False,
-                "message": "Something went wrong during the process!",
-                "error_reason": "server_error",
-            }
-            return response_object, 500
+            ErrResp()

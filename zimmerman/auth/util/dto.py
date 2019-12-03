@@ -19,9 +19,7 @@ class AuthDto:
             "username": fields.String(
                 required=True, description="Username for tagging users."
             ),
-            "full_name": fields.String(
-                description="Full name for identifying users."
-            ),
+            "full_name": fields.String(description="Full name for identifying users."),
             "password": fields.String(
                 description="Password for securing user accounts."
             ),

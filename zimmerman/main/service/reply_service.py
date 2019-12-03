@@ -3,6 +3,7 @@ from uuid import uuid4
 from flask import current_app
 
 from zimmerman.main import db
+from zimmerman.util import Message, ErrResp
 from zimmerman.main.model.main import Reply, Comment
 from zimmerman.notification.service import send_notification
 from .user_service import filter_author
@@ -60,15 +61,12 @@ class ReplyService:
         # Validations
         limit = 1500
         if not content:
-            response_object = {"success": False, "message": "Reply content not found!"}
-            return response_object, 404
+            resp = Message(False, "Reply content not found!")
+            return resp, 404
 
         elif len(content) > limit:
-            response_object = {
-                "success": False,
-                "message": "Reply content exceeds limit (%s)" % limit,
-            }
-            return response_object, 403
+            resp = Message(False, "Reply content exceeds limit (%s)" % limit)
+            return resp, 403
 
         try:
             # Create new reply obj.
@@ -83,27 +81,20 @@ class ReplyService:
 
             latest_reply = add_reply_and_flush(new_reply, current_user.id)
 
-            response_object = {
-                "success": True,
-                "message": "Successfully replied on the comment.",
-                "reply": latest_reply,
-            }
-            return response_object, 201
+            resp = Message(True, "Replied on comment.")
+            resp["reply"] = latest_reply
+            return resp, 201
 
         except Exception as error:
             current_app.logger.error(error)
-            response_object = {
-                "success": False,
-                "message": "Something went wrong during the process!",
-            }
-            return response_object, 500
+            ErrResp()
 
     def delete(reply_id, current_user):
         # Query for the reply
         reply = Reply.query.filter_by(id=reply_id).first()
         if not reply:
-            response_object = {"success": False, "message": "Reply not found!"}
-            return response_object, 404
+            resp = Message(False, "Reply not found!")
+            return resp, 404
 
         # Check reply owner
         elif (
@@ -113,43 +104,32 @@ class ReplyService:
                 # Delete the reply and commit
                 db.session.delete(reply)
                 db.session.commit()
-                response_object = {
-                    "success": True,
-                    "message": "Reply has successfully been deleted.",
-                }
-                return response_object, 200
+
+                resp = Message(True, "Reply deleted.")
+                return resp, 200
 
             except Exception as error:
                 current_app.logger.error(error)
-                response_object = {
-                    "success": False,
-                    "message": "Something went wrong during the process!",
-                }
-                return response_object, 500
+                ErrResp()
 
-        response_object = {"success": False, "message": "Insufficient permissions!"}
-        return response_object, 403
+        resp = Message(False, "Insufficient permissions!")
+        return resp, 403
 
     def update(reply_id, data, current_user):
         # Query for the reply
         reply = Reply.query.filter_by(id=reply_id).first()
         if not reply:
-            response_object = {
-                "success": False,
-                "message": "Reply not found!",
-                "error_reason": "replyNotFound",
-            }
-            return response_object, 404
+            resp = Message(False, "Reply not found!")
+            resp["error_reason"] = "reply_404"
+            return resp, 404
 
         # Check reply owner
         elif current_user.public_id == reply.creator_public_id:
             # Get the new data
             if not data["content"]:
-                response_object = {
-                    "success": False,
-                    "message": "Content data not found!",
-                    "error_reason": "noData",
-                }
+                resp = Message(False, "Content data not found!")
+                resp["error_reason"] = "content_404"
+                return resp, 404
 
             try:
                 # Update the reply
@@ -157,39 +137,27 @@ class ReplyService:
                 reply.edited = True
                 # Commit the changes
                 db.session.commit()
-                response_object = {
-                    "success": True,
-                    "message": "Reply has successfully been updated.",
-                }
-                return response_object, 200
+
+                resp = Message(True, "Reply updated.")
+                return resp, 200
 
             except Exception as error:
                 current_app.logger.error(error)
-                response_object = {
-                    "success": False,
-                    "message": "Something went wrong during the process!",
-                }
-                return response_object, 500
+                ErrResp()
 
-        response_object = {
-            "success": False,
-            "message": "Insufficient permissions!",
-            "error_reason": "permission",
-        }
-        return response_object, 403
+        resp = Message(False, "Insufficient permissions!")
+        resp["error_reason"] = "permission"
+        return resp, 403
 
     def get(reply_id, current_user):
         # Get the specific reply using its id
         reply = Reply.query.filter_by(id=reply_id).first()
         if not reply:
-            response_object = {"success": False, "message": "Reply not found!"}
-            return response_object, 404
+            resp = Message(False, "Reply not found!")
+            return resp, 404
 
         reply_info = load_reply(reply, current_user.id)
 
-        response_object = {
-            "success": True,
-            "message": "Reply info successfully sent.",
-            "reply": reply_info,
-        }
-        return response_object, 200
+        resp = Message(True, "Reply info sent.")
+        resp["reply"] = reply_info
+        return resp, 200

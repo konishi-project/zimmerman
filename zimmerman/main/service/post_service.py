@@ -5,6 +5,7 @@ from flask import current_app
 from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
+from zimmerman.util import Message, ErrResp
 from zimmerman.main.model.main import Post, User
 
 from .user_service import filter_author
@@ -95,15 +96,12 @@ class PostService:
         # This limit can be changed, 2000 - just for testing.
         limit = 2000
         if len(content) > limit:
-            response_object = {
-                "success": False,
-                "message": "Content exceeds limit (%s)" % limit,
-            }
-            return response_object, 403
+            resp = Message(False, "Content exceeds limit (%s)" % limit)
+            return resp, 403
 
         if not content:
-            response_object = {"success": False, "message": "Content cannot be empty!"}
-            return resronse_object, 403
+            resp = Message(False, "Content can't be empty!")
+            return resp, 403
 
         # Create new post obj.
         new_post = Post(
@@ -118,19 +116,16 @@ class PostService:
 
         latest_post = add_post_and_flush(new_post, current_user.id)
 
-        response_object = {
-            "success": True,
-            "message": "Post has successfully been created.",
-            "post": latest_post,
-        }
-        return response_object, 201
+        resp = Message(True, "Post created.")
+        resp["post"] = latest_post
+        return resp, 201
 
     def delete(post_public_id, current_user):
         # Query for the post
         post = Post.query.filter_by(public_id=post_public_id).first()
         if not post:
-            response_object = {"success": False, "message": "Post not found!"}
-            return response_object, 404
+            resp = Message(False, "Post not found!")
+            return resp, 404
 
         # Check post owner
         elif (
@@ -139,33 +134,24 @@ class PostService:
             try:
                 db.session.delete(post)
                 db.session.commit()
-                response_object = {
-                    "success": True,
-                    "message": "Post has successfully been deleted.",
-                }
-                return response_object, 200
+
+                resp = Message(True, "Post deleted.")
+                return resp, 200
 
             except Exception as error:
                 current_app.logger.error(error)
-                response_object = {
-                    "success": False,
-                    "message": "Something went wrong during the process!",
-                }
-                return response_object, 500
+                ErrResp()
 
         # Return a 403 response if the current is not the owner or the admin
-        response_object = {"success": False, "message": "Insufficient permisions!"}
-        return response_object, 403
+        resp = Message(False, "Insufficient permissions!")
+        return resp, 403
 
     def update(post_public_id, data, current_user):
         post = Post.query.filter_by(public_id=post_public_id).first()
         if not post:
-            response_object = {
-                "success": False,
-                "message": "Post not found!",
-                "error_reason": "postNotFound",
-            }
-            return response_object, 404
+            resp = Message(False, "Post not found!")
+            resp["error_reason"] = "post_404"
+            return resp, 404
 
         # Check the post owner
         elif (
@@ -173,12 +159,9 @@ class PostService:
         ):
             # Get the new data
             if not data["content"]:
-                response_object = {
-                    "success": False,
-                    "message": "Content data not found!",
-                    "error_reason": "noData",
-                }
-                return response_object, 404
+                resp = Message(False, "Content not found!")
+                resp["error_reason"] = "content_invalid"
+                return resp, 404
 
             try:
                 # Update the post
@@ -186,48 +169,34 @@ class PostService:
                 post.edited = True
                 # Commit the changes
                 db.session.commit()
-                response_object = {
-                    "success": True,
-                    "message": "Post has successfully been updated.",
-                }
-                return response_object, 200
+
+                resp = Message(True, "Post updated.")
+                return resp, 200
 
             except Exception as error:
                 current_app.logger.error(error)
-                response_object = {
-                    "success": False,
-                    "message": "Something went wrong during the process!",
-                }
-                return response_object, 500
+                ErrResp()
 
         # Check if the post is locked
         elif post.status.lower() == "locked":
-            response_object = {
-                "success": False,
-                "message": "Post is locked!",
-                "error_reason": "locked",
-            }
-            return response_object, 403
+            resp = Message(False, "Post is locked!")
+            resp["error_reason"] = "post_locked"
+            return resp, 403
 
-        response_object = {
-            "success": False,
-            "message": "Insufficient permissions!",
-            "error_reason": "permission",
-        }
-        return response_object, 403
+        resp = Message(False, "Insufficient permissions!")
+        resp["error_reason"] = "permission_insufficient"
+        return resp, 403
 
     def get(post_public_id, current_user):
         # Get the specific post using its public id
         post = Post.query.filter_by(public_id=post_public_id).first()
         if not post:
-            response_object = {"success": False, "message": "Post not found!"}
-            return response_object, 404
+            resp = Message(False, "Post not found!")
+            return resp, 404
 
         # Load the post
         post_info = load_post(post, current_user.id)
-        response_object = {
-            "success": True,
-            "message": "Post info successfully sent.",
-            "post": post_info,
-        }
-        return response_object, 200
+
+        resp = Message(True, "Post info sent.")
+        resp["post"] = post_info
+        return resp, 200

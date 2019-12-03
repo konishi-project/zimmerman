@@ -2,6 +2,7 @@ from datetime import datetime
 from flask import current_app
 
 from zimmerman.main import db
+from zimmerman.util import Message, ErrResp
 from zimmerman.notification.service import send_notification
 from zimmerman.main.model.main import (
     Post,
@@ -45,15 +46,12 @@ class Like:
 
         # Check if the post exists
         if not post:
-            response_object = {"success": False, "message": "Post not found!"}
-            return response_object, 404
+            resp = Message(False, "Post not found!")
+            return resp, 404
 
         if check_like(post.likes, current_user.id):
-            response_object = {
-                "success": False,
-                "message": "User has already liked the post.",
-            }
-            return response_object, 403
+            resp = Message(False, "User already liked.")
+            return resp, 403
 
         # Create a new like obj.
         post_like = PostLike(
@@ -71,11 +69,7 @@ class Like:
 
         except Exception as error:
             current_app.logger.error(error)
-            response_object = {
-                "success": False,
-                "message": "Something failed during the process!",
-            }
-            return response_object, 500
+            ErrResp()
 
     def comment(comment_id, current_user):
         # Query for the comment
@@ -101,19 +95,12 @@ class Like:
 
             add_like(comment_like)
 
-            response_object = {
-                "success": True,
-                "message": "User has liked the comment.",
-            }
-            return response_object, 201
+            resp = Message(True, "User has liked the comment.")
+            return resp, 201
 
         except Exception as error:
             current_app.logger.error(error)
-            response_object = {
-                "success": False,
-                "message": "Something went wrong during the process!",
-            }
-            return response_object, 500
+            ErrResp()
 
     def reply(reply_id, current_user):
         # Query for the reply
@@ -144,11 +131,7 @@ class Like:
 
         except Exception as error:
             current_app.logger.error(error)
-            response_object = {
-                "success": False,
-                "message": "Something went wrong during the process!",
-            }
-            return response_object, 500
+            ErrResp()
 
 
 class Unlike:
@@ -164,11 +147,7 @@ class Unlike:
 
                 except Exception as error:
                     current_app.logger.error(error)
-                    response_object = {
-                        "success": False,
-                        "message": "Something went wrong during the process!",
-                    }
-                    return response_object, 500
+                    ErrResp()
 
             # Return 404 if item isn't found
             return "", 404
@@ -185,11 +164,7 @@ class Unlike:
 
                 except Exception as error:
                     current_app.logger.error(error)
-                    response_object = {
-                        "success": False,
-                        "message": "Something went wrong during the process!",
-                    }
-                    return response_object, 500
+                    ErrResp()
 
             # Return 404 if item isn't found
             return "", 404
@@ -205,10 +180,6 @@ class Unlike:
 
                 except Exception as error:
                     current_app.logger.error(error)
-                    response_object = {
-                        "success": False,
-                        "message": "Something went wrong during the process!",
-                    }
-                    return response_object, 500
+                    ErrResp()
 
             return "", 404
