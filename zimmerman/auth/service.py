@@ -6,6 +6,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from zimmerman.main import db
+from zimmerman.util import Message
 from zimmerman.main.service.upload_service import get_image
 from zimmerman.main.service.user_service import private_info
 
@@ -27,22 +28,16 @@ class Auth:
         try:
             # Check if email or password was provided
             if not email or not password:
-                response_object = {
-                    "success": False,
-                    "message": "Credentials not fully provided",
-                    "error_reason": "no_credentials",
-                }
-                return response_object, 403
+                resp = Message(False, "Credentials not fully provided")
+                resp["error_reason"] = "no_credentials"
+                return resp, 403
 
             # Fetch the user data
             user = User.query.filter_by(email=email).first()
             if not user:
-                response_object = {
-                    "success": False,
-                    "message": "The email you have entered does not match any account.",
-                    "error_reason": "email_404",
-                }
-                return response_object, 404
+                resp = Message(False, "The email you have entered does not match any account")
+                resp["error_reason"] = "email_404"
+                return Message, 404
 
             elif user and user.check_password(password):
                 user_schema = UserSchema()
@@ -61,30 +56,21 @@ class Auth:
                 access_token = create_access_token(identity=user.id)
 
                 if access_token:
-                    response_object = {
-                        "success": True,
-                        "message": "Successfully logged in.",
-                        "Authorization": access_token,
-                        "user": user_info,
-                    }
-                    return response_object, 200
+                    resp = Message(True, "Successfully logged in.")
+                    resp["Authorization"] = access_token
+                    resp["user"] = user_info
+                    return resp, 200
 
             # Return incorrect password if others fail
-            response_object = {
-                "success": False,
-                "message": "Failed to log in, password may be incorrect.",
-                "error_reason": "incorrect_password",
-            }
-            return response_object, 403
+            resp = Message(False, "Failed to log in, password may be incorrect")
+            resp["error_reason"] = "invalid_password"
+            return resp, 403
 
         except Exception as error:
             current_app.logger.error(error)
-            response_object = {
-                "success": False,
-                "message": "Something went wrong during the process!",
-                "error_reason": "server_issues",
-            }
-            return response_object, 500
+            resp = Message(False, "Something went wrong during the process!")
+            resp["error_reason"] = "server_issues"
+            return resp, 500
 
     @staticmethod
     def register(data):
