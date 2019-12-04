@@ -3,6 +3,7 @@ from uuid import uuid4
 from flask import current_app
 
 from zimmerman.main import db
+from zimmerman.util import Message, ErrResp
 from zimmerman.main.model.main import Comment, Post
 
 from .reply_service import load_reply
@@ -84,18 +85,12 @@ class CommentService:
         # Validations
         limit = 1500
         if not content:
-            response_object = {
-                "success": False,
-                "message": "Comment content not found!",
-            }
-            return response_object, 404
+            resp = Message(False, "Comment content not found!")
+            return resp, 404
 
         elif len(content) > limit:
-            response_object = {
-                "success": False,
-                "message": "Comment content exceeds limit (%s)" % limit,
-            }
-            return response_object, 403
+            resp = Message(False, "Comment content exceeds limit (%s)" % limit)
+            return resp, 403
 
         try:
             # Create new comment obj.
@@ -114,20 +109,13 @@ class CommentService:
             if current_user.public_id != post.creator_public_id:
                 notify(latest_comment["public_id"], post.creator_public_id)
 
-            response_object = {
-                "success": True,
-                "message": "Successfully commented on the post.",
-                "comment": latest_comment,
-            }
-            return response_object, 201
+            resp = Message(True, "Successfully commented.")
+            resp["comment"] = latest_comment
+            return resp, 201
 
         except Exception as error:
             current_app.logger.error(error)
-            response_object = {
-                "success": False,
-                "message": "Something went wrong during the process!",
-            }
-            return response_object, 500
+            ErrResp()
 
     def delete(comment_id, current_user):
         # Query for the comment
@@ -143,44 +131,32 @@ class CommentService:
             try:
                 db.session.delete(comment)
                 db.session.commit()
-                response_object = {
-                    "success": True,
-                    "message": "Comment has successfully been deleted.",
-                }
-                return response_object, 200
+
+                resp = Message(True, "Comment has been deleted.")
+                return resp, 200
 
             except Exception as error:
                 current_app.logger.error(error)
-                response_object = {
-                    "success": False,
-                    "message": "Something went wrong during the process!",
-                }
-                return response_object, 500
+                ErrResp()
 
-        response_object = {"success": False, "message": "Insufficient permissions!"}
-        return response_object, 403
+        resp = Message(False, "Insufficient permissions!")
+        return resp, 403
 
     def update(comment_id, data, current_user):
         # Query for the comment
         comment = Comment.query.filter_by(id=comment_id).first()
         if not comment:
-            response_object = {
-                "success": False,
-                "message": "Comment not found!",
-                "error_reason": "commentNotFound",
-            }
-            return response_object, 404
+            resp = Message(False, "Comment not found!")
+            resp["error_reason"] = "comment_404"
+            return resp, 404
 
         # Check comment owner
         elif current_user.public_id == comment.creator_public_id:
             # Get the new data:
             if not data["content"]:
-                response_object = {
-                    "success": False,
-                    "message": "Content data not found!",
-                    "error_reason": "noData",
-                }
-                return response_object, 404
+                resp = Message(False, "Content data not found!")
+                resp["error_reason"] = "data_404"
+                return resp, 404
 
             try:
                 # Update the comment
@@ -189,19 +165,13 @@ class CommentService:
 
                 # Commit the changes
                 db.session.commit()
-                response_object = {
-                    "success": True,
-                    "message": "Comment has successfully been updated.",
-                }
-                return response_object, 200
+
+                resp = Message(True, "Comment updated.")
+                return resp, 200
 
             except Exception as error:
                 current_app.logger.error(error)
-                response_object = {
-                    "success": False,
-                    "message": "Something went wrong during the process!",
-                }
-                return response_object, 500
+                ErrResp()
 
         response_object = {
             "success": False,
@@ -214,13 +184,11 @@ class CommentService:
         # Get the specific comment using its id
         comment = Comment.query.filter_by(id=comment_id).first()
         if not comment:
-            return "", 404
+            resp = Message(False, "Comment not found!")
+            return resp, 404
 
         comment_info = load_comment(comment, current_user.id)
 
-        response_object = {
-            "success": True,
-            "message": "Comment info successfully sent.",
-            "comment": comment_info,
-        }
-        return response_object, 200
+        resp = Message(True, "Comment info sent.")
+        resp["comment"] = comment_info
+        return resp, 200

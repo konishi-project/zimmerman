@@ -1,6 +1,7 @@
 from flask import current_app
 
 from zimmerman.main import db
+from zimmerman.util import Message, ErrResp
 from zimmerman.main.model.main import Post, Comment
 from zimmerman.main.service.post_service import load_post
 
@@ -38,12 +39,9 @@ class Feed:
             x["id"] for x in sorted(post_info, key=lambda x: x["created"], reverse=True)
         )
 
-        response_object = {
-            "success": True,
-            "message": "Post IDs sent to client.",
-            "post_ids": feed,
-        }
-        return response_object, 200
+        resp = Message(True, "Post IDs sent.")    
+        resp["post_ids"] = feed
+        return resp, 200
 
     def get_activity(query_limit):
         # Get Posts IDs by latest activity (latest comment on post)
@@ -73,12 +71,9 @@ class Feed:
             )
         )
 
-        response_object = {
-            "success": True,
-            "message": "Post IDs sent to client.",
-            "post_ids": feed,
-        }
-        return response_object, 200
+        resp = Message(True, "Post IDs sent.")
+        resp["post_ids"] = feed
+        return resp, 200
 
     def get_posts_info(id_array, current_user):
 
@@ -99,18 +94,10 @@ class Feed:
             # Re-sort it back the the original array
             res = [post for id in id_array for post in posts if post["id"] == id]
 
-            response_object = {
-                "success": True,
-                "message": "Posts successfully sent.",
-                "posts": res,
-            }
-            return response_object, 200
+            resp = Message(True, "Posts sent.")
+            resp["posts"] = res
+            return resp, 200
 
         except Exception as error:
             current_app.logger.error(error)
-            response_object = {
-                "success": False,
-                "message": "Something went wrong during the process!",
-                "error_reason": "server_error",
-            }
-            return response_object, 500
+            ErrResp()
