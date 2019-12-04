@@ -133,6 +133,7 @@ class Like:
             current_app.logger.error(error)
             ErrResp()
 
+
 class Unlike:
     def post(post_public_id, current_user):
         # Query for the post

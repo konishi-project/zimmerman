@@ -39,7 +39,7 @@ class Feed:
             x["id"] for x in sorted(post_info, key=lambda x: x["created"], reverse=True)
         )
 
-        resp = Message(True, "Post IDs sent.")    
+        resp = Message(True, "Post IDs sent.")
         resp["post_ids"] = feed
         return resp, 200
 

@@ -81,7 +81,6 @@ class UserService:
             else None
         )
 
-
         resp = Message(True, "User data sent.")
         resp["user"] = user_info
         return resp, 200

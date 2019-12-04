@@ -35,7 +35,9 @@ class Auth:
             # Fetch the user data
             user = User.query.filter_by(email=email).first()
             if not user:
-                resp = Message(False, "The email you have entered does not match any account")
+                resp = Message(
+                    False, "The email you have entered does not match any account"
+                )
                 resp["error_reason"] = "email_404"
                 return Message, 404
 
@@ -121,7 +123,7 @@ class Auth:
                 resp = Message(False, "Username is not alpha numeric.")
                 resp["error_reason"] = "username_not_alphanum"
                 return resp, 403
-                
+
             # Verify the full name and if it exists
             if len(full_name) == 0 or full_name is None:
                 full_name = None
