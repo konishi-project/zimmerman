@@ -2,7 +2,11 @@
 from datetime import datetime
 
 from zimmerman.main import db
-from .main import Column, Model, relationship
+
+# Alias common SQLAlchemy names
+Column = db.Column
+Model = db.Model
+relationship = db.relationship
 
 
 class PostLike(Model):
