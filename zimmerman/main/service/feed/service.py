@@ -1,39 +1,25 @@
 from flask import current_app
 
-from zimmerman.main import db
-from zimmerman.util import Message, ErrResp
-from zimmerman.main.model.main import Post, Comment
-from zimmerman.main.service.post_service import load_post
+from zimmerman.util import Message, InternalErrResp
 
 # Import Schemas
-from zimmerman.main.model.schemas import PostSchema, CommentSchema, UserSchema
+from zimmerman.main.model.post import Post, Comment
+from zimmerman.main.model.schemas import PostSchema
 
-# Define the schemas
-user_schema = UserSchema()
-post_schema = PostSchema()
-
-post_many_schema = PostSchema(many=True)
-comment_many_schema = CommentSchema(many=True)
+from ..comment.utils import comments_schema
+from ..post.utils import load_post
+from .utils import uniq, load_info_many
 
 
-def uniq(a_list):
-    encountered = set()
-    result = []
-    for elem in a_list:
-        if elem not in encountered:
-            result.append(elem)
-        encountered.add(elem)
-    return result
-
-
-class Feed:
+class FeedService:
+    @staticmethod
     def get_chronological(query_limit):
-        # Get Posts IDs by latest creation (chronological order)
+        # Get Post IDs by latest creation (chronological order)
 
         # Get Posts info
         posts = Post.query.with_entities(Post.id, Post.created).limit(query_limit).all()
 
-        post_info = post_many_schema.dump(posts)
+        post_info = load_info_many(posts)
 
         feed = uniq(
             x["id"] for x in sorted(post_info, key=lambda x: x["created"], reverse=True)
@@ -43,19 +29,21 @@ class Feed:
         resp["post_ids"] = feed
         return resp, 200
 
+    @staticmethod
     def get_activity(query_limit):
         # Get Posts IDs by latest activity (latest comment on post)
 
         # Get Posts info
         # Currently set limits
         posts = Post.query.with_entities(Post.id, Post.created).limit(query_limit).all()
-        post_info = post_many_schema.dump(posts)
+
+        post_info = load_info_many(posts)
 
         # Comments
-        # Limit into the 10 latest active posts
+        # Limit into 10 latest active posts
         comments = Comment.query.limit(10).all()
 
-        comment_info = comment_many_schema.dump(comments)
+        comment_info = comments_schema.dump(comments)
 
         # Get the activity based on the latest comments
         post_activity_from_comments = [
@@ -75,6 +63,7 @@ class Feed:
         resp["post_ids"] = feed
         return resp, 200
 
+    @staticmethod
     def get_posts_info(id_array, current_user):
 
         # Check if the array is empty
@@ -100,4 +89,4 @@ class Feed:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            InternalErrResp()
