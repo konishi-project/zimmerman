@@ -2,7 +2,7 @@ from datetime import datetime
 from flask import current_app
 
 from zimmerman.main import db
-from zimmerman.util import Message, ErrResp
+from zimmerman.util import Message, InternalErrResp
 from zimmerman.notification.service import send_notification
 from zimmerman.main.model.main import (
     Post,
@@ -69,7 +69,7 @@ class Like:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            InternalErrResp()
 
     def comment(comment_id, current_user):
         # Query for the comment
@@ -100,7 +100,7 @@ class Like:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            InternalErrResp()
 
     def reply(reply_id, current_user):
         # Query for the reply
@@ -131,7 +131,7 @@ class Like:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            InternalErrResp()
 
 
 class Unlike:
@@ -147,7 +147,7 @@ class Unlike:
 
                 except Exception as error:
                     current_app.logger.error(error)
-                    ErrResp()
+                    InternalErrResp()
 
             # Return 404 if item isn't found
             return "", 404
@@ -164,7 +164,7 @@ class Unlike:
 
                 except Exception as error:
                     current_app.logger.error(error)
-                    ErrResp()
+                    InternalErrResp()
 
             # Return 404 if item isn't found
             return "", 404
@@ -180,6 +180,6 @@ class Unlike:
 
                 except Exception as error:
                     current_app.logger.error(error)
-                    ErrResp()
+                    InternalErrResp()
 
             return "", 404
