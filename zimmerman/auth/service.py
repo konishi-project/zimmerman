@@ -6,9 +6,10 @@ from datetime import datetime
 from uuid import uuid4
 
 from zimmerman.main import db
-from zimmerman.util import Message, ErrResp
+from zimmerman.util import Message, InternalErrResp
 from zimmerman.main.service.upload_service import get_image
-from zimmerman.main.service.user_service import private_info
+
+from zimmerman.main.service.user.utils import private_info
 
 
 from zimmerman.main.model.main import User
@@ -70,7 +71,7 @@ class Auth:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            InternalErrResp()
 
     @staticmethod
     def register(data):
@@ -187,4 +188,4 @@ class Auth:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            InternalErrResp()
