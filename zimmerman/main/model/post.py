@@ -20,7 +20,7 @@ class Post(Model):
     # Post content and details
     content = Column(db.Text)
     image_file = Column(db.String(40), default=None, nullable=True)
-    status = Column(db.String(10))
+    status = Column(db.String(10), default="normal")
 
     created = Column(db.DateTime, default=datetime.utcnow)
     edited = Column(db.Boolean, default=False)
