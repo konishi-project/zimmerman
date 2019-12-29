@@ -2,17 +2,12 @@ from uuid import uuid4
 from flask import current_app
 
 from zimmerman.util import Message, InternalErrResp
+from zimmerman.notification.util.main import notify
 
 # Import models
 from zimmerman.main.model.post import Comment, Post
 
 from .utils import add_comment_and_flush, delete_comment, update_comment, load_comment
-
-# def notify(object_public_id, target_owner_public_id):
-#     notif_data = dict(
-#         action="commented", object_type="comment", object_public_id=object_public_id
-#     )
-#     send_notification(notif_data, target_owner_public_id)
 
 
 class CommentService:
@@ -52,7 +47,13 @@ class CommentService:
 
             latest_comment = add_comment_and_flush(new_comment, current_user.id)
 
-            # Send a notification - TODO
+            # Notify post owner
+            notify(
+                "commented",
+                "comment",
+                latest_comment["public_id"],
+                latest_comment["creator_public_id"],
+            )
 
             resp = Message(True, "Successfully commented.")
             resp["comment"] = latest_comment
