@@ -3,9 +3,10 @@ from datetime import datetime
 from flask_jwt_extended import get_jwt_identity
 
 from zimmerman.main import db
-from zimmerman.util import Message, ErrResp
+from zimmerman.util import Message, InternalErrResp
 from zimmerman.main.model.main import Notification, User
-from zimmerman.main.service.user_service import load_user, filter_author
+
+from zimmerman.main.service.user.utils import load_user, filter_author
 
 # Import schemas
 from zimmerman.main.model.schemas import UserSchema, NotificationSchema
@@ -102,10 +103,11 @@ def send_notification(data, target_user_public_id):
 
     except Exception as error:
         current_app.logger.error(error)
-        ErrResp()
+        InternalErrResp()
 
 
 class NotificationService:
+    @staticmethod
     def get_notification_ids(current_user):
         try:
             notifs = (
@@ -129,8 +131,9 @@ class NotificationService:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            InternalErrResp()
 
+    @staticmethod
     def get_notifs_info(id_array, current_user):
         # Check if the array is empty
         if len(id_array) == 0 or id_array is None:
@@ -160,11 +163,12 @@ class NotificationService:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            InternalErrResp()
 
+    @staticmethod
     def read_notifications():
         try:
             pass
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            InternalErrResp()
