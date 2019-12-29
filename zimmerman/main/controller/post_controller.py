@@ -4,8 +4,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from zimmerman.main import limiter
 from ..util.dto import PostDto
-from ..service.post_service import PostService
-from ..service.user_service import load_user
+
+from ..service.post.service import PostService
+from ..service.user.utils import load_user
 
 api = PostDto.api
 _post = PostDto.post
