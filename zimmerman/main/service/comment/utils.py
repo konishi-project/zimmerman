@@ -1,6 +1,7 @@
 from zimmerman.main import db
 
 from ..like_service import check_like
+from ..reply.utils import load_reply
 from ..user.utils import filter_author
 
 # Import Schemas
@@ -47,9 +48,21 @@ def load_comment(comment, user_id):
 
     # Get the frst 2 replies if there are any.
     info["initial_replies"] = (
-        # TODO
+        get_initial_replies(sorted(comment.replies)[:2], user_id)
+        if comment.replies
+        else None
     )
 
     # Filter comment
 
     return info
+
+
+def get_initial_replies(reply_array, user_id):
+    replies = []
+
+    for reply in reply_array:
+        reply_info = load_reply(reply_array, user_id)
+        replies.append(reply_info)
+
+    return replies
