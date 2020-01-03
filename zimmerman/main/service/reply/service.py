@@ -59,7 +59,7 @@ class ReplyService:
 
         except Exception as error:
             current_app.logger.error(error)
-            InternalErrResp()
+            return InternalErrResp()
 
     @staticmethod
     def delete(reply_id, current_user):
@@ -80,7 +80,7 @@ class ReplyService:
 
             except Exception as error:
                 current_app.logger.error(error)
-                InternalErrResp()
+                return InternalErrResp()
 
         resp = Message(False, "Insufficient permissions!")
         resp["error_reason"] = "insufficient_permissions"
@@ -103,7 +103,7 @@ class ReplyService:
 
             except Exception as error:
                 current_app.logger.error(error)
-                InternalErrResp()
+                return InternalErrResp()
 
         resp = Message(False, "Insufficient permissions!")
         resp["error_reason"] = "insufficient_permissions"

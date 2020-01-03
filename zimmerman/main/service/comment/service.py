@@ -61,7 +61,7 @@ class CommentService:
 
         except Exception as error:
             current_app.logger.error(error)
-            InternalErrResp()
+            return InternalErrResp()
 
     @staticmethod
     def delete(comment_id, current_user):
@@ -82,7 +82,7 @@ class CommentService:
 
             except Exception as error:
                 current_app.logger.error(error)
-                InternalErrResp()
+                return InternalErrResp()
 
         resp = Message(False, "Insufficient permissions!")
         return resp, 403
@@ -112,7 +112,7 @@ class CommentService:
 
             except Exception as error:
                 current_app.logger.error(error)
-                InternalErrResp()
+                return InternalErrResp()
 
         resp = Message(False, "Insufficient permissions!")
         resp["error_reason"] = "insufficient_permissions"

@@ -71,7 +71,7 @@ class Auth:
 
         except Exception as error:
             current_app.logger.error(error)
-            InternalErrResp()
+            return InternalErrResp()
 
     @staticmethod
     def register(data):
@@ -188,4 +188,4 @@ class Auth:
 
         except Exception as error:
             current_app.logger.error(error)
-            InternalErrResp()
+            return InternalErrResp()

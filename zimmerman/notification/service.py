@@ -48,7 +48,7 @@ class NotificationService:
 
         except Exception as error:
             current_app.logger.error(error)
-            InternalErrResp()
+            return InternalErrResp()
 
     @staticmethod
     def get_notifs_info(id_array, current_user):
@@ -80,7 +80,7 @@ class NotificationService:
 
         except Exception as error:
             current_app.logger.error(error)
-            InternalErrResp()
+            return InternalErrResp()
 
     @staticmethod
     def read_notifications():
@@ -88,4 +88,4 @@ class NotificationService:
             pass
         except Exception as error:
             current_app.logger.error(error)
-            InternalErrResp()
+            return InternalErrResp()

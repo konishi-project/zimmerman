@@ -58,4 +58,4 @@ def upload_file(files, foldername, extensions):
 
         except Exception as error:
             current_app.logger.error(error)
-            InternalErrResp()
+            return InternalErrResp()

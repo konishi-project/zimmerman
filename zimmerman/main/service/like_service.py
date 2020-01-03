@@ -63,7 +63,7 @@ class Like:
 
         except Exception as error:
             current_app.logger.error(error)
-            InternalErrResp()
+            return InternalErrResp()
 
     @staticmethod
     def comment(comment_id, current_user):
@@ -95,7 +95,7 @@ class Like:
 
         except Exception as error:
             current_app.logger.error(error)
-            InternalErrResp()
+            return InternalErrResp()
 
     @staticmethod
     def reply(reply_id, current_user):
@@ -127,7 +127,7 @@ class Like:
 
         except Exception as error:
             current_app.logger.error(error)
-            InternalErrResp()
+            return InternalErrResp()
 
 
 class Unlike:
@@ -144,7 +144,7 @@ class Unlike:
 
                 except Exception as error:
                     current_app.logger.error(error)
-                    InternalErrResp()
+                    return InternalErrResp()
 
             # Return 404 if item isn't found
             return "", 404
@@ -162,7 +162,7 @@ class Unlike:
 
                 except Exception as error:
                     current_app.logger.error(error)
-                    InternalErrResp()
+                    return InternalErrResp()
 
             # Return 404 if item isn't found
             return "", 404
@@ -179,6 +179,6 @@ class Unlike:
 
                 except Exception as error:
                     current_app.logger.error(error)
-                    InternalErrResp()
+                    return InternalErrResp()
 
             return "", 404

@@ -76,4 +76,4 @@ def send_notification(data, target_user_public_id):
 
     except Exception as error:
         current_app.logger.error(error)
-        InternalErrResp()
+        return InternalErrResp()

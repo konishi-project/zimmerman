@@ -1,6 +1,5 @@
 import unittest
 
-
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 
@@ -13,7 +12,7 @@ from zimmerman import main_bp
 
 # Create the application in development mode.
 # We obviously want to change this to 'prod' in deployment.
-app = create_app("prod")
+app = create_app("dev")
 
 # Register main blueprint from Zimmerman
 app.register_blueprint(main_bp)
@@ -25,7 +24,6 @@ manager = Manager(app)
 migrate = Migrate(app, db)
 
 manager.add_command("db", MigrateCommand)
-
 
 @manager.command
 def run():

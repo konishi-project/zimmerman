@@ -44,7 +44,7 @@ class PostService:
 
         except Exception as error:
             current_app.logger.error(error)
-            InternalErrResp()
+            return InternalErrResp()
 
     @staticmethod
     def delete(post_public_id, current_user):
@@ -67,7 +67,7 @@ class PostService:
 
             except Exception as error:
                 current_app.logger.error(error)
-                InternalErrResp()
+                return InternalErrResp()
 
         resp = Message(False, "Insufficient permissions!")
         return resp, 403
@@ -97,7 +97,7 @@ class PostService:
 
             except Exception as error:
                 current_app.logger.error(error)
-                InternalErrResp()
+                return InternalErrResp()
 
         # Check if post is locked
         elif post.status.lower() == "locked":
