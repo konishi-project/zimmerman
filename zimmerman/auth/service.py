@@ -40,7 +40,7 @@ class Auth:
                     False, "The email you have entered does not match any account"
                 )
                 resp["error_reason"] = "email_404"
-                return Message, 404
+                return resp, 404
 
             elif user and user.check_password(password):
                 user_schema = UserSchema()
