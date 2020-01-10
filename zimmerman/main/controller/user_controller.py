@@ -3,8 +3,10 @@ from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from zimmerman.main import limiter
+
 from ..util.dto import UserDto
-from ..service.user_service import UserService, load_user
+from ..service.user.service import UserService
+from ..service.user.utils import load_user
 
 api = UserDto.api
 _user = UserDto.user

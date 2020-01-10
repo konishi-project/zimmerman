@@ -5,86 +5,32 @@ from flask import current_app
 from flask_jwt_extended import create_access_token
 
 from zimmerman.main import db
-from zimmerman.util import Message, ErrResp
+from zimmerman.util import Message, InternalErrResp
 
 from zimmerman.main.model.main import User
-from zimmerman.main.model.schemas import UserSchema
 
-from .upload_service import get_image
+from .utils import load_info
 
-private_info = (
-    "password_hash",
-    "id",
-    "post_likes",
-    "comment_likes",
-    "reply_likes",
-    "posts",
-    "comments",
-    "replies",
-    "notifications",
-)
-
-unnecessary_info = ("password_hash", "id", "comment_likes", "reply_likes")
-
-
-def filter_author(user):
-    # Remove sensitive information
-    for info in private_info:
-        del user[info]
-
-    # Add the avatar
-    user["avatar"] = (
-        get_image(user["profile_picture"], "avatars")
-        if user["profile_picture"] is not None
-        else None
-    )
-
-    return user
-
-
-def load_user(identififer):
-    # If the user_id is an int then use id
-    if type(identififer) == int:
-        user = User.query.filter_by(id=identififer).first()
-
-    # Use public id
-    else:
-        user = User.query.filter_by(public_id=identififer).first()
-
-    if not user:
-        resp = Message(False, "Current user does not exist!")
-        resp["error_reason"] = "user_404"
-        return resp, 404
-
-    return user
+from ..upload_service import get_image
 
 
 class UserService:
     # Get user INFO by its username
+    @staticmethod
     def get_user_info(username):
         user = User.query.filter_by(username=username.lower()).first()
         if not user:
             resp = Message(False, "User not found!")
             return resp, 404
 
-        user_schema = UserSchema()
-        user_info = user_schema.dump(user)
-
-        # Remove unnecessary info
-        for info in unnecessary_info:
-            del user_info[info]
-
-        # Add avatar
-        user_info["avatar"] = (
-            get_image(user.profile_picture, "avatars")
-            if user.profile_picture is not None
-            else None
-        )
+        user_info = load_info(user)
 
         resp = Message(True, "User data sent.")
         resp["user"] = user_info
         return resp, 200
 
+    # Update this method
+    @staticmethod
     def update(data, current_user):
         # Get the user
         user = User.query.filter_by(id=current_user.id).first()
@@ -115,4 +61,6 @@ class UserService:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            return InternalErrResp()
+
+    # Add user deletion

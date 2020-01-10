@@ -6,9 +6,10 @@ from datetime import datetime
 from uuid import uuid4
 
 from zimmerman.main import db
-from zimmerman.util import Message, ErrResp
+from zimmerman.util import Message, InternalErrResp
 from zimmerman.main.service.upload_service import get_image
-from zimmerman.main.service.user_service import private_info
+
+from zimmerman.main.service.user.utils import private_info
 
 
 from zimmerman.main.model.main import User
@@ -39,7 +40,7 @@ class Auth:
                     False, "The email you have entered does not match any account"
                 )
                 resp["error_reason"] = "email_404"
-                return Message, 404
+                return resp, 404
 
             elif user and user.check_password(password):
                 user_schema = UserSchema()
@@ -70,7 +71,7 @@ class Auth:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            return InternalErrResp()
 
     @staticmethod
     def register(data):
@@ -187,4 +188,4 @@ class Auth:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            return InternalErrResp()

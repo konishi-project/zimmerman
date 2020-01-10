@@ -4,8 +4,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from zimmerman.main import limiter
 from ..util.dto import FeedDto
-from ..service.feed_service import Feed
-from ..service.user_service import load_user
+
+from ..service.feed.service import FeedService
+from ..service.user.utils import load_user
 
 api = FeedDto.api
 _feed = FeedDto.feed
@@ -26,7 +27,7 @@ class FeedGet(Resource):
         # Args
         limit = request.args.get("limit", default=500, type=int)
 
-        return Feed.get_activity(limit)
+        return FeedService.get_activity(limit)
 
     decorators = [
         limiter.limit(
@@ -47,4 +48,4 @@ class FeedGet(Resource):
         id_array = data["post_ids"]
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return Feed.get_posts_info(id_array, current_user)
+        return FeedService.get_posts_info(id_array, current_user)

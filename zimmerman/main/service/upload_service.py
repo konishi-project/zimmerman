@@ -4,7 +4,7 @@ from flask import current_app, url_for
 from hashlib import sha256
 from werkzeug.utils import secure_filename
 
-from zimmerman.util import Message, ErrResp
+from zimmerman.util import Message, InternalErrResp
 from zimmerman.config import basedir
 
 STATIC_FOLDER_PATH = basedir + "/main/static/"
@@ -58,4 +58,4 @@ def upload_file(files, foldername, extensions):
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            return InternalErrResp()

@@ -5,8 +5,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from zimmerman.main import limiter
 from ..util.dto import CommentDto
 
-from ..service.comment_service import CommentService
-from ..service.user_service import load_user
+from ..service.comment.service import CommentService
+from ..service.user.utils import load_user
 
 api = CommentDto.api
 _comment = CommentDto.comment

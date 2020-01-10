@@ -4,8 +4,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from zimmerman.main import limiter
 from ..util.dto import ReplyDto
-from ..service.reply_service import ReplyService
-from ..service.user_service import load_user
+
+from ..service.reply.service import ReplyService
+from ..service.user.utils import load_user
 
 api = ReplyDto.api
 _reply = ReplyDto.reply

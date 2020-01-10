@@ -3,7 +3,8 @@ from flask_restplus import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from zimmerman.main import limiter
-from zimmerman.main.service.user_service import load_user
+from zimmerman.main.service.user.utils import load_user
+
 from .service import NotificationService
 from .util.dto import NotificationDto
 

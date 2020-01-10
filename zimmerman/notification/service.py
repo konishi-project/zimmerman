@@ -1,14 +1,14 @@
 from flask import current_app
-from datetime import datetime
-from flask_jwt_extended import get_jwt_identity
 
-from zimmerman.main import db
-from zimmerman.util import Message, ErrResp
-from zimmerman.main.model.main import Notification, User
-from zimmerman.main.service.user_service import load_user, filter_author
+from zimmerman.util import Message, InternalErrResp
 
-# Import schemas
-from zimmerman.main.model.schemas import UserSchema, NotificationSchema
+from zimmerman.main.model.notification import Notification
+
+from ..main.service.feed.utils import uniq
+from ..main.service.user.utils import load_user, user_schema, filter_author
+
+from .util.main import notifications_schema
+from .util.main import notification_schema
 
 """
 Notification flow:
@@ -23,89 +23,9 @@ User *likes* a post -> Create a notification to the post's owner
 (if User == Post owner) then ignore notification creation.
 """
 
-# Define schema
-notification_schema = NotificationSchema()
-user_schema = UserSchema()
-
-allowed_types = ("post", "comment", "reply")
-# Add more if needed
-valid_actions = ("replied", "liked", "commented")
-
-
-def uniq(a_list):
-    encountered = set()
-    result = []
-    for elem in a_list:
-        if elem not in encountered:
-            result.append(elem)
-        encountered.add(elem)
-    return result
-
-
-def add_notification_and_flush(data):
-    db.session.add(data)
-    db.session.flush()
-
-    latest_notification = notification_schema.dump(data)
-
-    db.session.commit()
-
-    return latest_notification
-
-
-# Creates and sends the notification to the user.
-def send_notification(data, target_user_public_id):
-
-    actor = load_user(get_jwt_identity())
-    action = data["action"]
-    # Post, Comment, Reply, etc.
-    object_type = data["object_type"]
-    object_public_id = data["object_public_id"]
-
-    # Get the target user
-    target_user = User.query.filter_by(public_id=target_user_public_id).first()
-
-    if action not in valid_actions:
-        resp = Message(False, "Invalid action!")
-        resp["error_reason"] = "action_invalid"
-        return resp, 403
-
-    # Validate
-    if object_type not in allowed_types:
-        resp = Message(False, "Object type is invalid!")
-        resp["error_reason"] = "object_invalid"
-        return resp, 403
-
-    # Check if notification exists.
-    notification = Notification.query.filter_by(
-        object_type=object_type, object_public_id=object_public_id
-    ).first()
-
-    if notification is not None:
-        return None, 204
-
-    try:
-        new_notification = Notification(
-            target_owner=target_user.id,
-            actor=actor.public_id,
-            action=action,
-            timestamp=datetime.utcnow(),
-            object_type=object_type,
-            object_public_id=object_public_id,
-        )
-
-        latest_notification = add_notification_and_flush(new_notification)
-
-        resp = Message(True, "Notification has been created.")
-        resp["notification"] = latest_notification
-        return resp, 201
-
-    except Exception as error:
-        current_app.logger.error(error)
-        ErrResp()
-
 
 class NotificationService:
+    @staticmethod
     def get_notification_ids(current_user):
         try:
             notifs = (
@@ -113,8 +33,7 @@ class NotificationService:
                 .with_entities(Notification.id, Notification.timestamp)
                 .all()
             )
-            notification_schema = NotificationSchema(many=True)
-            notification_info = notification_schema.dump(notifs)
+            notification_info = notifications_schema.dump(notifs)
 
             ids = uniq(
                 x["id"]
@@ -129,8 +48,9 @@ class NotificationService:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            return InternalErrResp()
 
+    @staticmethod
     def get_notifs_info(id_array, current_user):
         # Check if the array is empty
         if len(id_array) == 0 or id_array is None:
@@ -160,11 +80,12 @@ class NotificationService:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            return InternalErrResp()
 
+    @staticmethod
     def read_notifications():
         try:
             pass
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            return InternalErrResp()

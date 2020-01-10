@@ -2,8 +2,8 @@ from datetime import datetime
 from flask import current_app
 
 from zimmerman.main import db
-from zimmerman.util import Message, ErrResp
-from zimmerman.notification.service import send_notification
+from zimmerman.util import Message, InternalErrResp
+from zimmerman.notification.util.main import notify
 from zimmerman.main.model.main import (
     Post,
     Comment,
@@ -32,14 +32,8 @@ def add_like(like):
     db.session.commit()
 
 
-def notify(object_type, object_public_id, target_owner_public_id):
-    notif_data = dict(
-        action="liked", object_type=object_type, object_public_id=object_public_id
-    )
-    send_notification(notif_data, target_owner_public_id)
-
-
 class Like:
+    @staticmethod
     def post(post_public_id, current_user):
         # Query for the post using its public id
         post = Post.query.filter_by(public_id=post_public_id).first()
@@ -62,15 +56,16 @@ class Like:
         try:
             # Notify post owner
             if current_user.public_id != post.creator_public_id:
-                notify("post", post.public_id, post.creator_public_id)
+                notify("liked", "post", post.public_id, post.creator_public_id)
 
             add_like(post_like)
             return "", 201
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            return InternalErrResp()
 
+    @staticmethod
     def comment(comment_id, current_user):
         # Query for the comment
         comment = Comment.query.filter_by(id=comment_id).first()
@@ -91,7 +86,7 @@ class Like:
         try:
             # Notify comment owner
             if current_user.public_id != comment.creator_public_id:
-                notify("comment", comment.public_id, comment.creator_public_id)
+                notify("liked", "comment", comment.public_id, comment.creator_public_id)
 
             add_like(comment_like)
 
@@ -100,8 +95,9 @@ class Like:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            return InternalErrResp()
 
+    @staticmethod
     def reply(reply_id, current_user):
         # Query for the reply
         reply = Reply.query.filter_by(id=reply_id).first()
@@ -122,7 +118,7 @@ class Like:
         try:
             # Notify reply owner
             if current_user.public_id != reply.creator_public_id:
-                notify("reply", reply.public_id, reply.creator_public_id)
+                notify("liked", "reply", reply.public_id, reply.creator_public_id)
 
             db.session.add(like_reply)
             db.session.commit()
@@ -131,10 +127,11 @@ class Like:
 
         except Exception as error:
             current_app.logger.error(error)
-            ErrResp()
+            return InternalErrResp()
 
 
 class Unlike:
+    @staticmethod
     def post(post_public_id, current_user):
         # Query for the post
         post = Post.query.filter_by(public_id=post_public_id).first()
@@ -147,11 +144,12 @@ class Unlike:
 
                 except Exception as error:
                     current_app.logger.error(error)
-                    ErrResp()
+                    return InternalErrResp()
 
             # Return 404 if item isn't found
             return "", 404
 
+    @staticmethod
     def comment(comment_id, current_user):
         # Query for the comment
         comment = Comment.query.filter_by(id=comment_id).first()
@@ -164,11 +162,12 @@ class Unlike:
 
                 except Exception as error:
                     current_app.logger.error(error)
-                    ErrResp()
+                    return InternalErrResp()
 
             # Return 404 if item isn't found
             return "", 404
 
+    @staticmethod
     def reply(reply_id, current_user):
         # Query for the reply
         reply = Reply.query.filter_by(id=reply_id).first()
@@ -180,6 +179,6 @@ class Unlike:
 
                 except Exception as error:
                     current_app.logger.error(error)
-                    ErrResp()
+                    return InternalErrResp()
 
             return "", 404
