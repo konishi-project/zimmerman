@@ -91,7 +91,7 @@ class Auth:
 
             # Check if the email is being used
             if User.query.filter_by(email=email).first() is not None:
-                resp = Message(False, "Email is required!")
+                resp = Message(False, "Email is being used!")
                 resp["error_reason"] = "email_used"
                 return resp, 403
 
