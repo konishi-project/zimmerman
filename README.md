@@ -67,6 +67,9 @@ Feel free to contact the lead developer [X1Zeth2X](https://github.com/X1Zeth2X) 
 
 ## Prerequisites
 [TODO: Add instructions for other distros]
+We are switching over to `pipenv` for better environment, virtualenv can still work
+but we recommend using `pipenv`.
+
 - Python3.x
     - Ubuntu: ``` sudo apt install python3 ```
 - virtualenv

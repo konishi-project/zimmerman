@@ -5,7 +5,7 @@ clean:
 	find . -type f -name '*.log' -delete
 
 install:
-	pip install -r requirements.txt
+	pipenv install
 
 init_db:
 	python manage.py db init
