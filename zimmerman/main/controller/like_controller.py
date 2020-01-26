@@ -1,4 +1,4 @@
-from flask_restplus import Resource
+from flask_restx import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from zimmerman.main import limiter
