@@ -29,6 +29,7 @@ manager.add_command("db", MigrateCommand)
 def run():
     app.run()
 
+# Add Create Admin
 
 @manager.command
 def test():
