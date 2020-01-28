@@ -11,6 +11,7 @@ def InternalErrResp():
     err["error_reason"] = "server_error"
     return err, 500
 
+
 def ErrResp(message, reason, code):
     err = Message(False, message)
     err["error_reason"] = reason
