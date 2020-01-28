@@ -60,7 +60,7 @@ class Auth:
 
                 if access_token:
                     resp = Message(True, "Successfully logged in.")
-                    resp["Authorization"] = access_token
+                    resp["access_token"] = access_token
                     resp["user"] = user_info
                     return resp, 200
 
@@ -182,7 +182,7 @@ class Auth:
             access_token = create_access_token(identity=new_user.id)
 
             resp = Message(True, "User registered.")
-            resp["Authorization"] = access_token
+            resp["access_token"] = access_token
             resp["user"] = user_info
             return resp, 201
 
