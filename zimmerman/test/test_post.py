@@ -49,7 +49,7 @@ class TestPostBlueprint(BaseTestCase):
             register_user(self)
             login_response = login_user(self)
             data = json.loads(login_response.data.decode())
-            access_token = data["Authorization"]
+            access_token = data["access_token"]
 
             # Post creation
             create_response = create_post(self, access_token)
@@ -75,7 +75,7 @@ class TestPostBlueprint(BaseTestCase):
             register_user(self)
             login_response = login_user(self)
             data = json.loads(login_response.data.decode())
-            access_token = data["Authorization"]
+            access_token = data["access_token"]
 
             # Create a post
             create_response = create_post(self, access_token)
@@ -104,7 +104,7 @@ class TestPostBlueprint(BaseTestCase):
             register_user(self)
             login_response = login_user(self)
             data = json.loads(login_response.data.decode())
-            access_token = data["Authorization"]
+            access_token = data["access_token"]
 
             # Create a post
             create_post_response = create_post(self, access_token)

@@ -58,7 +58,7 @@ class TestCommentBlueprint(BaseTestCase):
             register_user(self)
             login_response = login_user(self)
             data = json.loads(login_response.data.decode())
-            access_token = data["Authorization"]
+            access_token = data["access_token"]
 
             # Create a mock post
             create_post_resp = create_post(self, access_token)
@@ -90,7 +90,7 @@ class TestCommentBlueprint(BaseTestCase):
             register_user(self)
             login_response = login_user(self)
             data = json.loads(login_response.data.decode())
-            access_token = data["Authorization"]
+            access_token = data["access_token"]
 
             # Create a mock post
             create_post_resp = create_post(self, access_token)
@@ -121,7 +121,7 @@ class TestCommentBlueprint(BaseTestCase):
             register_user(self)
             login_response = login_user(self)
             data = json.loads(login_response.data.decode())
-            access_token = data["Authorization"]
+            access_token = data["access_token"]
 
             # Create a mock post
             create_post_resp = create_post(self, access_token)

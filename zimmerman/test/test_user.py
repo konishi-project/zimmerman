@@ -38,7 +38,7 @@ class TestAuthBlueprint(BaseTestCase):
             login_response = login_user(self)
             data = json.loads(login_response.data.decode())
 
-            self.assertTrue(data["Authorization"])
+            self.assertTrue(data["access_token"])
             self.assertEqual(login_response.status_code, 200)
 
     def test_get_user(self):
@@ -49,7 +49,7 @@ class TestAuthBlueprint(BaseTestCase):
             register_user(self)
             login_response = login_user(self)
             login_response_data = json.loads(login_response.data.decode())
-            access_token = login_response_data["Authorization"]
+            access_token = login_response_data["access_token"]
 
             # Get the user data
             username = login_response_data["user"]["username"]
@@ -66,7 +66,7 @@ class TestAuthBlueprint(BaseTestCase):
             register_user(self)
             login_response = login_user(self)
             login_response_data = json.loads(login_response.data.decode())
-            access_token = login_response_data["Authorization"]
+            access_token = login_response_data["access_token"]
 
             # Update the user data
             updated_user = {"bio": "reEeeeEEEEEeEeeeee", "avatar": "test.png"}

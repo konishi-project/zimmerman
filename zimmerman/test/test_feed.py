@@ -41,7 +41,7 @@ class TestFeedBlueprint(BaseTestCase):
             register_user(self)
             login_response = login_user(self)
             data = json.loads(login_response.data.decode())
-            access_token = data["Authorization"]
+            access_token = data["access_token"]
 
             # Post creation
             create_post(self, access_token)
@@ -62,7 +62,7 @@ class TestFeedBlueprint(BaseTestCase):
             register_user(self)
             login_response = login_user(self)
             data = json.loads(login_response.data.decode())
-            access_token = data["Authorization"]
+            access_token = data["access_token"]
 
             # Post creation
             create_post(self, access_token)
