@@ -3,3 +3,6 @@ __pycache__
 konishienv
 zimmerman.log
 migrations
+
+# Ignore sqlite development db.
+zimmerman/*.db
