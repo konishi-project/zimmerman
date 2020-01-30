@@ -4,8 +4,8 @@ from datetime import datetime
 from flask_jwt_extended import create_access_token
 
 from api.main import db
-from api.main.model.main import User
-from api.test.base import BaseTestCase
+from models.main import User
+from tests.base import BaseTestCase
 
 
 class TestUserModel(BaseTestCase):

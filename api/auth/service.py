@@ -12,8 +12,8 @@ from api.main.service.upload_service import get_image
 from api.main.service.user.utils import private_info
 
 
-from api.main.model.main import User
-from api.main.model.schemas import UserSchema
+from models.main import User
+from models.schemas import UserSchema
 
 # Basic email regex check.
 EMAIl_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")

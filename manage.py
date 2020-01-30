@@ -33,7 +33,7 @@ def run():
 @manager.command
 def test():
     """ Runs Unit Tests """
-    tests = unittest.TestLoader().discover("api/test", pattern="test*.py")
+    tests = unittest.TestLoader().discover("tests", pattern="test*.py")
     result = unittest.TextTestRunner(verbosity=2).run(tests)
     if result.wasSuccessful():
         return 0

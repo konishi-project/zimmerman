@@ -3,14 +3,13 @@ from uuid import uuid4
 from datetime import datetime
 
 from api.main import db
-from api.main.model.main import Post, User
-from api.test.base import BaseTestCase
+from models.main import Comment, Post, User
+from tests.base import BaseTestCase
 
 
-class TestPostModel(BaseTestCase):
-    def test_create_post(self):
-        """ Test for post model """
-
+class TestCommentModel(BaseTestCase):
+    def test_create_comment(self):
+        """ Test for comment model """
         # Create test user
         user = User(
             public_id=str(uuid4().int)[:15],
@@ -24,7 +23,7 @@ class TestPostModel(BaseTestCase):
         db.session.add(user)
         db.session.commit()
 
-        # Create post
+        # Create test post
         post = Post(
             owner_id=user.id,
             creator_public_id=user.public_id,
@@ -36,7 +35,18 @@ class TestPostModel(BaseTestCase):
         db.session.add(post)
         db.session.commit()
 
-        self.assertTrue(isinstance(post, Post))
+        # Create comment
+        comment = Comment(
+            creator_public_id=user.public_id,
+            on_post=post.id,
+            content="Test comment",
+            owner_id=user.id,
+        )
+
+        db.session.add(comment)
+        db.session.commit()
+
+        self.assertTrue(isinstance(comment, Comment))
 
 
 if __name__ == "__main__":

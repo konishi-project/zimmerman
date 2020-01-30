@@ -5,7 +5,7 @@ from ..reply.utils import load_reply
 from ..user.utils import filter_author
 
 # Import Schemas
-from api.main.model.schemas import CommentSchema, UserSchema
+from models.schemas import CommentSchema, UserSchema
 
 # Define deserializers
 comments_schema = CommentSchema(many=True)

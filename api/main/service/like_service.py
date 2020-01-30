@@ -4,14 +4,14 @@ from flask import current_app
 from api.main import db
 from api.util import Message, InternalErrResp
 from api.notification.util.main import notify
-from api.main.model.main import (
+from models.main import (
     Post,
     Comment,
     Reply,
 )
 
 # Import like models
-from api.main.model.likes import PostLike, CommentLike, ReplyLike
+from models.likes import PostLike, CommentLike, ReplyLike
 
 
 def check_like(item_likes, user_id):
