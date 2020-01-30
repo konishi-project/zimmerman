@@ -1,7 +1,7 @@
 ## Like Models
 from datetime import datetime
 
-from api.main import db
+from zimmerman import db
 
 # Alias common SQLAlchemy names
 Column = db.Column

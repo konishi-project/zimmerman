@@ -1,7 +1,7 @@
-from api.util import Message
+from zimmerman.utils import Message
 
-from models.user import User
-from models.schemas import UserSchema
+from zimmerman.models.user import User
+from zimmerman.models.schemas import UserSchema
 
 from ..upload_service import get_image
 

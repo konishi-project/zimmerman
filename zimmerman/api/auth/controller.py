@@ -1,7 +1,7 @@
 from flask import request
 from flask_restx import Resource
 
-from api.main import limiter
+from zimmerman import limiter
 from .service import Auth
 from .util.dto import AuthDto
 

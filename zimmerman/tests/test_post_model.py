@@ -2,9 +2,9 @@ import unittest
 from uuid import uuid4
 from datetime import datetime
 
-from api.main import db
-from models.main import Post, User
-from tests.base import BaseTestCase
+from zimmerman import db
+from zimmerman.models.main import Post, User
+from zimmerman.tests.base import BaseTestCase
 
 
 class TestPostModel(BaseTestCase):

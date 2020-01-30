@@ -5,15 +5,15 @@ from flask_jwt_extended import create_access_token
 from datetime import datetime
 from uuid import uuid4
 
-from api.main import db
-from api.util import Message, InternalErrResp
-from api.main.service.upload_service import get_image
+from zimmerman import db
+from zimmerman.utils import Message, InternalErrResp
+from zimmerman.api.main.service.upload_service import get_image
 
-from api.main.service.user.utils import private_info
+from zimmerman.api.main.service.user.utils import private_info
 
 
-from models.main import User
-from models.schemas import UserSchema
+from zimmerman.models.user import User
+from zimmerman.models.schemas import UserSchema
 
 # Basic email regex check.
 EMAIl_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")

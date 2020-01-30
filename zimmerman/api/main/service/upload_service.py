@@ -4,8 +4,8 @@ from flask import current_app, url_for
 from hashlib import sha256
 from werkzeug.utils import secure_filename
 
-from api.util import Message, InternalErrResp
-from api.config import basedir
+from zimmerman.utils import Message, InternalErrResp
+from zimmerman.config import basedir
 
 STATIC_FOLDER_PATH = basedir + "/main/static/"
 

@@ -1,10 +1,10 @@
-from api.main import db
+from zimmerman import db
 
 from ..like_service import check_like
 from ..user.utils import filter_author
 
 # Import Schemas
-from models.schemas import ReplySchema, UserSchema
+from zimmerman.models.schemas import ReplySchema, UserSchema
 
 # Define deserializers
 from ..user.utils import user_schema

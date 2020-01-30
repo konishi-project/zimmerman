@@ -1,11 +1,11 @@
 from uuid import uuid4
 from flask import current_app
 
-from api.util import Message, InternalErrResp
-from api.notification.util.main import notify
+from zimmerman.utils import Message, InternalErrResp
+from zimmerman.api.notification.util.main import notify
 
 # Import models
-from models.post import Reply, Comment
+from zimmerman.models.post import Reply, Comment
 
 from .utils import add_reply_and_flush, delete_reply, update_reply, load_reply
 

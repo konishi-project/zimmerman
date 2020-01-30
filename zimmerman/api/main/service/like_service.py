@@ -1,17 +1,17 @@
 from datetime import datetime
 from flask import current_app
 
-from api.main import db
-from api.util import Message, InternalErrResp
-from api.notification.util.main import notify
-from models.main import (
+from zimmerman import db
+from zimmerman.utils import Message, InternalErrResp
+from zimmerman.api.notification.util.main import notify
+from zimmerman.models.post import (
     Post,
     Comment,
     Reply,
 )
 
 # Import like models
-from models.likes import PostLike, CommentLike, ReplyLike
+from zimmerman.models.likes import PostLike, CommentLike, ReplyLike
 
 
 def check_like(item_likes, user_id):

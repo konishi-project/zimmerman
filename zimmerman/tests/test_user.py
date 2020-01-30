@@ -2,8 +2,8 @@ import unittest
 import json
 
 from flask import current_app
-from tests.base import BaseTestCase
-from tests.common_functions import register_user, login_user
+from zimmerman.tests.base import BaseTestCase
+from zimmerman.tests.common_functions import register_user, login_user
 
 
 def get_user(self, access_token, username):

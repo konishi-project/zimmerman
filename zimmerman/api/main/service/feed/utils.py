@@ -1,5 +1,5 @@
 # Import schemas
-from models.schemas import PostSchema
+from zimmerman.models.schemas import PostSchema
 
 # Define deserializers
 posts_schema = PostSchema(many=True)

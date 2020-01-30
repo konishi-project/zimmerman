@@ -1,10 +1,10 @@
 from flask import current_app
 
-from api.util import Message, InternalErrResp
+from zimmerman.utils import Message, InternalErrResp
 
 # Import Schemas
-from models.post import Post, Comment
-from models.schemas import PostSchema
+from zimmerman.models.post import Post, Comment
+from zimmerman.models.schemas import PostSchema
 
 from ..comment.utils import comments_schema
 from ..post.utils import load_post
