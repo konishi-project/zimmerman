@@ -58,6 +58,6 @@ class NotificationRead(Resource):
     def put(self):
         """ Set notifications as read """
         data = request.get_json()
-        notif_ids = data["notif_ids"]
-        current_user = load_user(get_jwt_identity())
+        data["notif_ids"]
+        load_user(get_jwt_identity())
         return NotificationService.read_notifications()
