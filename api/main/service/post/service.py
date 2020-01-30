@@ -1,10 +1,10 @@
 from uuid import uuid4
 from flask import current_app
 
-from zimmerman.util import Message, InternalErrResp
+from api.util import Message, InternalErrResp
 
 # Import models
-from zimmerman.main.model.post import Post
+from api.main.model.post import Post
 
 from .utils import add_post_and_flush, delete_post, update_post, load_post
 

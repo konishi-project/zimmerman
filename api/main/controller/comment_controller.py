@@ -2,7 +2,7 @@ from flask import request
 from flask_restx import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from zimmerman.main import limiter
+from api.main import limiter
 from ..util.dto import CommentDto
 
 from ..service.comment.service import CommentService

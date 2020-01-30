@@ -3,9 +3,9 @@ from uuid import uuid4
 from datetime import datetime
 
 
-from zimmerman.main import db
-from zimmerman.main.model.main import Reply, Comment, Post, User
-from zimmerman.test.base import BaseTestCase
+from api.main import db
+from api.main.model.main import Reply, Comment, Post, User
+from api.test.base import BaseTestCase
 
 
 class TestReplyModel(BaseTestCase):

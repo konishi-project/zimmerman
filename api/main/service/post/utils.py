@@ -1,4 +1,4 @@
-from zimmerman.main import db
+from api.main import db
 
 from ..like_service import check_like
 from ..user.utils import filter_author
@@ -7,7 +7,7 @@ from ..upload_service import get_image
 from ..comment.utils import load_comment
 
 # Import Schemas
-from zimmerman.main.model.schemas import PostSchema, UserSchema
+from api.main.model.schemas import PostSchema, UserSchema
 
 # Define deserializers
 from ..user.utils import user_schema

@@ -6,7 +6,7 @@ from flask import Flask
 from .extensions import db, ma, jwt, bcrypt, cors, limiter, talisman
 
 # Import configuration
-from zimmerman.config import config_by_name, basedir
+from api.config import config_by_name, basedir
 
 
 def create_app(config_name):

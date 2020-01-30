@@ -1,5 +1,5 @@
 from flask_testing import TestCase
-from zimmerman.main import db
+from api.main import db
 from manage import app
 
 
@@ -7,7 +7,7 @@ class BaseTestCase(TestCase):
     """ Base Tests """
 
     def create_app(self):
-        app.config.from_object("zimmerman.config.TestingConfig")
+        app.config.from_object("api.config.TestingConfig")
         return app
 
     def setUp(self):

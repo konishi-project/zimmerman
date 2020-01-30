@@ -1,11 +1,11 @@
-from zimmerman.main import db
+from api.main import db
 
 from ..like_service import check_like
 from ..reply.utils import load_reply
 from ..user.utils import filter_author
 
 # Import Schemas
-from zimmerman.main.model.schemas import CommentSchema, UserSchema
+from api.main.model.schemas import CommentSchema, UserSchema
 
 # Define deserializers
 comments_schema = CommentSchema(many=True)

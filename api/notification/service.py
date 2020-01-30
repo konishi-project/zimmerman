@@ -1,8 +1,8 @@
 from flask import current_app
 
-from zimmerman.util import Message, InternalErrResp
+from api.util import Message, InternalErrResp
 
-from zimmerman.main.model.notification import Notification
+from api.main.model.notification import Notification
 
 from ..main.service.feed.utils import uniq
 from ..main.service.user.utils import load_user, user_schema, filter_author

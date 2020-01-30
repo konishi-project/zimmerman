@@ -4,10 +4,10 @@ from datetime import datetime
 from flask import current_app
 from flask_jwt_extended import create_access_token
 
-from zimmerman.main import db
-from zimmerman.util import Message, InternalErrResp
+from api.main import db
+from api.util import Message, InternalErrResp
 
-from zimmerman.main.model.main import User
+from api.main.model.main import User
 
 from .utils import load_info
 

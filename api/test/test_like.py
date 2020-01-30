@@ -3,8 +3,8 @@ import json
 from datetime import datetime
 
 from flask import current_app
-from zimmerman.test.base import BaseTestCase
-from zimmerman.test.common_functions import register_user, login_user
+from api.test.base import BaseTestCase
+from api.test.common_functions import register_user, login_user
 
 
 def create_post(self, access_token):

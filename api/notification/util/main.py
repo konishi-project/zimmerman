@@ -2,14 +2,14 @@ from datetime import datetime
 from flask import current_app
 from flask_jwt_extended import get_jwt_identity
 
-from zimmerman.main import db
-from zimmerman.util import Message, InternalErrResp
-from zimmerman.main.service.user.utils import load_user
+from api.main import db
+from api.util import Message, InternalErrResp
+from api.main.service.user.utils import load_user
 
 # Import model/schemas
-from zimmerman.main.model.user import User
-from zimmerman.main.model.notification import Notification
-from zimmerman.main.model.schemas import UserSchema, NotificationSchema
+from api.main.model.user import User
+from api.main.model.notification import Notification
+from api.main.model.schemas import UserSchema, NotificationSchema
 
 # Define deserializers
 notifications_schema = NotificationSchema(many=True)

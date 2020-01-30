@@ -3,9 +3,9 @@ from uuid import uuid4
 from datetime import datetime
 from flask_jwt_extended import create_access_token
 
-from zimmerman.main import db
-from zimmerman.main.model.main import User
-from zimmerman.test.base import BaseTestCase
+from api.main import db
+from api.main.model.main import User
+from api.test.base import BaseTestCase
 
 
 class TestUserModel(BaseTestCase):

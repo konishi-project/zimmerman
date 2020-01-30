@@ -9,16 +9,12 @@ class AuthDto:
         {
             "orientation": fields.String,
             "email": fields.String,
-
             "username": fields.String,
             "full_name": fields.String,
-
             "profile_picture": fields.String,
             "public_id": fields.String,
-
             "roles": fields.List(fields.Integer),
             "background_cover": fields.String,
-
             "joined_date": fields.String,
             "bio": fields.String,
         },
@@ -58,6 +54,6 @@ class AuthDto:
             "success": fields.Boolean,
             "message": fields.String,
             "access_token": fields.String,
-            "user": fields.Nested(user_obj)
+            "user": fields.Nested(user_obj),
         },
     )

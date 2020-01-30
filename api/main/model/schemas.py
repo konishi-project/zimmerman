@@ -1,5 +1,5 @@
 ## Schemas
-from zimmerman.main import ma
+from api.main import ma
 
 from .main import Column, Model, relationship
 

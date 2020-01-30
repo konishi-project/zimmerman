@@ -2,8 +2,8 @@ import unittest
 import json
 
 from flask import current_app
-from zimmerman.test.base import BaseTestCase
-from zimmerman.test.common_functions import register_user, login_user
+from api.test.base import BaseTestCase
+from api.test.common_functions import register_user, login_user
 
 
 def get_comment(self, comment_id, access_token):
