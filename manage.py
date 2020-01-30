@@ -11,7 +11,7 @@ from zimmerman.api import main_bp
 
 # Create the application in development api.
 # We obviously want to change this to 'prod' in deployment.
-app = create_app("dev")
+app = create_app("prod")
 
 # Register main blueprint from API
 app.register_blueprint(main_bp)
