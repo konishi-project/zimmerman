@@ -3,7 +3,9 @@ from uuid import uuid4
 from datetime import datetime
 
 from zimmerman import db
-from zimmerman.models.main import Comment, Post, User
+from zimmerman.models.user import User
+from zimmerman.models.post import Post, Comment
+
 from zimmerman.tests.base import BaseTestCase
 
 
