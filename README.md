@@ -27,9 +27,13 @@ Konishi's backend written in Python 3+. Zimmerman is a free and open source REST
 Official frontend repo can be found [here.](https://github.com/x1zeth2x/kagawasan)
 ## Requirements
 
-This version uses PostgreSQL although you can use SQLite if you wish to.
+**Database**
 
-When creating a Postgres Database, make sure to name it 'konishidb' or whatever you like and change the config name for the database in `zimmerman/main/config.py`
+Zimmerman uses SQLite for development,
+SQLite in-memory for testing and
+PostGreSQL for production.
+
+When creating a Postgres Database, make sure to name it 'konishidb' or whatever you like and change the config name for the database in `zimmerman/config.py`
 
 **PostgreSQL Installation**
 
@@ -50,7 +54,7 @@ Resourceful Links for the commonly used distros ;)
 
 * Gentoo - (https://wiki.gentoo.org/wiki/PostgreSQL/QuickStart)
 
-Zimmerman uses [Black](https://github.com/psf/black) for linting the code.
+Zimmerman uses [Black](https://github.com/psf/black) for formatting the code.
 
 ## Contributing
 
@@ -67,14 +71,12 @@ Feel free to contact the lead developer [X1Zeth2X](https://github.com/X1Zeth2X) 
 
 ## Prerequisites
 [TODO: Add instructions for other distros]
-We are switching over to `pipenv` for better environment, virtualenv can still work
-but we recommend using `pipenv`.
 
 - Python3.x
     - Ubuntu: ``` sudo apt install python3 ```
-- virtualenv
+- Pipenv
     - Ubuntu: ``` sudo apt install python3-virtualenv python3-venv virtualenv```
-- postgresql
+- PostGreSQL
     - Find up-to-date instructions for your distro. Often subject to change.
 
 
@@ -88,19 +90,15 @@ $ git clone https://github.com/konishi-project/zimmerman.git
 $ cd zimmerman
 ```
 
-**Create the virtualenv and activate**
+**Install dependencies w/Pipenv**
 ```bash
-$ virtualenv konishienv
-$ source konishienv/bin/activate
-```
-
-**Install dependencies**
-```bash
-$ pip install -r requirements.txt
+$ pipenv install
 ```
 - Note: On some distros like Ubuntu it is ```pip3``` not ```pip```. Command may break because it's looking for python2.  
 
 **Setting up the database** 
+
+This assumes that you're using PostGreSQL but the process should be the same for SQLite.
 
 After meeting the requirements and installing PostGreSQL, make sure you've set the configurations to match your local PSQL credentials. Afterwards initialize the database to work with the app using:
 
@@ -111,14 +109,20 @@ $ make migrate
 
 **Running the application**
 ```bash
-$ python manage.py run
+# Start virtualenv
+$ pipenv shell
 
-or
-
+# Running
 $ make run
+
+or 
+
+$ python manage.py run
 ```
 
 ## Deploying
 
-When deploying to services like Heroku, remember that the filesystem is ephemeral. Run the db initialization and migrates locally, then commit those to the git repo.
-The `release` command in the procfile will do the rest.
+**Heroku**
+
+When deploying to services like Heroku, remember that the filesystem is ephemeral. 
+We also recommending reading documentations for Flask, SQLAlchemy, and Alembic related to migrations and Heroku.
