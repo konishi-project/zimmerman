@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from zimmerman import db, bcrypt
 
 # Alias common SQLAlchemy names
@@ -12,6 +10,7 @@ roles_users = db.Table(
     Column("user_id", db.Integer, db.ForeignKey("user.id")),
     Column("role_id", db.Integer, db.ForeignKey("role.id")),
 )
+
 
 class User(Model):
     """ User Model for storing user related details """
@@ -62,6 +61,7 @@ class User(Model):
 
     def __repr__(self):
         return f"<User '{self.username}'>"
+
 
 class Role(Model):
     """ Role Model for storing role related details """

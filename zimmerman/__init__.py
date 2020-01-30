@@ -9,7 +9,7 @@ import logging
 from flask import Flask
 
 # Import extensions
-from .extensions import db, ma, jwt, bcrypt, cors, limiter, talisman
+from .extensions import bcrypt, cors, db, jwt, limiter, ma
 
 # Import configuration
 from .config import config_by_name

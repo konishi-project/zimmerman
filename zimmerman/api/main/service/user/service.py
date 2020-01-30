@@ -1,8 +1,4 @@
-from uuid import uuid4
-from datetime import datetime
-
 from flask import current_app
-from flask_jwt_extended import create_access_token
 
 from zimmerman import db
 from zimmerman.utils import Message, InternalErrResp
@@ -10,8 +6,6 @@ from zimmerman.utils import Message, InternalErrResp
 from zimmerman.models.user import User
 
 from .utils import load_info
-
-from ..upload_service import get_image
 
 
 class UserService:

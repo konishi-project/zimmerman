@@ -2,7 +2,6 @@ from flask import request
 from flask_restx import Resource
 from flask_jwt_extended import jwt_required
 
-from zimmerman import limiter
 from ..util.dto import UploadDto
 from ..service.upload_service import upload_file
 
