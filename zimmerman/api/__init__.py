@@ -15,7 +15,7 @@ from .notification.controller import api as notif_ns
 
 main_bp = Blueprint("main", __name__)
 
-main = Api(main_bp, title="Main API", version="1.10.1", description="Main routes.")
+main = Api(main_bp, title="Zimmerman API", version="1.10.1", description="Main routes.")
 
 # Core API
 main.add_namespace(user_ns)
