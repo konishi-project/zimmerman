@@ -4,7 +4,7 @@ from flask import current_app
 from api.util import Message, InternalErrResp
 
 # Import models
-from api.main.model.post import Post
+from models.post import Post
 
 from .utils import add_post_and_flush, delete_post, update_post, load_post
 

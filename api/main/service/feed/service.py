@@ -3,8 +3,8 @@ from flask import current_app
 from api.util import Message, InternalErrResp
 
 # Import Schemas
-from api.main.model.post import Post, Comment
-from api.main.model.schemas import PostSchema
+from models.post import Post, Comment
+from models.schemas import PostSchema
 
 from ..comment.utils import comments_schema
 from ..post.utils import load_post

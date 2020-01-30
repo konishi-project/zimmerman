@@ -3,7 +3,7 @@ from uuid import uuid4
 from datetime import datetime
 
 from api.main import db
-from api.main.model.main import Comment, Post, User
+from models.main import Comment, Post, User
 from api.test.base import BaseTestCase
 
 

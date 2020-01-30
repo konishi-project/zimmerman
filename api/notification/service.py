@@ -2,7 +2,7 @@ from flask import current_app
 
 from api.util import Message, InternalErrResp
 
-from api.main.model.notification import Notification
+from models.notification import Notification
 
 from ..main.service.feed.utils import uniq
 from ..main.service.user.utils import load_user, user_schema, filter_author

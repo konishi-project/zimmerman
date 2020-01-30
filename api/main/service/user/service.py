@@ -7,7 +7,7 @@ from flask_jwt_extended import create_access_token
 from api.main import db
 from api.util import Message, InternalErrResp
 
-from api.main.model.main import User
+from models.main import User
 
 from .utils import load_info
 

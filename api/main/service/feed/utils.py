@@ -1,5 +1,5 @@
 # Import schemas
-from api.main.model.schemas import PostSchema
+from models.schemas import PostSchema
 
 # Define deserializers
 posts_schema = PostSchema(many=True)

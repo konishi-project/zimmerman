@@ -7,9 +7,9 @@ from api.util import Message, InternalErrResp
 from api.main.service.user.utils import load_user
 
 # Import model/schemas
-from api.main.model.user import User
-from api.main.model.notification import Notification
-from api.main.model.schemas import UserSchema, NotificationSchema
+from models.user import User
+from models.notification import Notification
+from models.schemas import UserSchema, NotificationSchema
 
 # Define deserializers
 notifications_schema = NotificationSchema(many=True)

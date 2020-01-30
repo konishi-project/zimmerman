@@ -7,7 +7,7 @@ from ..upload_service import get_image
 from ..comment.utils import load_comment
 
 # Import Schemas
-from api.main.model.schemas import PostSchema, UserSchema
+from models.schemas import PostSchema, UserSchema
 
 # Define deserializers
 from ..user.utils import user_schema

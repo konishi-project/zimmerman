@@ -5,7 +5,7 @@ from api.util import Message, InternalErrResp
 from api.notification.util.main import notify
 
 # Import models
-from api.main.model.post import Comment, Post
+from models.post import Comment, Post
 
 from .utils import add_comment_and_flush, delete_comment, update_comment, load_comment
 

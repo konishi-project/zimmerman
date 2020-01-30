@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 from api.main import db
-from api.main.model.main import Reply, Comment, Post, User
+from models.main import Reply, Comment, Post, User
 from api.test.base import BaseTestCase
 
 

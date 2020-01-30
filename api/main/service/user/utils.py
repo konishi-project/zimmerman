@@ -1,7 +1,7 @@
 from api.util import Message
 
-from api.main.model.user import User
-from api.main.model.schemas import UserSchema
+from models.user import User
+from models.schemas import UserSchema
 
 from ..upload_service import get_image
 
