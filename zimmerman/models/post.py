@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from zimmerman import db, bcrypt
+from zimmerman import db
 
 # Alias common SQLAlchemy names
 Column = db.Column

@@ -1,9 +1,9 @@
 ## Schemas
 from zimmerman import ma
 
-from .main import Column, Model, relationship
-
-from .main import Notification, Post, Comment, Reply, User
+from .user import User
+from .notification import Notification
+from .post import Post, Comment, Reply
 from .likes import PostLike
 
 

@@ -7,7 +7,7 @@ from ..upload_service import get_image
 from ..comment.utils import load_comment
 
 # Import Schemas
-from zimmerman.models.schemas import PostSchema, UserSchema
+from zimmerman.models.schemas import PostSchema
 
 # Define deserializers
 from ..user.utils import user_schema

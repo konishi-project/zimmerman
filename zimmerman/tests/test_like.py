@@ -1,8 +1,6 @@
 import unittest
 import json
-from datetime import datetime
 
-from flask import current_app
 from zimmerman.tests.base import BaseTestCase
 from zimmerman.tests.common_functions import register_user, login_user
 

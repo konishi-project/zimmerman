@@ -2,7 +2,6 @@ from flask import request
 from flask_restx import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from zimmerman import limiter
 
 from ..util.dto import UserDto
 from ..service.user.service import UserService

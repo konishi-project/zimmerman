@@ -2,7 +2,6 @@ import os
 
 from flask import current_app, url_for
 from hashlib import sha256
-from werkzeug.utils import secure_filename
 
 from zimmerman.utils import Message, InternalErrResp
 from zimmerman.config import basedir

@@ -5,4 +5,4 @@ zimmerman.log
 migrations
 
 # Ignore sqlite development db.
-api/*.db
+zimmerman/*.db
