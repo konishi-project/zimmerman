@@ -5,7 +5,7 @@ from zimmerman.utils import Message, InternalErrResp
 from zimmerman.api.notification.util.main import notify
 
 # Import models
-from zimmerman.models.post import Reply, Comment
+from zimmerman.models.content import Reply, Comment
 
 from .utils import add_reply_and_flush, delete_reply, update_reply, load_reply
 

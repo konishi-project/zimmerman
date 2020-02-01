@@ -3,7 +3,7 @@ from flask import current_app
 from zimmerman.utils import Message, InternalErrResp
 
 # Import Schemas
-from zimmerman.models.post import Post, Comment
+from zimmerman.models.content import Post, Comment
 
 from ..comment.utils import comments_schema
 from ..post.utils import load_post

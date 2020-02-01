@@ -4,7 +4,7 @@ from flask import current_app
 from zimmerman.utils import Message, InternalErrResp
 
 # Import models
-from zimmerman.models.post import Post
+from zimmerman.models.content import Post
 
 from .utils import add_post_and_flush, delete_post, update_post, load_post
 
