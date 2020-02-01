@@ -28,7 +28,7 @@ class ReplyGet(Resource):
 
 @api.route("/create/<int:comment_id>")
 class ReplyCreate(Resource):
-    @api.expect(_reply)
+    @api.expect(_reply, validate=True)
     @api.doc(
         "Reply on a comment",
         responses={
