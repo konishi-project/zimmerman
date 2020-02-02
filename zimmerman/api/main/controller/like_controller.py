@@ -43,7 +43,7 @@ class LikePost(Resource):
         return Unlike.post(post_public_id, current_user)
 
 
-@api.route("/comment/<int:comment_id>")
+@api.route("/comment/<string:comment_public_id>")
 class LikeComment(Resource):
     @api.doc(
         "Like a comment.",
@@ -55,11 +55,11 @@ class LikeComment(Resource):
         },
     )
     @jwt_required
-    def post(self, comment_id):
+    def post(self, comment_public_id):
         """ Like a comment using its specific id """
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return Like.comment(comment_id, current_user)
+        return Like.comment(comment_public_id, current_user)
 
     @api.doc(
         "Unlike a comment.",
@@ -69,13 +69,13 @@ class LikeComment(Resource):
         },
     )
     @jwt_required
-    def delete(self, comment_id):
+    def delete(self, comment_public_id):
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return Unlike.comment(comment_id, current_user)
+        return Unlike.comment(comment_public_id, current_user)
 
 
-@api.route("/reply/<int:reply_id>")
+@api.route("/reply/<string:reply_public_id>")
 class LikeComment(Resource):
     @api.doc(
         "Like a reply.",
@@ -87,11 +87,11 @@ class LikeComment(Resource):
         },
     )
     @jwt_required
-    def post(self, reply_id):
+    def post(self, reply_public_id):
         """ Like a reply using its specific id """
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return Like.reply(reply_id, current_user)
+        return Like.reply(reply_public_id, current_user)
 
     @api.doc(
         "Unlike a reply.",
@@ -101,7 +101,7 @@ class LikeComment(Resource):
         },
     )
     @jwt_required
-    def delete(self, reply_id):
+    def delete(self, reply_public_id):
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return Unlike.reply(reply_id, current_user)
+        return Unlike.reply(reply_public_id, current_user)
