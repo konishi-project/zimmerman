@@ -64,7 +64,7 @@ class FeedService:
         return resp, 200
 
     @staticmethod
-    def get_posts_info(id_array, current_user):
+    def get_posts_data(id_array, current_user):
 
         # Check if the array is empty
         if len(id_array) == 0 or id_array is None:
@@ -92,7 +92,7 @@ class FeedService:
             return InternalErrResp()
 
     @staticmethod
-    def get_comments_info(id_array, current_user):
+    def get_comments_data(id_array, current_user):
         # Check if the array is empty
         if len(id_array) == 0 or id_array is None:
             ## Nothing to send back...

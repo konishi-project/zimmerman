@@ -49,7 +49,5 @@ def load_reply(reply, user_id):
     reply_info["liked"] = check_like(reply.likes, user_id)
 
     # Filter reply
-    # Create a more elaborate function.
-    del reply_info["id"]
 
     return reply_info

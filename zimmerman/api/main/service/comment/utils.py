@@ -54,8 +54,6 @@ def load_comment(comment, user_id):
     )
 
     # Filter comment
-    # Create a more elaborate function.
-    del info["id"]
 
     return info
 
