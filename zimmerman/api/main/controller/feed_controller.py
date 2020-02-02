@@ -51,7 +51,7 @@ class FeedPost(Resource):
 
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return FeedService.get_posts_info(id_array, current_user)
+        return FeedService.get_posts_data(id_array, current_user)
 
 
 @api.route("/comments")
@@ -70,7 +70,7 @@ class FeedComment(Resource):
 
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return FeedService.get_comments_info(id_array, current_user)
+        return FeedService.get_comments_data(id_array, current_user)
 
 
 @api.route("/replies")
