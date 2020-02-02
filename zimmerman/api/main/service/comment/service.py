@@ -64,9 +64,9 @@ class CommentService:
             return InternalErrResp()
 
     @staticmethod
-    def delete(comment_id, current_user):
+    def delete(comment_public_id, current_user):
         # Query for the comment
-        comment = Comment.query.filter_by(id=comment_id).first()
+        comment = Comment.query.filter_by(public_id=comment_public_id).first()
 
         if not comment:
             resp = Message(False, "Comment not found!")
@@ -88,9 +88,9 @@ class CommentService:
         return resp, 403
 
     @staticmethod
-    def update(comment_id, data, current_user):
+    def update(comment_public_id, data, current_user):
         # Query for the comment
-        comment = Comment.query.filter_by(id=comment_id).first()
+        comment = Comment.query.filter_by(public_id=comment_public_id).first()
 
         if not comment:
             resp = Message(False, "Comment not found!")
@@ -119,9 +119,9 @@ class CommentService:
         return resp, 403
 
     @staticmethod
-    def get(comment_id, current_user):
-        # Get the specific comment using its id
-        comment = Comment.query.filter_by(id=comment_id).first()
+    def get(comment_public_id, current_user):
+        # Get the specific comment using its public id
+        comment = Comment.query.filter_by(public_id=comment_public_id).first()
 
         if not comment:
             resp = Message(False, "Comment not found!")

@@ -11,7 +11,7 @@ api = CommentDto.api
 _comment = CommentDto.comment
 
 
-@api.route("/get/<int:comment_id>")
+@api.route("/get/<string:comment_public_id>")
 class CommentGet(Resource):
     @api.doc(
         "Get a specific comment.",
@@ -21,10 +21,10 @@ class CommentGet(Resource):
         },
     )
     @jwt_required
-    def get(self, comment_id):
+    def get(self, comment_public_id):
         """ Get a specific comment using its id """
         current_user = load_user(get_jwt_identity())
-        return CommentService.get(comment_id, current_user)
+        return CommentService.get(comment_public_id, current_user)
 
 
 @api.route("/create/<string:post_public_id>")
@@ -48,7 +48,7 @@ class CommentCreate(Resource):
         return CommentService.create(post_public_id, data, current_user)
 
 
-@api.route("/update/<int:comment_id>")
+@api.route("/update/<string:comment_public_id>")
 class CommentUpdate(Resource):
     @api.expect(_comment, validate=True)
     @api.doc(
@@ -60,14 +60,14 @@ class CommentUpdate(Resource):
         },
     )
     @jwt_required
-    def put(self, comment_id):
+    def put(self, comment_public_id):
         """ Updates a comment using its id and new content """
         current_user = load_user(get_jwt_identity())
         data = request.get_json()
-        return CommentService.update(comment_id, data, current_user)
+        return CommentService.update(comment_public_id, data, current_user)
 
 
-@api.route("/delete/<int:comment_id>")
+@api.route("/delete/<string:comment_public_id>")
 class CommentDelete(Resource):
     @api.doc(
         "Delete a comment",
@@ -78,7 +78,7 @@ class CommentDelete(Resource):
         },
     )
     @jwt_required
-    def delete(self, comment_id):
+    def delete(self, comment_public_id):
         """ Deletes a comment using its id """
         current_user = load_user(get_jwt_identity())
-        return CommentService.delete(comment_id, current_user)
+        return CommentService.delete(comment_public_id, current_user)
