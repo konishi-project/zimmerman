@@ -5,9 +5,9 @@ from zimmerman.tests.base import BaseTestCase
 from zimmerman.tests.common_functions import register_user, login_user
 
 
-def get_reply(self, reply_id, access_token):
+def get_reply(self, reply_public_id, access_token):
     return self.client.get(
-        "/reply/get/%s" % reply_id,
+        "/reply/get/%s" % reply_public_id,
         headers={"Authorization": "Bearer %s" % access_token},
         content_type="application/json",
     )
@@ -22,9 +22,9 @@ def create_reply(self, access_token, comment_id):
     )
 
 
-def delete_reply(self, access_token, reply_id):
+def delete_reply(self, access_token, reply_public_id):
     return self.client.delete(
-        "/reply/delete/%s" % reply_id,
+        "/reply/delete/%s" % reply_public_id,
         headers={"Authorization": "Bearer %s" % access_token},
         content_type="application/json",
     )
@@ -48,9 +48,9 @@ def create_comment(self, access_token, post_public_id):
     )
 
 
-def update_reply(self, access_token, reply_id, data):
+def update_reply(self, access_token, reply_public_id, data):
     return self.client.put(
-        "/reply/update/%s" % reply_id,
+        "/reply/update/%s" % reply_public_id,
         data=json.dumps(dict(content=data["content"])),
         headers={"Authorization": "Bearer %s" % access_token},
         content_type="application/json",
@@ -78,7 +78,7 @@ class TestReplyBlueprint(BaseTestCase):
             create_comment_resp = create_comment(self, access_token, post_public_id)
             create_comment_resp_data = json.loads(create_comment_resp.data.decode())
 
-            comment_id = create_comment_resp_data["comment"]["id"]
+            comment_id = create_comment_resp_data["comment"]["public_id"]
 
             # Create a reply
             create_reply_resp = create_reply(self, access_token, comment_id)
@@ -88,9 +88,9 @@ class TestReplyBlueprint(BaseTestCase):
             self.assertEqual(create_post_resp.status_code, 201)
 
             # Delete the reply
-            reply_id = create_reply_resp_data["reply"]["id"]
+            reply_public_id = create_reply_resp_data["reply"]["public_id"]
 
-            delete_response = delete_reply(self, access_token, reply_id)
+            delete_response = delete_reply(self, access_token, reply_public_id)
             delete_response_data = json.loads(delete_response.data.decode())
 
             self.assertTrue(delete_response_data["success"])
