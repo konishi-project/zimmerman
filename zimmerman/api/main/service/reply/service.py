@@ -12,9 +12,9 @@ from .utils import add_reply_and_flush, delete_reply, update_reply, load_reply
 
 class ReplyService:
     @staticmethod
-    def create(comment_id, data, current_user):
+    def create(comment_public_id, data, current_user):
         # Get the comment
-        comment = Comment.query.filter_by(id=comment_id).first()
+        comment = Comment.query.filter_by(public_id=comment_public_id).first()
 
         if not comment:
             resp = Message(False, "Comment not found!")
@@ -62,9 +62,9 @@ class ReplyService:
             return InternalErrResp()
 
     @staticmethod
-    def delete(reply_id, current_user):
+    def delete(reply_public_id, current_user):
         # Query for the reply
-        reply = Reply.query.filter_by(id=reply_id).first()
+        reply = Reply.query.filter_by(public_id=reply_public_id).first()
 
         if not reply:
             resp = Message(False, "Reply not found!")
@@ -87,8 +87,8 @@ class ReplyService:
         return resp, 403
 
     @staticmethod
-    def update(reply_id, data, current_user):
-        reply = Reply.query.filter_by(id=reply_id).first()
+    def update(reply_public_id, data, current_user):
+        reply = Reply.query.filter_by(public_id=reply_public_id).first()
 
         if not reply:
             resp = Message(False, "Reply not found!")
@@ -110,9 +110,9 @@ class ReplyService:
         return resp, 403
 
     @staticmethod
-    def get(reply_id, current_user):
-        # Get the specific reply using its id
-        reply = Reply.query.filter_by(id=reply_id).first()
+    def get(reply_public_id, current_user):
+        # Get the specific reply using its public id
+        reply = Reply.query.filter_by(public_id=reply_public_id).first()
         if not reply:
             resp = Message(False, "Reply not found!")
             return resp, 404

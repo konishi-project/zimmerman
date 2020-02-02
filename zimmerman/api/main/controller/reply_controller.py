@@ -11,7 +11,7 @@ api = ReplyDto.api
 _reply = ReplyDto.reply
 
 
-@api.route("/get/<int:reply_id>")
+@api.route("/get/<string:reply_public_id>")
 class ReplyGet(Resource):
     @api.doc(
         "Get a specific reply.",
@@ -21,12 +21,12 @@ class ReplyGet(Resource):
         },
     )
     @jwt_required
-    def get(self, reply_id):
+    def get(self, reply_public_id):
         """ Get a specific reply using its id """
-        return ReplyService.get(reply_id)
+        return ReplyService.get(reply_public_id)
 
 
-@api.route("/create/<int:comment_id>")
+@api.route("/create/<string:comment_public_id>")
 class ReplyCreate(Resource):
     @api.expect(_reply, validate=True)
     @api.doc(
@@ -37,16 +37,16 @@ class ReplyCreate(Resource):
         },
     )
     @jwt_required
-    def post(self, comment_id):
+    def post(self, comment_public_id):
         """ Create a new reply on a comment """
         # Get the content
         data = request.get_json()
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return ReplyService.create(comment_id, data, current_user)
+        return ReplyService.create(comment_public_id, data, current_user)
 
 
-@api.route("/update/<int:reply_id>")
+@api.route("/update/<string:reply_public_id>")
 class ReplyUpdate(Resource):
     @api.expect(_reply, validate=True)
     @api.doc(
@@ -58,16 +58,16 @@ class ReplyUpdate(Resource):
         },
     )
     @jwt_required
-    def put(self, reply_id):
+    def put(self, reply_public_id):
         """ Updates a reply using its id and new content """
         # Get the new content
         data = request.get_json()
         # Get the current user
         current_user = load_user(get_jwt_identity())
-        return ReplyService.update(reply_id, data, current_user)
+        return ReplyService.update(reply_public_id, data, current_user)
 
 
-@api.route("/delete/<int:reply_id>")
+@api.route("/delete/<string:reply_public_id>")
 class ReplyDelete(Resource):
     @api.doc(
         "Delete a reply",
@@ -78,7 +78,7 @@ class ReplyDelete(Resource):
         },
     )
     @jwt_required
-    def delete(self, reply_id):
+    def delete(self, reply_public_id):
         """ Deletes a reply using its id """
         current_user = load_user(get_jwt_identity())
-        return ReplyService.delete(reply_id, current_user)
+        return ReplyService.delete(reply_public_id, current_user)
