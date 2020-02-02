@@ -66,9 +66,9 @@ class Like:
             return InternalErrResp()
 
     @staticmethod
-    def comment(comment_id, current_user):
+    def comment(comment_public_id, current_user):
         # Query for the comment
-        comment = Comment.query.filter_by(id=comment_id).first()
+        comment = Comment.query.filter_by(public_id=comment_public_id).first()
 
         # Check if the comment exists
         if not comment:
@@ -80,7 +80,7 @@ class Like:
 
         # Create a new like obj.
         comment_like = CommentLike(
-            on_comment=comment_id, owner_id=current_user.id, liked_on=datetime.utcnow()
+            on_comment=comment.id, owner_id=current_user.id, liked_on=datetime.utcnow()
         )
 
         try:
@@ -98,9 +98,9 @@ class Like:
             return InternalErrResp()
 
     @staticmethod
-    def reply(reply_id, current_user):
+    def reply(reply_public_id, current_user):
         # Query for the reply
-        reply = Reply.query.filter_by(id=reply_id).first()
+        reply = Reply.query.filter_by(public_id=reply_public_id).first()
 
         # Check if the reply exists
         if not reply:
@@ -112,7 +112,7 @@ class Like:
 
         # Create a new like obj.
         like_reply = ReplyLike(
-            on_reply=reply_id, owner_id=current_user.id, liked_on=datetime.utcnow()
+            on_reply=reply.id, owner_id=current_user.id, liked_on=datetime.utcnow()
         )
 
         try:
@@ -150,9 +150,9 @@ class Unlike:
             return "", 404
 
     @staticmethod
-    def comment(comment_id, current_user):
+    def comment(comment_public_id, current_user):
         # Query for the comment
-        comment = Comment.query.filter_by(id=comment_id).first()
+        comment = Comment.query.filter_by(public_id=comment_public_id).first()
 
         for like in comment.likes:
             if like.owner_id == current_user.id:
@@ -168,9 +168,9 @@ class Unlike:
             return "", 404
 
     @staticmethod
-    def reply(reply_id, current_user):
+    def reply(reply_public_id, current_user):
         # Query for the reply
-        reply = Reply.query.filter_by(id=reply_id).first()
+        reply = Reply.query.filter_by(public_id=reply_public_id).first()
         for like in reply.likes:
             if like.owner_id == current_user.id:
                 try:
