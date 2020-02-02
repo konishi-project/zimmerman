@@ -24,9 +24,15 @@ class AuthLogin(Resource):
         )
     ]
 
-    @api.doc("Auth login endpoint")
+    @api.doc(
+        "Auth login endpoint",
+        responses={
+            200: ("Logged in.", auth_success),
+            403: "Incorrect password or incomplete credentials.",
+            404: "Email does not match any account.",
+        },
+    )
     @api.expect(auth_login, validate=True)
-    @api.response(201, "Logged in.", auth_success)
     def post(self):
         """ Login using email and password """
         # Grab the json data
@@ -46,9 +52,15 @@ class AuthRegister(Resource):
         )
     ]
 
-    @api.doc("Auth registration endpoint")
+    @api.doc(
+        "Auth registration endpoint",
+        responses={
+            201: ("Successfully registered user.", auth_success),
+            400: "Simply a bad request",
+            403: "Validations failed.",
+        },
+    )
     @api.expect(auth_register, validate=True)
-    @api.response(201, "Successfully registered user.", auth_success)
     def post(self):
         """ Register to Konishi """
         # Grab the json data
