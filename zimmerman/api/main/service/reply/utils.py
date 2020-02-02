@@ -46,7 +46,7 @@ def load_reply(reply, user_id):
     author = user_schema.dump(reply.author)
     reply_info["author"] = filter_author(author)
 
-    reply_info["liked"] = check_like(reply_info.likes, user_id)
+    reply_info["liked"] = check_like(reply.likes, user_id)
 
     # Filter reply
     # Create a more elaborate function.
