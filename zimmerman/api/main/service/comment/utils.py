@@ -12,6 +12,7 @@ comments_schema = CommentSchema(many=True)
 comment_schema = CommentSchema()
 user_schema = UserSchema()
 
+
 def update_comment(comment, content):
     comment.content = content
     comment.edited = True
