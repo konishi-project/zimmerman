@@ -24,17 +24,6 @@ class UserDto:
     )
 
 
-class AuthDto:
-    api = Namespace("auth", description="Authentication related operations.")
-    user_auth = api.model(
-        "auth_details",
-        {
-            "email": fields.String(required=True, description="Username"),
-            "password": fields.String(required=True, description="User password"),
-        },
-    )
-
-
 class PostDto:
     api = Namespace("post", description="Post related operations.")
     post = api.model(
@@ -52,7 +41,7 @@ class CommentDto:
         "comment",
         {
             "content": fields.String(required=True, description="Comment content."),
-            # "image_id": fields.String(description="Attached image"),
+            "image_id": fields.String(description="Attached image"),
         },
     )
 
@@ -60,7 +49,11 @@ class CommentDto:
 class ReplyDto:
     api = Namespace("reply", description="Reply related operations.")
     reply = api.model(
-        "reply", {"content": fields.String(required=True, description="Reply content.")}
+        "reply",
+        {
+            "content": fields.String(required=True, description="Reply content.",),
+            "image_id": fields.String(description="Attached image"),
+        },
     )
 
 
@@ -70,10 +63,6 @@ class FeedDto:
         "feed",
         {"post_ids": fields.List(fields.Integer, description="Array of Post IDs")},
     )
-
-
-class InstanceDto:
-    api = Namespace("instance", description="Instance related operations.")
 
 
 class LikeDto:

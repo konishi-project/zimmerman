@@ -3,7 +3,7 @@ from zimmerman import ma
 
 from .user import User
 from .notification import Notification
-from .post import Post, Comment, Reply
+from .content import Post, Comment, Reply
 from .likes import PostLike
 
 

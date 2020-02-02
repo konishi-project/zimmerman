@@ -8,6 +8,8 @@ from zimmerman.models.schemas import ReplySchema
 # Define deserializers
 from ..user.utils import user_schema
 
+from ..like_service import check_like
+
 reply_schema_many = ReplySchema(many=True)
 reply_schema = ReplySchema()
 
@@ -44,6 +46,10 @@ def load_reply(reply, user_id):
     author = user_schema.dump(reply.author)
     reply_info["author"] = filter_author(author)
 
-    # TODO - Check like, Filter Reply
+    reply_info["liked"] = check_like(reply.likes, user_id)
+
+    # Filter reply
+    # Create a more elaborate function.
+    del reply_info["id"]
 
     return reply_info

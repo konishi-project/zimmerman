@@ -29,7 +29,7 @@ class TestAuthBlueprint(BaseTestCase):
         with self.client:
             # User registration
             user_response = register_user(self)
-            response_data = json.loads(user_response.data.decode())
+            json.loads(user_response.data.decode())
 
             self.assertEqual(user_response.status_code, 201)
 
@@ -53,7 +53,7 @@ class TestAuthBlueprint(BaseTestCase):
             # Get the user data
             username = login_response_data["user"]["username"]
             get_response = get_user(self, access_token, username)
-            get_response_data = json.loads(get_response.data.decode())
+            json.loads(get_response.data.decode())
 
             self.assertEqual(get_response.status_code, 200)
 

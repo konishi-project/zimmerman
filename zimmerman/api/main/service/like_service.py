@@ -4,7 +4,7 @@ from flask import current_app
 from zimmerman import db
 from zimmerman.utils import Message, InternalErrResp
 from zimmerman.api.notification.util.main import notify
-from zimmerman.models.post import (
+from zimmerman.models.content import (
     Post,
     Comment,
     Reply,

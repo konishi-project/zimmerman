@@ -5,9 +5,9 @@ from zimmerman.tests.base import BaseTestCase
 from zimmerman.tests.common_functions import register_user, login_user
 
 
-def get_comment(self, comment_id, access_token):
+def get_comment(self, comment_public_id, access_token):
     return self.client.get(
-        "/comment/get/%s" % comment_id,
+        "/comment/get/%s" % comment_public_id,
         headers={"Authorization": "Bearer %s" % access_token},
         content_type="application/json",
     )
@@ -22,9 +22,9 @@ def create_comment(self, access_token, post_public_id):
     )
 
 
-def delete_comment(self, access_token, comment_id):
+def delete_comment(self, access_token, comment_public_id):
     return self.client.delete(
-        "/comment/delete/%s" % comment_id,
+        "/comment/delete/%s" % comment_public_id,
         headers={"Authorization": "Bearer %s" % access_token},
         content_type="application/json",
     )
@@ -39,9 +39,9 @@ def create_post(self, access_token):
     )
 
 
-def update_comment(self, comment_id, access_token, data):
+def update_comment(self, comment_public_id, access_token, data):
     return self.client.put(
-        "/comment/update/%s" % comment_id,
+        "/comment/update/%s" % comment_public_id,
         data=json.dumps(dict(content=data["content"])),
         headers={"Authorization": "Bearer %s" % access_token},
         content_type="application/json",
@@ -73,9 +73,9 @@ class TestCommentBlueprint(BaseTestCase):
             self.assertEqual(create_comment_resp.status_code, 201)
 
             # Delete the comment
-            comment_id = create_comment_resp_data["comment"]["id"]
+            comment_public_id = create_comment_resp_data["comment"]["public_id"]
 
-            delete_response = delete_comment(self, access_token, comment_id)
+            delete_response = delete_comment(self, access_token, comment_public_id)
             delete_response_data = json.loads(delete_response.data.decode())
 
             self.assertTrue(delete_response_data["success"])
@@ -102,10 +102,10 @@ class TestCommentBlueprint(BaseTestCase):
             create_comment_resp_data = json.loads(create_comment_resp.data.decode())
 
             # Update the comment
-            comment_id = create_comment_resp_data["comment"]["id"]
+            comment_public_id = create_comment_resp_data["comment"]["public_id"]
             updated_content = {"content": "Updated content"}
             update_response = update_comment(
-                self, comment_id, access_token, updated_content
+                self, comment_public_id, access_token, updated_content
             )
             update_response_data = json.loads(update_response.data.decode())
 
@@ -133,8 +133,8 @@ class TestCommentBlueprint(BaseTestCase):
             create_comment_resp_data = json.loads(create_comment_resp.data.decode())
 
             # Get that comment
-            comment_id = create_comment_resp_data["comment"]["id"]
-            get_comment_response = get_comment(self, comment_id, access_token)
+            comment_public_id = create_comment_resp_data["comment"]["public_id"]
+            get_comment_response = get_comment(self, comment_public_id, access_token)
             get_comment_response_data = json.loads(get_comment_response.data.decode())
 
             # Get the content for comparison

@@ -12,7 +12,6 @@ comments_schema = CommentSchema(many=True)
 comment_schema = CommentSchema()
 user_schema = UserSchema()
 
-
 def update_comment(comment, content):
     comment.content = content
     comment.edited = True
@@ -54,6 +53,8 @@ def load_comment(comment, user_id):
     )
 
     # Filter comment
+    # Create a more elaborate function.
+    del info["id"]
 
     return info
 
