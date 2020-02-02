@@ -16,7 +16,7 @@ def create_post(self, access_token):
 
 def get_post_ids(self, access_token):
     return self.client.get(
-        "/feed/get",
+        "/feed/posts",
         headers={"Authorization": "Bearer %s" % access_token},
         content_type="application/json",
     )
@@ -24,7 +24,7 @@ def get_post_ids(self, access_token):
 
 def get_post_information(self, access_token, id_array):
     return self.client.post(
-        "/feed/get",
+        "/feed/posts",
         data=json.dumps(dict(post_ids=id_array)),
         headers={"Authorization": "Bearer %s" % access_token},
         content_type="application/json",
