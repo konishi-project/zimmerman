@@ -9,11 +9,13 @@ from ..service.feed.service import FeedService
 from ..service.user.utils import load_user
 
 api = FeedDto.api
-_feed = FeedDto.feed
+_posts = FeedDto.posts
+_comments = FeedDto.comments
+_replies = FeedDto.replies
 
 
-@api.route("/get")
-class FeedGet(Resource):
+@api.route("/posts")
+class FeedPost(Resource):
     decorators = [
         limiter.limit(
             "10/minute", error_message="Too many posts requests (10 per minute)."
@@ -35,10 +37,10 @@ class FeedGet(Resource):
         )
     ]
 
-    @api.expect(_feed, validate=True)
+    @api.expect(_posts, validate=True)
     @api.doc(
         "Get the posts data",
-        responses={200: "Post data successfully sent to the client."},
+        responses={200: "Posts data successfully sent to the client."},
     )
     @jwt_required
     def post(self):
@@ -51,6 +53,14 @@ class FeedGet(Resource):
         current_user = load_user(get_jwt_identity())
         return FeedService.get_posts_info(id_array, current_user)
 
+
+@api.route("/comments")
+class FeedComment(Resource):
+    @api.expect(_comments, validate=True)
+    @api.doc(
+        "Get the comments data",
+        responses={200: "Comments data successfully sent to the client."},
+    )
     @jwt_required
     def post(self):
         """ Get the comments data from the DB. """
@@ -61,3 +71,12 @@ class FeedGet(Resource):
         # Get the current user
         current_user = load_user(get_jwt_identity())
         return FeedService.get_comments_info(id_array, current_user)
+
+
+@api.route("/replies")
+class FeedReplies(Resource):
+    @api.expect(_replies, validate=True)
+    @jwt_required
+    def post(self):
+        """ Nothing yet """
+        return "To be implemented.", 200
