@@ -42,10 +42,22 @@ class FeedGet(Resource):
     )
     @jwt_required
     def post(self):
-        """ Get the posts data from the Database. """
+        """ Get the posts data from the DB. """
         # Get the id array
         data = request.get_json()
         id_array = data["post_ids"]
+
         # Get the current user
         current_user = load_user(get_jwt_identity())
         return FeedService.get_posts_info(id_array, current_user)
+
+    @jwt_required
+    def post(self):
+        """ Get the comments data from the DB. """
+        # Get the id array
+        data = request.get_json()
+        id_array = data["comment_ids"]
+
+        # Get the current user
+        current_user = load_user(get_jwt_identity())
+        return FeedService.get_comments_info(id_array, current_user)
