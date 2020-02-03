@@ -48,9 +48,7 @@ def load_comment(comment, user_id):
 
     # Get the latest 2 replies
     info["initial_replies"] = (
-        get_initial_replies(comment.replies[-2:], user_id)
-        if comment.replies
-        else None
+        get_initial_replies(comment.replies[-2:], user_id) if comment.replies else None
     )
 
     # Filter comment
