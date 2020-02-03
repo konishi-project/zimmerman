@@ -97,7 +97,7 @@ class CommentService:
             resp["error_reason"] = "comment_404"
             return resp, 404
 
-        # Check coment owner
+        # Check comment owner
         elif current_user.public_id == comment.creator_public_id:
             if not data["content"]:
                 resp = Message(False, "Content data not found!")

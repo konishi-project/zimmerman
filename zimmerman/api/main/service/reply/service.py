@@ -95,6 +95,8 @@ class ReplyService:
             resp["error_reason"] = "reply_404"
             return resp, 404
 
+        # Check reply owner
+        elif current_user.public_id == reply.creator_public_id:
             try:
                 update_reply(reply, data["content"])
 
