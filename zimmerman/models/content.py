@@ -55,7 +55,9 @@ class Comment(Model):
     likes = relationship(
         "CommentLike", backref="comment", cascade="all, delete-orphan", lazy=True
     )
-    replies = relationship("Reply", backref="comment", cascade="all, delete-orphan")
+    replies = relationship(
+        "Reply", backref="comment", cascade="all, delete-orphan", lazy=True
+    )
 
     def __repr__(self):
         return f"<Comment '{self.id}'>"
