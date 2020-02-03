@@ -13,8 +13,6 @@ from ..like_service import check_like
 reply_schema_many = ReplySchema(many=True)
 reply_schema = ReplySchema()
 
-## TODO - Notify
-
 
 def delete_reply(reply):
     db.session.delete(reply)
