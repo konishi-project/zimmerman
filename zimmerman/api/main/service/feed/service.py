@@ -3,11 +3,14 @@ from flask import current_app
 from zimmerman.utils import Message, InternalErrResp
 
 # Import Schemas
-from zimmerman.models.content import Post, Comment
+from zimmerman.models.content import Post, Comment, Reply
 
 from ..comment.utils import comments_schema
+
 from ..post.utils import load_post
 from ..comment.utils import load_comment
+from ..reply.utils import load_reply
+
 from .utils import uniq, load_info_many
 
 
@@ -117,6 +120,33 @@ class FeedService:
 
             resp = Message(True, "Comments info sent.")
             resp["comments"] = res
+            return resp, 200
+
+        except Exception as error:
+            current_app.logger.error(error)
+            return InternalErrResp()
+
+    @staticmethod
+    def get_replies_data(id_array, current_user):
+        # Check if the array is empty
+        if len(id_array) == 0 or id_array is None:
+            ## Nothing to send back...
+            return "", 204
+
+        replies = []
+
+        replies_query = Reply.query.filter(Reply.id.in_(id_array)).all()
+
+        try:
+            for reply in replies_query:
+                reply_info = load_reply(reply, current_user.id)
+                replies.append(reply_info)
+
+            # Re-sort it back to the original array
+            res = [reply for id in id_array for reply in replies if reply["id"] == id]
+
+            resp = Message(True, "Comments info sent.")
+            resp["replies"] = res
             return resp, 200
 
         except Exception as error:
