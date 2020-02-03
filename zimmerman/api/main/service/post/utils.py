@@ -56,13 +56,9 @@ def load_post(post, user_id):
         get_image(post.image_file, "postimages") if post.image_file else None
     )
 
-    # Get the first 5 comments
+    # Get the 5 latest comments
     info["initial_comments"] = (
-        get_initial_comments(
-            sorted(post.comments, key=lambda x: x.created)[:5], user_id
-        )
-        if post.comments
-        else None
+        get_initial_comments(post.comments[-5:], user_id) if post.comments else None
     )
 
     filter_post(info)
