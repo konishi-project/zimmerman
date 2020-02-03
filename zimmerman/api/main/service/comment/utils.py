@@ -48,7 +48,7 @@ def load_comment(comment, user_id):
 
     # Get the latest 2 replies
     info["initial_replies"] = (
-        get_initial_replies(sorted(comment.replies)[-2:], user_id)
+        get_initial_replies(comment.replies[-2:], user_id)
         if comment.replies
         else None
     )
@@ -62,7 +62,7 @@ def get_initial_replies(reply_array, user_id):
     replies = []
 
     for reply in reply_array:
-        reply_info = load_reply(reply_array, user_id)
+        reply_info = load_reply(reply, user_id)
         replies.append(reply_info)
 
     return replies
