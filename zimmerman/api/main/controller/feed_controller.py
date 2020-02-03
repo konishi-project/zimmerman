@@ -78,5 +78,10 @@ class FeedReplies(Resource):
     @api.expect(_replies, validate=True)
     @jwt_required
     def post(self):
-        """ Nothing yet """
-        return "To be implemented.", 200
+        """ Get the replies data from the DB. """
+        data = request.get_json()
+        id_array = data["reply_ids"]
+
+        # Get the current user
+        current_user = load_user(get_jwt_identity())
+        return FeedService.get_replies_data(id_array, current_user)
