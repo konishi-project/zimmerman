@@ -76,7 +76,7 @@ class LikeComment(Resource):
 
 
 @api.route("/reply/<string:reply_public_id>")
-class LikeComment(Resource):
+class LikeReply(Resource):
     @api.doc(
         "Like a reply.",
         responses={
