@@ -9,23 +9,23 @@ def create_post(self, access_token):
     return self.client.post(
         "/post/create",
         data=json.dumps(dict(content="Sample content", image_id="")),
-        headers={"Authorization": "Bearer %s" % access_token},
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
 
 def like_post(self, access_token, post_public_id):
     return self.client.post(
-        "/like/post/%s" % post_public_id,
-        headers={"Authorization": "Bearer %s" % access_token},
+        f"/like/post/{post_public_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
 
 def unlike_post(self, access_token, post_public_id):
     return self.client.delete(
-        "/like/post/%s" % post_public_id,
-        headers={"Authorization": "Bearer %s" % access_token},
+        f"/like/post/{post_public_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 

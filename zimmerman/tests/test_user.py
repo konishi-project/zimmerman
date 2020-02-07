@@ -7,8 +7,8 @@ from zimmerman.tests.common_functions import register_user, login_user
 
 def get_user(self, access_token, username):
     return self.client.get(
-        "/user/get/%s" % username,
-        headers={"Authorization": "Bearer %s" % access_token},
+        f"/user/get/{username}",
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
@@ -17,7 +17,7 @@ def update_user(self, data, access_token):
     return self.client.put(
         "/user/update",
         data=json.dumps(dict(bio=data["bio"], avatar=data["avatar"])),
-        headers={"Authorization": "Bearer %s" % access_token},
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
