@@ -7,25 +7,25 @@ from zimmerman.tests.common_functions import register_user, login_user
 
 def get_comment(self, comment_public_id, access_token):
     return self.client.get(
-        "/comment/get/%s" % comment_public_id,
-        headers={"Authorization": "Bearer %s" % access_token},
+        f"/comment/get/{comment_public_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
 
 def create_comment(self, access_token, post_public_id):
     return self.client.post(
-        "/comment/create/%s" % post_public_id,
+        f"/comment/create/{post_public_id}",
         data=json.dumps(dict(content="Sample content")),
-        headers={"Authorization": "Bearer %s" % access_token},
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
 
 def delete_comment(self, access_token, comment_public_id):
     return self.client.delete(
-        "/comment/delete/%s" % comment_public_id,
-        headers={"Authorization": "Bearer %s" % access_token},
+        f"/comment/delete/{comment_public_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
@@ -34,16 +34,16 @@ def create_post(self, access_token):
     return self.client.post(
         "/post/create",
         data=json.dumps(dict(content="Sample content", image_id="")),
-        headers={"Authorization": "Bearer %s" % access_token},
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
 
 def update_comment(self, comment_public_id, access_token, data):
     return self.client.put(
-        "/comment/update/%s" % comment_public_id,
+        f"/comment/update/{comment_public_id}",
         data=json.dumps(dict(content=data["content"])),
-        headers={"Authorization": "Bearer %s" % access_token},
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 

@@ -7,8 +7,8 @@ from zimmerman.tests.common_functions import register_user, login_user
 
 def get_post(self, access_token, public_id):
     return self.client.get(
-        "/post/get/%s" % public_id,
-        headers={"Authorization": "Bearer %s" % access_token},
+        f"/post/get/{public_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
@@ -17,24 +17,24 @@ def create_post(self, access_token):
     return self.client.post(
         "/post/create",
         data=json.dumps(dict(content="Sample content", image_id="")),
-        headers={"Authorization": "Bearer %s" % access_token},
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
 
 def delete_post(self, access_token, public_id):
     return self.client.delete(
-        "/post/delete/%s" % public_id,
-        headers={"Authorization": "Bearer %s" % access_token},
+        f"/post/delete/{public_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
 
 def update_post(self, data, access_token, public_id):
     return self.client.put(
-        "/post/update/%s" % public_id,
+        f"/post/update/{public_id}",
         data=json.dumps(dict(content=data["content"])),
-        headers={"Authorization": "Bearer %s" % access_token},
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 

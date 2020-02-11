@@ -7,25 +7,25 @@ from zimmerman.tests.common_functions import register_user, login_user
 
 def get_reply(self, reply_public_id, access_token):
     return self.client.get(
-        "/reply/get/%s" % reply_public_id,
-        headers={"Authorization": "Bearer %s" % access_token},
+        f"/reply/get/{reply_public_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
 
 def create_reply(self, access_token, comment_id):
     return self.client.post(
-        "/reply/create/%s" % comment_id,
+        f"/reply/create/{comment_id}",
         data=json.dumps(dict(content="Sample content")),
-        headers={"Authorization": "Bearer %s" % access_token},
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
 
 def delete_reply(self, access_token, reply_public_id):
     return self.client.delete(
-        "/reply/delete/%s" % reply_public_id,
-        headers={"Authorization": "Bearer %s" % access_token},
+        f"/reply/delete/{reply_public_id}",
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
@@ -34,25 +34,25 @@ def create_post(self, access_token):
     return self.client.post(
         "/post/create",
         data=json.dumps(dict(content="Sample content", image_id="")),
-        headers={"Authorization": "Bearer %s" % access_token},
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
 
 def create_comment(self, access_token, post_public_id):
     return self.client.post(
-        "/comment/create/%s" % post_public_id,
+        f"/comment/create/{post_public_id}",
         data=json.dumps(dict(content="Sample content")),
-        headers={"Authorization": "Bearer %s" % access_token},
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
 
 def update_reply(self, access_token, reply_public_id, data):
     return self.client.put(
-        "/reply/update/%s" % reply_public_id,
+        f"/reply/update/{reply_public_id}",
         data=json.dumps(dict(content=data["content"])),
-        headers={"Authorization": "Bearer %s" % access_token},
+        headers={"Authorization": f"Bearer {access_token}"},
         content_type="application/json",
     )
 
