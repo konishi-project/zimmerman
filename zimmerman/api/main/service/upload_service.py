@@ -6,7 +6,7 @@ from hashlib import sha256
 from zimmerman.utils import Message, InternalErrResp
 from zimmerman.config import basedir
 
-STATIC_FOLDER_PATH = basedir + "/main/static/"
+STATIC_FOLDER_PATH = basedir + "/static/"
 
 
 def get_image(image, foldername):
