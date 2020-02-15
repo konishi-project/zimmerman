@@ -6,7 +6,6 @@ from zimmerman import db
 # Alias common SQLAlchemy names
 Column = db.Column
 Model = db.Model
-relationship = db.relationship
 
 
 class PostLike(Model):
