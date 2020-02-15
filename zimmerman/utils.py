@@ -16,3 +16,9 @@ def ErrResp(message, reason, code):
     err = Message(False, message)
     err["error_reason"] = reason
     return err, code
+
+
+def RouteAccessDenied():
+    err = Message(False, "You do not have enough permissions to access the route.")
+    err["error_reason"] = "access_denied"
+    return err, 401
