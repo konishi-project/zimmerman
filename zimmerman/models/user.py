@@ -22,6 +22,8 @@ class User(Model):
     username = Column(db.String(15), unique=True)
     password_hash = Column(db.String(255))
 
+    private = Column(db.Boolean, default=False)
+
     # Optional
     full_name = Column(db.String(50), nullable=True)
     bio = Column(db.String(150), nullable=True)
@@ -34,9 +36,9 @@ class User(Model):
     # Relationships
     notifications = relationship("Notification", backref="user")
 
-    posts = relationship("Post", backref="author", lazy=True)
-    comments = relationship("Comment", backref="author", lazy=True)
-    replies = relationship("Reply", backref="author", lazy=True)
+    posts = relationship("Post", backref="author", lazy="dynamic")
+    comments = relationship("Comment", backref="author", lazy="dynamic")
+    replies = relationship("Reply", backref="author", lazy="dynamic")
 
     post_likes = relationship("PostLike", backref="user")
     comment_likes = relationship("CommentLike", backref="user")
@@ -58,6 +60,15 @@ class User(Model):
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
+
+    # Checks if data can be accessed in relation with private mode.
+    def is_accessible(self, current_user_id):
+        # if user is private
+        if self.private:
+            # Check if current_user is in followers.
+            return False
+
+        return True
 
     def __repr__(self):
         return f"<User '{self.username}'>"

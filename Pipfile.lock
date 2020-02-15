@@ -166,10 +166,11 @@
         },
         "flask-restx": {
             "hashes": [
-                "sha256:bf9885bffe96ead2d5a7f53000a1d3562bf0cceca4f4a26c5d64d187aee12a25"
+                "sha256:641759fe7cba1cb073d15b4258b1b15840af8cffe6edbd0da3e6b61eae0a67a6",
+                "sha256:fe0845112014201d618c1b0f3e41fa5f818a17c1d9e3fb6600d4e2c2bbc76a42"
             ],
             "index": "pypi",
-            "version": "==0.1.0"
+            "version": "==0.1.1"
         },
         "flask-script": {
             "hashes": [
