@@ -36,9 +36,9 @@ class User(Model):
     # Relationships
     notifications = relationship("Notification", backref="user")
 
-    posts = relationship("Post", backref="author", lazy=True)
-    comments = relationship("Comment", backref="author", lazy=True)
-    replies = relationship("Reply", backref="author", lazy=True)
+    posts = relationship("Post", backref="author", lazy="dynamic")
+    comments = relationship("Comment", backref="author", lazy="dynamic")
+    replies = relationship("Reply", backref="author", lazy="dynamic")
 
     post_likes = relationship("PostLike", backref="user")
     comment_likes = relationship("CommentLike", backref="user")
