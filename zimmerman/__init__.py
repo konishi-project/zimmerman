@@ -12,7 +12,7 @@ from flask import Flask
 from .extensions import bcrypt, cors, db, jwt, limiter, ma
 
 # Import configuration
-from .config import config_by_name
+from config import config_by_name
 
 
 def create_app(config_name):
