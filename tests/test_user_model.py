@@ -1,4 +1,3 @@
-import unittest
 from uuid import uuid4
 from datetime import datetime
 from flask_jwt_extended import create_access_token

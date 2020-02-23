@@ -5,7 +5,6 @@ This module
 - Contains create_app()
 - Registers extensions
 """
-import logging
 from flask import Flask
 
 # Import extensions
