@@ -121,7 +121,3 @@ class TestPostBlueprint(BaseTestCase):
             self.assertEqual(get_post_response.status_code, 200)
             self.assertTrue(get_post_response_data["success"])
             self.assertEqual(original_content, received_content)
-
-
-if __name__ == "__main__":
-    unittest.main()

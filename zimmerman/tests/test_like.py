@@ -59,7 +59,3 @@ class TestLikeBlueprint(BaseTestCase):
             json.loads(unlike_response.data.decode())
 
             self.assertEqual(unlike_response.status_code, 200)
-
-
-if __name__ == "__main__":
-    unittest.main()

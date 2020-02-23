@@ -81,7 +81,3 @@ class TestFeedBlueprint(BaseTestCase):
             self.assertTrue(get_post_response_data["success"])
             self.assertFalse(info_array[0] is None)
             self.assertEqual(get_post_response.status_code, 200)
-
-
-if __name__ == "__main__":
-    unittest.main()

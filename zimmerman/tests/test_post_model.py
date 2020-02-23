@@ -38,7 +38,3 @@ class TestPostModel(BaseTestCase):
         db.session.commit()
 
         self.assertTrue(isinstance(post, Post))
-
-
-if __name__ == "__main__":
-    unittest.main()

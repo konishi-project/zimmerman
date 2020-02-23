@@ -61,7 +61,3 @@ class TestReplyModel(BaseTestCase):
         db.session.commit()
 
         self.assertTrue(isinstance(reply, Reply))
-
-
-if __name__ == "__main__":
-    unittest.main()

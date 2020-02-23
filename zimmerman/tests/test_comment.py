@@ -144,7 +144,3 @@ class TestCommentBlueprint(BaseTestCase):
             self.assertTrue(get_comment_response_data["success"])
             self.assertEqual(get_comment_response.status_code, 200)
             self.assertEqual(original_content, received_content)
-
-
-if __name__ == "__main__":
-    unittest.main()

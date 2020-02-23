@@ -95,7 +95,3 @@ class TestReplyBlueprint(BaseTestCase):
 
             self.assertTrue(delete_response_data["success"])
             self.assertEqual(delete_response.status_code, 200)
-
-
-if __name__ == "__main__":
-    unittest.main()

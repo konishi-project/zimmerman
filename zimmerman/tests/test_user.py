@@ -73,7 +73,3 @@ class TestAuthBlueprint(BaseTestCase):
             update_response_data = json.loads(update_response.data.decode())
 
             self.assertTrue(update_response_data["success"])
-
-
-if __name__ == "__main__":
-    unittest.main()

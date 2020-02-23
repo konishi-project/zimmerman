@@ -49,7 +49,3 @@ class TestCommentModel(BaseTestCase):
         db.session.commit()
 
         self.assertTrue(isinstance(comment, Comment))
-
-
-if __name__ == "__main__":
-    unittest.main()

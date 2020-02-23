@@ -28,7 +28,3 @@ class TestProductionConfig(TestCase):
 
     def test_app_is_production(self):
         self.assertTrue(app.config["DEBUG"] is False)
-
-
-if __name__ == "__main__":
-    unittest.main()
