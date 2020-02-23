@@ -42,5 +42,3 @@ class ProductionConfig(Config):
 
 
 config_by_name = dict(dev=DevelopmentConfig, test=TestingConfig, prod=ProductionConfig)
-
-key = Config.SECRET_KEY
