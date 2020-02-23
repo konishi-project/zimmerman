@@ -1,8 +1,7 @@
-import unittest
 import json
 
-from zimmerman.tests.base import BaseTestCase
-from zimmerman.tests.common_functions import register_user, login_user
+from tests.base import BaseTestCase
+from tests.common_functions import register_user, login_user
 
 
 def create_post(self, access_token):
@@ -81,7 +80,3 @@ class TestFeedBlueprint(BaseTestCase):
             self.assertTrue(get_post_response_data["success"])
             self.assertFalse(info_array[0] is None)
             self.assertEqual(get_post_response.status_code, 200)
-
-
-if __name__ == "__main__":
-    unittest.main()

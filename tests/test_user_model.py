@@ -1,11 +1,10 @@
-import unittest
 from uuid import uuid4
 from datetime import datetime
 from flask_jwt_extended import create_access_token
 
 from zimmerman import db
 from zimmerman.models.user import User
-from zimmerman.tests.base import BaseTestCase
+from tests.base import BaseTestCase
 
 
 class TestUserModel(BaseTestCase):
@@ -26,7 +25,3 @@ class TestUserModel(BaseTestCase):
         access_token = create_access_token(user.public_id)
         self.assertTrue(isinstance(access_token, str))
         self.assertEqual(len(user.public_id), 15)
-
-
-if __name__ == "__main__":
-    unittest.main()

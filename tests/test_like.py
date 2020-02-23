@@ -1,8 +1,7 @@
-import unittest
 import json
 
-from zimmerman.tests.base import BaseTestCase
-from zimmerman.tests.common_functions import register_user, login_user
+from tests.base import BaseTestCase
+from tests.common_functions import register_user, login_user
 
 
 def create_post(self, access_token):
@@ -59,7 +58,3 @@ class TestLikeBlueprint(BaseTestCase):
             json.loads(unlike_response.data.decode())
 
             self.assertEqual(unlike_response.status_code, 200)
-
-
-if __name__ == "__main__":
-    unittest.main()

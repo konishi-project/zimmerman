@@ -1,4 +1,5 @@
 import unittest
+from os import getenv
 
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
@@ -11,7 +12,7 @@ from zimmerman.api import main_bp
 
 # Create the application in development api.
 # We obviously want to change this to 'prod' in deployment.
-app = create_app("prod")
+app = create_app(getenv("FLASK_CONFIG") or "default")
 
 # Register main blueprint from API
 app.register_blueprint(main_bp)
@@ -35,7 +36,7 @@ def run():
 @manager.command
 def test():
     """ Runs Unit Tests """
-    tests = unittest.TestLoader().discover("zimmerman/tests", pattern="test*.py")
+    tests = unittest.TestLoader().discover("tests", pattern="test*.py")
     result = unittest.TextTestRunner(verbosity=2).run(tests)
     if result.wasSuccessful():
         return 0

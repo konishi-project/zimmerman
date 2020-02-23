@@ -1,8 +1,7 @@
-import unittest
 import json
 
-from zimmerman.tests.base import BaseTestCase
-from zimmerman.tests.common_functions import register_user, login_user
+from tests.base import BaseTestCase
+from tests.common_functions import register_user, login_user
 
 
 def get_comment(self, comment_public_id, access_token):
@@ -144,7 +143,3 @@ class TestCommentBlueprint(BaseTestCase):
             self.assertTrue(get_comment_response_data["success"])
             self.assertEqual(get_comment_response.status_code, 200)
             self.assertEqual(original_content, received_content)
-
-
-if __name__ == "__main__":
-    unittest.main()

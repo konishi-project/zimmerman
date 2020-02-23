@@ -4,7 +4,7 @@ from flask import current_app, url_for
 from hashlib import sha256
 
 from zimmerman.utils import Message, InternalErrResp
-from zimmerman.config import basedir
+from config import basedir
 
 STATIC_FOLDER_PATH = basedir + "/static/"
 

@@ -5,25 +5,18 @@ This module
 - Contains create_app()
 - Registers extensions
 """
-import logging
 from flask import Flask
 
 # Import extensions
 from .extensions import bcrypt, cors, db, jwt, limiter, ma
 
 # Import configuration
-from .config import config_by_name
+from config import config_by_name
 
 
 def create_app(config_name):
     app = Flask(__name__, static_url_path="/static")
     app.config.from_object(config_by_name[config_name])
-
-    logging.basicConfig(
-        filename="zimmerman.log",
-        level=logging.NOTSET,
-        format="%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s",
-    )
 
     register_extensions(app)
 

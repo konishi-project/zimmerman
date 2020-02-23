@@ -1,11 +1,10 @@
-import unittest
 from uuid import uuid4
 from datetime import datetime
 
 from zimmerman import db
 from zimmerman.models.user import User
 from zimmerman.models.content import Post
-from zimmerman.tests.base import BaseTestCase
+from tests.base import BaseTestCase
 
 
 class TestPostModel(BaseTestCase):
@@ -38,7 +37,3 @@ class TestPostModel(BaseTestCase):
         db.session.commit()
 
         self.assertTrue(isinstance(post, Post))
-
-
-if __name__ == "__main__":
-    unittest.main()

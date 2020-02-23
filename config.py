@@ -20,7 +20,7 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL", "sqlite:///" + os.path.join(basedir, "zimmerman.db")
+        "DATABASE_URL", "sqlite:///" + os.path.join(basedir, "zimmerman-dev.sqlite")
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -41,6 +41,9 @@ class ProductionConfig(Config):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
-config_by_name = dict(dev=DevelopmentConfig, test=TestingConfig, prod=ProductionConfig)
-
-key = Config.SECRET_KEY
+config_by_name = dict(
+    development=DevelopmentConfig,
+    testing=TestingConfig,
+    production=ProductionConfig,
+    default=DevelopmentConfig,
+)
