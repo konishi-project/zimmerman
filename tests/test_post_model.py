@@ -5,7 +5,7 @@ from datetime import datetime
 from zimmerman import db
 from zimmerman.models.user import User
 from zimmerman.models.content import Post
-from zimmerman.tests.base import BaseTestCase
+from tests.base import BaseTestCase
 
 
 class TestPostModel(BaseTestCase):

@@ -1,8 +1,8 @@
 import unittest
 import json
 
-from zimmerman.tests.base import BaseTestCase
-from zimmerman.tests.common_functions import register_user, login_user
+from tests.base import BaseTestCase
+from tests.common_functions import register_user, login_user
 
 
 def get_reply(self, reply_public_id, access_token):

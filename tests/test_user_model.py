@@ -5,7 +5,7 @@ from flask_jwt_extended import create_access_token
 
 from zimmerman import db
 from zimmerman.models.user import User
-from zimmerman.tests.base import BaseTestCase
+from tests.base import BaseTestCase
 
 
 class TestUserModel(BaseTestCase):
