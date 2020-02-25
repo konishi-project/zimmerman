@@ -6,3 +6,4 @@ migrations
 
 # Ignore sqlite development db.
 zimmerman/*.db
+.env
