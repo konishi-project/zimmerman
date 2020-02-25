@@ -47,6 +47,7 @@ PyJWT = "==1.7.1"
 SQLAlchemy = "==1.3.11"
 Werkzeug = "==0.16.0"
 flask-restx = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.8"
