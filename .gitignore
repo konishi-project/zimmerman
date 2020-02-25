@@ -5,5 +5,5 @@ zimmerman.log
 migrations
 
 # Ignore sqlite development db.
-zimmerman/*.db
+zimmerman-dev.sqlite
 .env
