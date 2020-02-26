@@ -4,6 +4,7 @@ from app import db, create_app
 
 class BaseTestCase(TestCase):
     """ Base Tests """
+
     def setUp(self):
         self.app = create_app("testing")
         self.app_context = self.app.app_context()
