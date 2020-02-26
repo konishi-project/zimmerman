@@ -1,29 +1,28 @@
+import unittest
+import os
 
 from flask import current_app
-from flask_testing import TestCase
+from app import create_app
+from config import basedir
 
-from manage import app
 
-
-class TestDevelopmentConfig(TestCase):
-    def create_app(self):
-        app.config.from_object("config.DevelopmentConfig")
-        return app
-
+class TestDevelopmentConfig(unittest.TestCase):
     def test_app_is_development(self):
+        """ Check if app is running in development mode """
+        app = create_app("development")
+
         self.assertFalse(app.config["SECRET_KEY"] == "GahNooSlaShLinUcks")
         self.assertTrue(app.config["DEBUG"])
         self.assertFalse(current_app is None)
-        # self.assertTrue(
-        #     app.config["SQLALCHEMY_DATABASE_URI"] == "DATABASE_URL",
-        #     "sqlite:///" + os.path.join(basedir, "zimmerman.db"),
-        # )
+        self.assertTrue(
+            app.config["SQLALCHEMY_DATABASE_URI"]
+            == "sqlite:///" + os.path.join(basedir, "zimmerman-dev.sqlite")
+        )
 
 
-class TestProductionConfig(TestCase):
-    def create_app(self):
-        app.config.from_object("config.ProductionConfig")
-        return app
-
+class TestProductionConfig(unittest.TestCase):
     def test_app_is_production(self):
+        """ Check if app is running in production mode"""
+        app = create_app("production")
+
         self.assertTrue(app.config["DEBUG"] is False)

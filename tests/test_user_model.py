@@ -1,27 +1,33 @@
-from uuid import uuid4
-from datetime import datetime
-from flask_jwt_extended import create_access_token
-
-from zimmerman import db
+from app import db
 from zimmerman.models.user import User
-from tests.base import BaseTestCase
+from zimmerman.models.schemas import UserSchema
+
+from tests.utils.base import BaseTestCase
 
 
 class TestUserModel(BaseTestCase):
-    def test_create_access_token(self):
-        """ Test for user model """
-        user = User(
-            public_id=str(uuid4().int)[:15],
-            email="email@test.com",
-            username="testUser",
-            full_name="Test User",
-            password="test1234",
-            joined_date=datetime.now(),
-        )
+    def test_password_setter(self):
+        u = User(password="cat")
 
-        db.session.add(user)
-        db.session.commit()
+        self.assertTrue(u.password_hash is not None)
 
-        access_token = create_access_token(user.public_id)
-        self.assertTrue(isinstance(access_token, str))
-        self.assertEqual(len(user.public_id), 15)
+    def test_no_password_getter(self):
+        u = User(password="penguin")
+
+        with self.assertRaises(AttributeError):
+            u.password
+
+    def test_password_salts_are_random(self):
+        u = User(password="penguin")
+        u2 = User(password="penguin")
+
+        self.assertTrue(u.password_hash != u2.password_hash)
+
+    def test_schema(self):
+        u = User(username="gentoo", password="penguin")
+        u_dump = UserSchema().dump(u)
+
+        self.assertTrue(u_dump["username"] == "gentoo")
+
+        with self.assertRaises(KeyError):
+            u_dump["password_hash"]
