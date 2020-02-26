@@ -42,7 +42,7 @@ class Auth:
                 resp["error_reason"] = "email_404"
                 return resp, 404
 
-            elif user and user.check_password(password):
+            elif user and user.verify_password(password):
                 user_schema = UserSchema()
                 user_info = user_schema.dump(user)
 

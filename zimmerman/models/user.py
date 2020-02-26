@@ -25,13 +25,13 @@ class User(Model):
     private = Column(db.Boolean, default=False)
 
     # Optional
-    full_name = Column(db.String(50), nullable=True)
-    bio = Column(db.String(150), nullable=True)
-    orientation = Column(db.String(30), nullable=True)
+    full_name = Column(db.String(50))
+    bio = Column(db.String(150))
+    orientation = Column(db.String(30))
 
     ## Media
-    profile_picture = Column(db.String(40), nullable=True)
-    background_cover = Column(db.String(40), nullable=True)
+    profile_picture = Column(db.String(40))
+    background_cover = Column(db.String(40))
 
     # Relationships
     notifications = relationship("Notification", backref="user")
@@ -58,8 +58,8 @@ class User(Model):
     def password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
 
-    def check_password(self, password):
-        return bcrypt.check_password_hash(self.password_hash, password)
+    def verify_password(self, password):
+        return bcrypt.verify_password_hash(self.password_hash, password)
 
     # Checks if data can be accessed in relation with private mode.
     def is_accessible(self, current_user_id):
