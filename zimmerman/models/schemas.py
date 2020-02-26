@@ -9,7 +9,20 @@ from .likes import PostLike
 
 class UserSchema(ma.ModelSchema):
     class Meta:
-        model = User
+        # Fields to expose
+        fields = (
+            "email",
+            "public_id",
+            "username",
+            "private",
+            "full_name",
+            "bio",
+            "orientation",
+            "profile_picture",
+            "background_cover",
+            "joined_date",
+            "roles",
+        )
 
 
 class NotificationSchema(ma.ModelSchema):

@@ -22,6 +22,7 @@ def create_app(config_name):
 
     # Register blueprint
     from .api import main_bp
+
     app.register_blueprint(main_bp)
 
     return app
