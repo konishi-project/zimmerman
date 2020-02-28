@@ -1,4 +1,3 @@
-from app import db
 from zimmerman.models.user import User
 from zimmerman.models.schemas import UserSchema
 

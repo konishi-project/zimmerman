@@ -14,7 +14,7 @@ class TestAuthBlueprint(BaseTestCase):
             username="test2020",
             full_name="Test User",
             password="test1234",
-            entry_key=current_app.config["ENTRY_KEY"]
+            entry_key=current_app.config["ENTRY_KEY"],
         )
 
         register_resp = register_user(self, data)
