@@ -14,12 +14,12 @@ class Post(Model):
     # Basic details
     id = Column(db.Integer, primary_key=True)
     public_id = Column(db.String(15))
-    owner_id = Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    owner_id = Column(db.Integer, db.ForeignKey("user.id"))
     creator_public_id = Column(db.String(15))
 
     # Post content and details
     content = Column(db.Text)
-    image_file = Column(db.String(40), default=None, nullable=True)
+    image_file = Column(db.String(40), default=None)
     status = Column(db.String(10), default="normal")
 
     created = Column(db.DateTime, default=datetime.utcnow)
@@ -33,7 +33,7 @@ class Post(Model):
     )
 
     def __repr__(self):
-        return f"<Post '{self.id}'>"
+        return f"<Post '{self.public_id}'>"
 
 
 class Comment(Model):
