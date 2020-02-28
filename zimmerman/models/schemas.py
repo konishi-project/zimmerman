@@ -9,6 +9,8 @@ from .likes import PostLike
 
 class UserSchema(ma.ModelSchema):
     class Meta:
+        model = User
+
         # Fields to expose
         fields = (
             "email",
@@ -20,6 +22,11 @@ class UserSchema(ma.ModelSchema):
             "orientation",
             "profile_picture",
             "background_cover",
+            "notifications",
+            "posts",
+            "comments",
+            "replies",
+            "post_likes",
             "joined_date",
             "roles",
         )
@@ -33,6 +40,20 @@ class NotificationSchema(ma.ModelSchema):
 class PostSchema(ma.ModelSchema):
     class Meta:
         model = Post
+
+        # Fields to expose
+        fields = (
+            "public_id",
+            "owner_id",
+            "creator_public_id",
+            "content",
+            "image_file",
+            "status",
+            "created",
+            "edited",
+            "likes",
+            "comments"
+        )
 
 
 class CommentSchema(ma.ModelSchema):
