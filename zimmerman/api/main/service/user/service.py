@@ -13,6 +13,7 @@ class UserService:
     @staticmethod
     def get_user_info(username):
         user = User.query.filter_by(username=username.lower()).first()
+
         if not user:
             resp = Message(False, "User not found!")
             return resp, 404
@@ -44,7 +45,7 @@ class UserService:
                     resp = Message(False, "Bio content is invalid!")
                     return resp, 403
 
-            if data["avatar"] is not None:
+            if data.get("avatar") is not None:
                 user.profile_picture = data["avatar"]
 
             # Commit the changes
