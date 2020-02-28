@@ -8,18 +8,11 @@ from ..upload_service import get_image
 user_schema = UserSchema()
 
 private_info = (
-    "password_hash",
-    "id",
-    "post_likes",
-    "comment_likes",
-    "reply_likes",
     "posts",
     "comments",
     "replies",
     "notifications",
 )
-
-unnecessary_info = ("password_hash", "id", "comment_likes", "reply_likes")
 
 
 def filter_author(user):
@@ -39,8 +32,6 @@ def filter_author(user):
 
 def load_info(user_obj):
     info = user_schema.dump(user_obj)
-    for i in unnecessary_info:
-        del info[i]
 
     # Add avatar
     info["avatar"] = (
