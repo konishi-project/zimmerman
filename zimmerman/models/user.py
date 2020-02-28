@@ -17,8 +17,8 @@ class User(Model):
 
     # Basic details
     id = Column(db.Integer, primary_key=True)
-    public_id = Column(db.String(15), unique=True)
-    email = Column(db.String(255), unique=True, nullable=False)
+    public_id = Column(db.String(15), unique=True, index=True)
+    email = Column(db.String(255), unique=True, index=True)
     username = Column(db.String(15), unique=True)
     password_hash = Column(db.String(255))
 
@@ -59,7 +59,7 @@ class User(Model):
         self.password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
 
     def verify_password(self, password):
-        return bcrypt.verify_password_hash(self.password_hash, password)
+        return bcrypt.check_password_hash(self.password_hash, password)
 
     # Checks if data can be accessed in relation with private mode.
     def is_accessible(self, current_user_id):
