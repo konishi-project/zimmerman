@@ -26,10 +26,10 @@ class Post(Model):
     edited = Column(db.Boolean, default=False)
 
     likes = relationship(
-        "PostLike", backref="post", cascade="all, delete-orphan", lazy=True
+        "PostLike", backref="post", cascade="all, delete-orphan", lazy="dynamic"
     )
     comments = relationship(
-        "Comment", backref="post", cascade="all, delete-orphan", lazy=True
+        "Comment", backref="post", cascade="all, delete-orphan", lazy="dynamic"
     )
 
     def __repr__(self):

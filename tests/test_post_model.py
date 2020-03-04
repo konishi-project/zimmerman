@@ -14,3 +14,5 @@ class TestPostModel(BaseTestCase):
         p_dump = PostSchema().dump(p)
 
         self.assertEquals(p_dump["content"], content)
+
+    # Add more tests.
